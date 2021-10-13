@@ -1,1 +1,4 @@
-compiled
+compiled/kernel*
+compiled/user*
+compiled/boot.exe
+compiled/boot.pdb
