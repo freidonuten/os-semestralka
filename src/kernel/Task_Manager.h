@@ -16,6 +16,12 @@ class Task_Manager final {
 		Process_Table process_table;
 		Thread_Table thread_table;
 
+		// helper methods
+		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
+		Thread_Control_Block& create_thread(const char* program, const kiv_hal::TRegisters& args);
+		Process_Control_Block& get_current_process();
+		Process_Control_Block& alloc_first_free();
+
 		// syscall impl
 		const kiv_os::NOS_Error clone(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error wait_for(kiv_hal::TRegisters& regs);
