@@ -34,3 +34,11 @@ void Thread_Control_Block::adopt(Process_Control_Block& parent) {
 	ppid = parent.get_pid();
 	parent.thread_insert(get_tid());
 }
+
+void Thread_Control_Block::register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler) {
+	signal_handlers.emplace(signal, handler);
+}
+
+void Thread_Control_Block::remove_signal_handle(const kiv_os::NSignal_Id signal) {
+	signal_handlers.erase(signal);
+}
