@@ -18,7 +18,8 @@ class Task_Manager final {
 
 		// helper methods
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
-		Thread_Control_Block& create_thread(const char* program, const kiv_hal::TRegisters& args);
+		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
+		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent);
 		Process_Control_Block& get_current_process();
 		Process_Control_Block& alloc_first_free();
 

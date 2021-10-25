@@ -61,30 +61,35 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 	return *process_slot;
 }
 
-Thread_Control_Block& Task_Manager::create_thread(const char* program, const kiv_hal::TRegisters& context) {
+const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent) {
+	// find empty thread slot
 	auto thread_slot = std::find_if(thread_table.begin(), thread_table.end(),
 		[](const auto& tcb) {
 			return tcb.get_state() == Execution_State::FREE;
 		}
 	);
-
-	if (thread_slot == thread_table.end()) {
+	if (thread_slot == thread_table.end()) { // no slot available
 		throw std::runtime_error("No empty thread slots are available");
 	}
 
-	const auto entry = TThread_Proc(GetProcAddress(User_Programs, program));
-	if (!program) {
+	// declare entry point
+	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
+	const auto entry = TThread_Proc(GetProcAddress(User_Programs, name_ptr));
+	if (!entry) {
 		throw std::runtime_error("Program not found");
 	}
 
-	thread_slot->allocate(entry, context);
+	// start the thread and assign it to parent process
+	thread_slot->allocate(entry, regs);
+	thread_slot->adopt(parent);
 
-	return *thread_slot;
+	return kiv_os::NOS_Error::Success;
+}
+
 }
 
 const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	// parse registers
-	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
 	// we might not need args at this point, it stays in the registers
 	// and executed process will interpret it on its own...?
 	//const auto args_ptr = reinterpret_cast<char*>(regs.rdi.r);
@@ -97,7 +102,8 @@ const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	process.fd_insert(stdin_handle);
 	process.fd_insert(stdout_handle);
 	process.set_cwd(get_current_process().get_cwd());
-	create_thread(name_ptr, regs).adopt(process);
+
+	create_thread(regs, process);
 
 	return NOS_Error::Success;
 }
