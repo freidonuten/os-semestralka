@@ -18,3 +18,8 @@ Thread_State Thread_Control_Block::get_state() const {
 bool Thread_Control_Block::is_current() const {
 	return std::this_thread::get_id() == instance.get_id();
 }
+void Thread_Control_Block::adopt(Process_Control_Block& parent) {
+	// FIXME: what if this is called twice?
+	ppid = parent.get_pid();
+	parent.thread_insert(get_tid());
+}
