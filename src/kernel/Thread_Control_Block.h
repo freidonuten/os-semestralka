@@ -3,14 +3,8 @@
 #include <thread>
 #include "../api/api.h"
 #include "Process_Control_Block.h"
+#include "State.h"
 
-
-enum class Thread_State {
-	FREE = 0,
-	BLOCKED,
-	READY,
-	RUNNING
-};
 
 class Thread_Control_Block final {
 private:
@@ -18,7 +12,7 @@ private:
 	uint32_t return_code;
 	kiv_hal::TRegisters context;
 	std::thread instance;
-	Thread_State state = Thread_State::FREE;
+	Execution_State state = Execution_State::FREE;
 	char** args; // null terminated strings?
 
 
@@ -26,7 +20,7 @@ public:
 
 	kiv_os::THandle get_tid() const;
 	kiv_os::THandle get_ppid() const;
-	Thread_State get_state() const;
+	Execution_State get_state() const;
 	bool is_current() const;
 
 	// TODO: state manipulation

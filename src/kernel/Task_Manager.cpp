@@ -47,7 +47,7 @@ Process_Control_Block& Task_Manager::get_current_process() {
 Process_Control_Block& Task_Manager::alloc_first_free() {
 	const auto process_slot = std::find_if(process_table.begin(), process_table.end(),
 		[](const auto& a) {
-			return a.get_state() == Process_State::FREE;
+			return a.get_state() == Execution_State::FREE;
 		}
 	);
 
@@ -64,7 +64,7 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 Thread_Control_Block& Task_Manager::create_thread(const char* program, const kiv_hal::TRegisters& context) {
 	auto thread_slot = std::find_if(thread_table.begin(), thread_table.end(),
 		[](const auto& tcb) {
-			return tcb.get_state() == Thread_State::FREE;
+			return tcb.get_state() == Execution_State::FREE;
 		}
 	);
 

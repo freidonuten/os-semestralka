@@ -11,7 +11,7 @@ kiv_os::THandle Thread_Control_Block::get_ppid() const {
 	return ppid;
 }
 
-Thread_State Thread_Control_Block::get_state() const {
+Execution_State Thread_Control_Block::get_state() const {
 	return state;
 }
 
@@ -21,7 +21,7 @@ bool Thread_Control_Block::is_current() const {
 
 void Thread_Control_Block::allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& context) {
 	instance = std::thread(entry, context); // this will throw system_error on failure
-	state = Thread_State::RUNNING;
+	state = Execution_State::RUNNING;
 }
 
 void Thread_Control_Block::adopt(Process_Control_Block& parent) {
