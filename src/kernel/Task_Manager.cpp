@@ -28,6 +28,22 @@ Task_Manager::Task_Manager()
 	}
 }
 
+Thread_Control_Block& Task_Manager::get_current_thread() {
+	const auto this_tid = Thread_Control_Block::get_tid_of(std::this_thread::get_id());
+	auto this_thread = std::find_if(thread_table.begin(), thread_table.end(),
+		[this_tid](const auto& thread) {
+			return thread.get_tid() == this_tid;
+		}
+	);
+	
+	// current thread doesn't exist, this is fatal
+	if (this_thread == thread_table.end()) {
+		throw std::runtime_error("Current thread doesn't exist, wtf!?");
+	}
+
+	return *this_thread;
+}
+
 Process_Control_Block& Task_Manager::get_current_process() {
 	// find thread instance with matching tid (linear search)
 	auto current_thread = std::find_if(thread_table.begin(), thread_table.end(),
