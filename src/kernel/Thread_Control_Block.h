@@ -24,6 +24,6 @@ public:
 	bool is_current() const;
 
 	// TODO: state manipulation
-	void allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& context);
+	void allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& regs);
 	void adopt(Process_Control_Block& parent);
 };

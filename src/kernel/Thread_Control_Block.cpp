@@ -19,7 +19,8 @@ bool Thread_Control_Block::is_current() const {
 	return std::this_thread::get_id() == instance.get_id();
 }
 
-void Thread_Control_Block::allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& context) {
+void Thread_Control_Block::allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& regs) {
+	context = regs;
 	instance = std::thread(entry, context); // this will throw system_error on failure
 	state = Execution_State::RUNNING;
 }
