@@ -86,6 +86,8 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 	return kiv_os::NOS_Error::Success;
 }
 
+const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
+	return create_thread(regs, get_current_process());
 }
 
 const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
@@ -116,7 +118,7 @@ const NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
 			case NClone::Create_Process:
 				return create_process(regs);
 			case NClone::Create_Thread:
-				return NOS_Error::Unknown_Error; // TODO implement
+				return create_thread(regs);
 			default:
 				return NOS_Error::Unknown_Error;
 				// TODO handle failure
