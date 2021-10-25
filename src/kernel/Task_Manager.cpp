@@ -92,9 +92,6 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
 
 const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	// parse registers
-	// we might not need args at this point, it stays in the registers
-	// and executed process will interpret it on its own...?
-	//const auto args_ptr = reinterpret_cast<char*>(regs.rdi.r);
 	const auto stdin_handle = static_cast<THandle>(regs.rbx.e >> 16);
 	const auto stdout_handle = static_cast<THandle>(regs.rbx.x);
 
