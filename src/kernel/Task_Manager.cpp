@@ -96,7 +96,7 @@ const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	const auto stdout_handle = static_cast<THandle>(regs.rbx.x);
 
 	// alloc process
-	auto process = alloc_first_free();
+	auto &process = alloc_first_free();
 
 	process.fd_insert(stdin_handle);
 	process.fd_insert(stdout_handle);
