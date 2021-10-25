@@ -120,8 +120,7 @@ const NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
 			case NClone::Create_Thread:
 				return create_thread(regs);
 			default:
-				return NOS_Error::Unknown_Error;
-				// TODO handle failure
+				return NOS_Error::Invalid_Argument;
 		}
 	}();
 
