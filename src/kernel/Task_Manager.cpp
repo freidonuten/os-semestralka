@@ -123,6 +123,20 @@ const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	return NOS_Error::Success;
 }
 
+const kiv_os::NOS_Error Task_Manager::register_signal_handler(kiv_hal::TRegisters& regs) {
+	const auto signal = static_cast<kiv_os::NSignal_Id>(regs.rcx.r);
+	const auto handler = reinterpret_cast<kiv_os::TThread_Proc>(regs.rdx.r);
+
+	auto &current_thread = get_current_thread();
+	if (!regs.rdx.r) {
+		current_thread.remove_signal_handle(signal);
+	} else {
+		current_thread.register_signal_handle(signal, handler);
+	}
+
+	return kiv_os::NOS_Error::Success;
+}
+
 const NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
 	const auto object_type = static_cast<NClone>(regs.rcx.l);
 
