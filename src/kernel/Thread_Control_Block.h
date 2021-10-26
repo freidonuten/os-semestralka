@@ -21,7 +21,7 @@ private:
 
 
 public:
-	static constexpr kiv_os::THandle get_tid_of(const std::thread::id system_id);
+	static kiv_os::THandle get_tid_of(const std::thread::id system_id);
 
 	kiv_os::THandle get_tid() const;
 	kiv_os::THandle get_ppid() const;

@@ -1,7 +1,7 @@
 #include "Thread_Control_Block.h"
 
 
-constexpr kiv_os::THandle Thread_Control_Block::get_tid_of(const std::thread::id system_id) {
+kiv_os::THandle Thread_Control_Block::get_tid_of(const std::thread::id system_id) {
 	return static_cast<kiv_os::THandle>( // cast because inspections are retarded
 		std::hash<std::thread::id>()(system_id)
 	);
