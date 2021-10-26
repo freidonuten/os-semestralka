@@ -20,6 +20,7 @@ class Task_Manager final {
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent);
+		Thread_Control_Block& get_current_thread();
 		Process_Control_Block& get_current_process();
 		Process_Control_Block& alloc_first_free();
 

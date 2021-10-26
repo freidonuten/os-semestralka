@@ -123,6 +123,21 @@ const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	return NOS_Error::Success;
 }
 
+const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
+	static const auto exit = [&regs](auto& object) {
+		object.exit(regs.rcx.x);
+	};
+
+	auto& process = get_current_process();
+	auto& thread = get_current_thread();
+	const auto kill_process = process.is_main_thread(thread.get_tid());
+
+	kill_process ? exit(process) : exit(thread);
+
+	// FIXME could exit possibly result in a failure?
+	return kiv_os::NOS_Error::Success;
+}
+
 const kiv_os::NOS_Error Task_Manager::register_signal_handler(kiv_hal::TRegisters& regs) {
 	const auto signal = static_cast<kiv_os::NSignal_Id>(regs.rcx.r);
 	const auto handler = reinterpret_cast<kiv_os::TThread_Proc>(regs.rdx.r);
