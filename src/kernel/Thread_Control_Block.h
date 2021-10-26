@@ -12,7 +12,7 @@ private:
 	using Signal_Handler_Table = std::unordered_map<kiv_os::NSignal_Id, kiv_os::TThread_Proc>;
 
 	kiv_os::THandle ppid; // parent process id
-	uint32_t return_code;
+	uint16_t exit_code;
 	kiv_hal::TRegisters context;
 	std::thread instance;
 	Execution_State state = Execution_State::FREE;
