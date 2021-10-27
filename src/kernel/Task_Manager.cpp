@@ -191,7 +191,7 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 	}
 
 	// all threads are working, initialize trigger
-	Trigger trigger{}; 
+	auto trigger = std::make_shared<Trigger>(); 
 
 	// insert trigger to each thread
 	std::for_each(handles_begin, handles_end,
@@ -201,7 +201,7 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 	);
 
 	// and now wait for trigger
-	trigger.wait();
+	trigger->wait();
 
 	if (!find_finished()) {
 		// if we're here, something fucked up real bad

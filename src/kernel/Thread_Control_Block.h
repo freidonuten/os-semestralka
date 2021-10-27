@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <unordered_map>
+#include <deque>
 #include "../api/api.h"
 #include "Process_Control_Block.h"
 #include "State.h"
@@ -19,6 +20,9 @@ private:
 	Execution_State state = Execution_State::FREE;
 	Signal_Handler_Table signal_handlers;
 	char** args; // null terminated strings?
+	
+	// Synchronization
+	std::deque<std::shared_ptr<Trigger>> exit_triggers;
 
 
 public:
@@ -35,5 +39,5 @@ public:
 	void register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler);
 	void remove_signal_handle(const kiv_os::NSignal_Id signal);
 	void exit(const uint16_t code);
-	void insert_exit_trigger(Trigger& trigger);
+	void insert_exit_trigger(std::shared_ptr<Trigger> trigger);
 };
