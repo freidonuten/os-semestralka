@@ -6,7 +6,7 @@
 
 class Trigger {
 private:
-	int8_t counter = 0;
+	bool triggered = false;
 
 	std::mutex mutex;
 	std::condition_variable condition;
@@ -18,17 +18,24 @@ public:
 
 
 void Trigger::signal() {
+	if (triggered) {
+		// listeners were notified already, just
+		// return without suffering mutex acquisition overhead...
+		return;
+	}
+
 	std::unique_lock<std::mutex> lock(mutex);
 
-	++counter;
+	// make this Trigger triggered
+	triggered = true;
 
+	// notify listeners about the state change
 	condition.notify_all();
 }
 
 void Trigger::wait() {
 	std::unique_lock<std::mutex> lock(mutex);
 
-	while (counter <= 0) {
-		condition.wait(lock);
-	}
+	// wait until Trigger gets triggered
+	condition.wait(lock, [this]() { return triggered; });
 }
