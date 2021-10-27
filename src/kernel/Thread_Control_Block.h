@@ -5,6 +5,7 @@
 #include "../api/api.h"
 #include "Process_Control_Block.h"
 #include "State.h"
+#include "Trigger.h"
 
 
 class Thread_Control_Block final {
@@ -34,4 +35,5 @@ public:
 	void register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler);
 	void remove_signal_handle(const kiv_os::NSignal_Id signal);
 	void exit(const uint16_t code);
+	void insert_exit_trigger(Trigger& trigger);
 };

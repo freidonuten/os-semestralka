@@ -5,6 +5,7 @@
 #include <thread>
 #include "..\api\api.h"
 #include "handles.h"
+#include "Trigger.h"
 #include "Task_Manager.h"
 
 #include "kernel.h"
@@ -170,6 +171,44 @@ const NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
 		}
 	}();
 
+}
+
+const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
+	const auto handles_begin = reinterpret_cast<kiv_os::THandle*>(regs.rdx.r);
+	const auto handles_end = handles_begin + regs.rcx.r;
+	const auto find_finished = [handles_begin, handles_end, &regs, this]() {
+		const auto finished_handle = std::find_if(handles_begin, handles_end,
+			[this](const auto handle) {
+				return get_thread(handle).get_state() == Execution_State::FINISHED;
+			}
+		);
+		regs.rax.x = static_cast<uint16_t>(finished_handle - handles_begin);
+		return finished_handle != handles_end;
+	};
+
+	if (find_finished()) {
+		return kiv_os::NOS_Error::Success;
+	}
+
+	// all threads are working, initialize trigger
+	Trigger trigger{}; 
+
+	// insert trigger to each thread
+	std::for_each(handles_begin, handles_end,
+		[this, &trigger](const auto handle) {
+			get_thread(handle).insert_exit_trigger(trigger);
+		}
+	);
+
+	// and now wait for trigger
+	trigger.wait();
+
+	if (find_finished()) {
+		// if we're here, something fucked up real bad
+		throw std::runtime_error("Process signaled but can't find signaling thread.");
+	}
+
+	return kiv_os::NOS_Error::Success;
 }
 
 void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
