@@ -13,6 +13,7 @@ class Task_Manager final {
 		using Process_Table = std::array<Process_Control_Block, constants::process_limit>;
 		using Thread_Table = std::array<Thread_Control_Block, constants::thread_limit>;
 
+		
 		Process_Table process_table;
 		Thread_Table thread_table;
 
@@ -21,6 +22,7 @@ class Task_Manager final {
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent);
 		Thread_Control_Block& get_current_thread();
+		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 		Process_Control_Block& get_current_process();
 		Process_Control_Block& alloc_first_free();
 
