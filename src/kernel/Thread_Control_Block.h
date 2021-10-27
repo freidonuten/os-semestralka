@@ -24,6 +24,7 @@ private:
 	// Synchronization
 	std::deque<std::shared_ptr<Trigger>> exit_triggers;
 
+	void perform_state_transition(const Execution_State new_state);
 
 public:
 	static kiv_os::THandle get_tid_of(const std::thread::id system_id);
