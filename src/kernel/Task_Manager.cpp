@@ -203,7 +203,7 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 	// and now wait for trigger
 	trigger.wait();
 
-	if (find_finished()) {
+	if (!find_finished()) {
 		// if we're here, something fucked up real bad
 		throw std::runtime_error("Process signaled but can't find signaling thread.");
 	}
