@@ -149,7 +149,7 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 		// FIXME synchronization needed?
 		const auto finished_handle = std::find_if(handles_begin, handles_end,
 			[this](const auto handle) {
-				return get_thread(handle).get_state() == Execution_State::FINISHED;
+				return kut::is_finished(get_thread(handle));
 			}
 		);
 		regs.rax.x = static_cast<uint16_t>(finished_handle - handles_begin);
