@@ -57,3 +57,15 @@ void Thread_Control_Block::remove_signal_handle(const kiv_os::NSignal_Id signal)
 void Thread_Control_Block::insert_exit_trigger(std::shared_ptr<Trigger> trigger) {
 	exit_triggers.push_back(trigger);
 }
+
+uint16_t Thread_Control_Block::read_exit_code()
+{
+	if (state != Execution_State::FINISHED) {
+		throw std::runtime_error("Read_exit_code called on running thread.");
+	}
+
+	state = Execution_State::FREE;
+	parent->thread_remove(get_tid());
+
+	return exit_code;
+}
