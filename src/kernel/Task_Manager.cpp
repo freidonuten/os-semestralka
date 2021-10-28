@@ -7,6 +7,7 @@
 #include "handles.h"
 #include "Trigger.h"
 #include "Task_Manager.h"
+#include "Kernel_Utils.h"
 
 #include "kernel.h"
 
@@ -177,6 +178,7 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 	const auto handles_begin = reinterpret_cast<kiv_os::THandle*>(regs.rdx.r);
 	const auto handles_end = handles_begin + regs.rcx.r;
 	const auto find_finished = [handles_begin, handles_end, &regs, this]() {
+		// FIXME synchronization needed?
 		const auto finished_handle = std::find_if(handles_begin, handles_end,
 			[this](const auto handle) {
 				return get_thread(handle).get_state() == Execution_State::FINISHED;
@@ -207,6 +209,25 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 		// if we're here, something fucked up real bad
 		throw std::runtime_error("Process signaled but can't find signaling thread.");
 	}
+
+	return kiv_os::NOS_Error::Success;
+}
+
+const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) {
+	const auto handle = static_cast<kiv_os::THandle>(regs.rdx.x);
+	const auto blocking_read = [this, &regs](const auto handle) {
+			auto& thread = get_thread(handle);
+
+			if (!kut::is_finished(thread)) {
+				auto trigger = std::make_shared<Trigger>();
+				thread.insert_exit_trigger(trigger);
+				trigger->wait();
+			}
+
+			regs.rcx.x = thread.read_exit_code();
+	};
+
+	blocking_read(kut::is_proc(handle) ? get_process(handle).get_tid() : handle);
 
 	return kiv_os::NOS_Error::Success;
 }

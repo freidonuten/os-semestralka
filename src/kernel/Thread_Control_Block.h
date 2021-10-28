@@ -41,4 +41,6 @@ public:
 	void remove_signal_handle(const kiv_os::NSignal_Id signal);
 	void exit(const uint16_t code);
 	void insert_exit_trigger(std::shared_ptr<Trigger> trigger);
+
+	uint16_t read_exit_code();
 };
