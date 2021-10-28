@@ -25,7 +25,7 @@ kiv_os::THandle Thread_Control_Block::get_tid() const {
 }
 
 kiv_os::THandle Thread_Control_Block::get_ppid() const {
-	return ppid;
+	return parent->get_pid();
 }
 
 Execution_State Thread_Control_Block::get_state() const {
@@ -44,8 +44,8 @@ void Thread_Control_Block::allocate(const kiv_os::TThread_Proc& entry, const kiv
 
 void Thread_Control_Block::adopt(Process_Control_Block& parent) {
 	// FIXME: what if this is called twice?
-	ppid = parent.get_pid();
-	parent.thread_insert(get_tid());
+	this->parent = &parent;
+	this->parent->thread_insert(get_tid());
 }
 
 void Thread_Control_Block::register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler) {

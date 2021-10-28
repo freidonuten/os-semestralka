@@ -13,7 +13,7 @@ class Thread_Control_Block final {
 private:
 	using Signal_Handler_Table = std::unordered_map<kiv_os::NSignal_Id, kiv_os::TThread_Proc>;
 
-	kiv_os::THandle ppid; // parent process id
+	Process_Control_Block* parent; // lifecycle is not managed here thus naked ptr
 	uint16_t exit_code;
 	kiv_hal::TRegisters context;
 	std::thread instance;
