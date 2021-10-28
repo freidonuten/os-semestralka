@@ -13,4 +13,9 @@ namespace kut {
 	constexpr bool is_finished(const T& object) {
 		return object.get_state() == Execution_State::FINISHED;
 	}
+
+	template<class T>
+	constexpr bool is_free(const T& object) {
+		return object.get_state() == Execution_State::FREE;
+	}
 }

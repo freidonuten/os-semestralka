@@ -43,10 +43,8 @@ Process_Control_Block& Task_Manager::get_current_process() {
 }
 
 Process_Control_Block& Task_Manager::alloc_first_free() {
-	const auto process_slot = std::find_if(process_table.begin(), process_table.end(),
-		[](const auto& a) {
-			return a.get_state() == Execution_State::FREE;
-		}
+	const auto process_slot = std::find_if(
+		process_table.begin(), process_table.end(), kut::is_free<Process_Control_Block>
 	);
 
 	// this is possibly fatal, we ran out of process slots
