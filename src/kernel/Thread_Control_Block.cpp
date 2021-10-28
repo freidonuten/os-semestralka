@@ -46,18 +46,6 @@ bool Thread_Control_Block::is_current() const {
 	return std::this_thread::get_id() == instance.get_id();
 }
 
-void Thread_Control_Block::allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& regs) {
-	context = regs;
-	instance = std::thread(entry, context); // this will throw system_error on failure
-	perform_state_transition(Execution_State::RUNNING);
-}
-
-void Thread_Control_Block::adopt(Process_Control_Block& parent) {
-	// FIXME: what if this is called twice?
-	this->parent = &parent;
-	this->parent->thread_insert(get_tid());
-}
-
 void Thread_Control_Block::register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler) {
 	signal_handlers.emplace(signal, handler);
 }

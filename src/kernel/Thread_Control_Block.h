@@ -34,9 +34,6 @@ public:
 	Execution_State get_state() const;
 	bool is_current() const;
 
-	// TODO: state manipulation
-	void allocate(const kiv_os::TThread_Proc& entry, const kiv_hal::TRegisters& regs);
-	void adopt(Process_Control_Block& parent);
 	explicit Thread_Control_Block() = delete;
 	explicit Thread_Control_Block(Process_Control_Block& parent, const kiv_os::TThread_Proc entry, const kiv_hal::TRegisters& state);
 
