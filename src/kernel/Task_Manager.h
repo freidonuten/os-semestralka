@@ -5,13 +5,14 @@
 #include "Process_Control_Block.h"
 #include "Thread_Control_Block.h"
 
+#include <unordered_map>
 #include <array>
 
 
 class Task_Manager final {
 	private:
 		using Process_Table = std::array<Process_Control_Block, constants::process_limit>;
-		using Thread_Table = std::array<Thread_Control_Block, constants::thread_limit>;
+		using Thread_Table = std::unordered_map<kiv_os::THandle, Thread_Control_Block>;
 
 		
 		Process_Table process_table;

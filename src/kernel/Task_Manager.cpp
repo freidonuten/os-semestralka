@@ -35,35 +35,11 @@ Thread_Control_Block& Task_Manager::get_current_thread() {
 }
 
 Thread_Control_Block& Task_Manager::get_thread(const kiv_os::THandle handle) {
-	auto thread = std::find_if(thread_table.begin(), thread_table.end(),
-		[handle](const auto& thread) {
-			return thread.get_tid() == handle;
-		}
-	);
-	
-	// current thread doesn't exist, this is fatal
-	if (thread == thread_table.end()) {
-		throw std::runtime_error("Current thread doesn't exist, wtf!?");
-	}
-
-	return *thread;
-
+	return thread_table.at(handle);
 }
 
 Process_Control_Block& Task_Manager::get_current_process() {
-	// find thread instance with matching tid (linear search)
-	auto current_thread = std::find_if(thread_table.begin(), thread_table.end(),
-		[](const auto& tcb) {
-			return tcb.is_current();
-		}
-	);
-
-	// this is fatal, just throw...
-	if (current_thread == thread_table.end()) {
-		throw std::runtime_error("Running proces doesn't exist?");
-	}
-
-	return process_table.at(current_thread->get_ppid());
+	return process_table.at(get_current_thread().get_ppid());
 }
 
 Process_Control_Block& Task_Manager::alloc_first_free() {
@@ -84,16 +60,6 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 }
 
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent) {
-	// find empty thread slot
-	auto thread_slot = std::find_if(thread_table.begin(), thread_table.end(),
-		[](const auto& tcb) {
-			return tcb.get_state() == Execution_State::FREE;
-		}
-	);
-	if (thread_slot == thread_table.end()) { // no slot available
-		throw std::runtime_error("No empty thread slots are available");
-	}
-
 	// declare entry point
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
 	const auto entry = TThread_Proc(GetProcAddress(User_Programs, name_ptr));
@@ -101,9 +67,13 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 		throw std::runtime_error("Program not found");
 	}
 
+	auto thread = Thread_Control_Block();
+
 	// start the thread and assign it to parent process
-	thread_slot->allocate(entry, regs);
-	thread_slot->adopt(parent);
+	thread.allocate(entry, regs);
+	thread.adopt(parent);
+
+	thread_table.emplace(thread.get_tid(), std::move(thread));
 
 	return kiv_os::NOS_Error::Success;
 }
@@ -224,10 +194,12 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 				trigger->wait();
 			}
 
-			regs.rcx.x = thread.read_exit_code();
+			return regs.rcx.x = thread.read_exit_code(), thread.get_tid();
 	};
 
-	blocking_read(kut::is_proc(handle) ? get_process(handle).get_tid() : handle);
+	thread_table.erase( // gc thread that had its exit code read
+		blocking_read(kut::is_proc(handle) ? get_process(handle).get_tid() : handle)
+	);
 
 	return kiv_os::NOS_Error::Success;
 }
