@@ -55,3 +55,7 @@ void Thread_Control_Block::register_signal_handle(const kiv_os::NSignal_Id signa
 void Thread_Control_Block::remove_signal_handle(const kiv_os::NSignal_Id signal) {
 	signal_handlers.erase(signal);
 }
+
+void Thread_Control_Block::insert_exit_trigger(std::shared_ptr<Trigger> trigger) {
+	exit_triggers.push_back(trigger);
+}
