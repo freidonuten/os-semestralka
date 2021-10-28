@@ -1,6 +1,16 @@
 #include "Thread_Control_Block.h"
 
 
+Thread_Control_Block::Thread_Control_Block(
+	Process_Control_Block& parent,
+	const kiv_os::TThread_Proc entry,
+	const kiv_hal::TRegisters& state
+) : parent(&parent), context(state)
+{
+	instance = std::thread(entry, context); // this will throw system_error on failure
+	perform_state_transition(Execution_State::RUNNING);
+	this->parent->thread_insert(get_tid());
+}
 void Thread_Control_Block::perform_state_transition(const Execution_State new_state) {
 	if (new_state == Execution_State::FINISHED) {
 		// If we are moving into zombie state, signal all exit triggers

@@ -65,11 +65,7 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 		throw std::runtime_error("Program not found");
 	}
 
-	auto thread = Thread_Control_Block();
-
-	// start the thread and assign it to parent process
-	thread.allocate(entry, regs);
-	thread.adopt(parent);
+	auto thread = Thread_Control_Block(parent, entry, regs);
 
 	thread_table.emplace(thread.get_tid(), std::move(thread));
 
