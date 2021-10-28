@@ -14,13 +14,6 @@
 
 extern HMODULE User_Programs;
 
-using kiv_os::NOS_Process;
-using kiv_os::NOS_Error;
-using kiv_os::TThread_Proc;
-using kiv_os::THandle;
-using kiv_os::NClone;
-
-
 Task_Manager::Task_Manager() 
 	: process_table{ }
 	, thread_table{ }
@@ -60,7 +53,7 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent) {
 	// declare entry point
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
-	const auto entry = TThread_Proc(GetProcAddress(User_Programs, name_ptr));
+	const auto entry = kiv_os::TThread_Proc(GetProcAddress(User_Programs, name_ptr));
 	if (!entry) {
 		throw std::runtime_error("Program not found");
 	}
@@ -76,10 +69,10 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
 	return create_thread(regs, get_current_process());
 }
 
-const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
+const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 	// parse registers
-	const auto stdin_handle = static_cast<THandle>(regs.rbx.e >> 16);
-	const auto stdout_handle = static_cast<THandle>(regs.rbx.x);
+	const auto stdin_handle = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
+	const auto stdout_handle = static_cast<kiv_os::THandle>(regs.rbx.x);
 
 	// alloc process
 	auto &process = alloc_first_free();
@@ -90,7 +83,7 @@ const NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
 
 	create_thread(regs, process);
 
-	return NOS_Error::Success;
+	return kiv_os::NOS_Error::Success;
 }
 
 const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
@@ -122,17 +115,17 @@ const kiv_os::NOS_Error Task_Manager::register_signal_handler(kiv_hal::TRegister
 	return kiv_os::NOS_Error::Success;
 }
 
-const NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
-	const auto object_type = static_cast<NClone>(regs.rcx.l);
+const kiv_os::NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
+	const auto object_type = static_cast<kiv_os::NClone>(regs.rcx.l);
 
 	return [object_type, &regs, this]() {
 		switch (object_type) {
-			case NClone::Create_Process:
+			case kiv_os::NClone::Create_Process:
 				return create_process(regs);
-			case NClone::Create_Thread:
+			case kiv_os::NClone::Create_Thread:
 				return create_thread(regs);
 			default:
-				return NOS_Error::Invalid_Argument;
+				return kiv_os::NOS_Error::Invalid_Argument;
 		}
 	}();
 
@@ -199,23 +192,23 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 }
 
 void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
-	const auto syscall_id = static_cast<NOS_Process>(regs.rax.l);
-	const auto return_code = [syscall_id, &regs, this]() -> NOS_Error {
+	const auto syscall_id = static_cast<kiv_os::NOS_Process>(regs.rax.l);
+	const auto return_code = [syscall_id, &regs, this]() -> kiv_os::NOS_Error {
 		switch (syscall_id) {
-			case NOS_Process::Clone:
+			case kiv_os::NOS_Process::Clone:
 				return clone(regs);
-			case NOS_Process::Wait_For:
+			case kiv_os::NOS_Process::Wait_For:
 				return wait_for(regs);
-			case NOS_Process::Read_Exit_Code:
+			case kiv_os::NOS_Process::Read_Exit_Code:
 				return read_exit_code(regs);
-			case NOS_Process::Exit:
+			case kiv_os::NOS_Process::Exit:
 				return exit(regs);
-			case NOS_Process::Shutdown:
+			case kiv_os::NOS_Process::Shutdown:
 				return shutdown(regs);
-			case NOS_Process::Register_Signal_Handler:
+			case kiv_os::NOS_Process::Register_Signal_Handler:
 				return register_signal_handler(regs);
 			default: // TODO handle failure (how?)
-				return NOS_Error::Unknown_Error;
+				return kiv_os::NOS_Error::Unknown_Error;
 		}
 	}();
 
