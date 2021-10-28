@@ -17,7 +17,7 @@ public:
 };
 
 
-void Trigger::signal() {
+inline void Trigger::signal() {
 	if (triggered) {
 		// listeners were notified already, just
 		// return without suffering mutex acquisition overhead...
@@ -33,7 +33,7 @@ void Trigger::signal() {
 	condition.notify_all();
 }
 
-void Trigger::wait() {
+inline void Trigger::wait() {
 	std::unique_lock<std::mutex> lock(mutex);
 
 	// wait until Trigger gets triggered
