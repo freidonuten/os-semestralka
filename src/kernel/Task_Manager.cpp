@@ -116,19 +116,14 @@ const kiv_os::NOS_Error Task_Manager::register_signal_handler(kiv_hal::TRegister
 }
 
 const kiv_os::NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
-	const auto object_type = static_cast<kiv_os::NClone>(regs.rcx.l);
+	switch (static_cast<kiv_os::NClone>(regs.rcx.l)) {
+		case kiv_os::NClone::Create_Process:
+			return create_process(regs);
+		case kiv_os::NClone::Create_Thread:
+			return create_thread(regs);
+	}
 
-	return [object_type, &regs, this]() {
-		switch (object_type) {
-			case kiv_os::NClone::Create_Process:
-				return create_process(regs);
-			case kiv_os::NClone::Create_Thread:
-				return create_thread(regs);
-			default:
-				return kiv_os::NOS_Error::Invalid_Argument;
-		}
-	}();
-
+	return kiv_os::NOS_Error::Invalid_Argument;
 }
 
 const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
