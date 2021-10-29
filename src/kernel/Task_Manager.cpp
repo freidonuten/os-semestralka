@@ -211,5 +211,8 @@ void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
 		}
 	}();
 
-	// TODO do something with the return code (what?)
+	// if there is an error, set carry and put erno into ax
+	regs.flags.carry = (return_code == kiv_os::NOS_Error::Success)
+		? false
+		: regs.rax.x = static_cast<uint16_t>(return_code), true;
 }
