@@ -206,9 +206,9 @@ void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
 				return shutdown(regs);
 			case kiv_os::NOS_Process::Register_Signal_Handler:
 				return register_signal_handler(regs);
-			default: // TODO handle failure (how?)
-				return kiv_os::NOS_Error::Unknown_Error;
 		}
+
+		return kiv_os::NOS_Error::Invalid_Argument;
 	}();
 
 	// if there is an error, set carry and put erno into ax
