@@ -93,9 +93,9 @@ const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
 
 	auto& process = get_current_process();
 	auto& thread = get_current_thread();
-	const auto kill_process = process.is_main_thread(thread.get_tid());
+	const auto exit_process = process.is_main_thread(thread.get_tid());
 
-	kill_process ? exit(process) : exit(thread);
+	exit_process ? exit(process) : exit(thread);
 
 	// FIXME could exit possibly result in a failure?
 	return kiv_os::NOS_Error::Success;
