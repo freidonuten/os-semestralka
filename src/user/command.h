@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#define INPUT_FOR_COMMAND "<"
-#define OUTPUT_FOR_COMMAND ">"
+constexpr std::string_view INPUT_FOR_COMMAND = "<";
+constexpr std::string_view OUTPUT_FOR_COMMAND = ">";
 
 class Command
 {
@@ -13,12 +13,14 @@ public:
     static std::vector<Command> parseInput(const std::string& input);
     static std::vector<Command> parseCommands(const std::vector<std::string>& commands);
     static Command parseCommand(std::string command);
-    std::string command_name;
+    std::string getParameters();
+    std::string commandName;
     std::vector<std::string> parameters;
-    std::string input_filename;
-    std::string output_filename;
-    bool redirect_pipe;
-    bool input;
-    bool output;
+    std::vector<std::string> specialParameters;
+    std::string inputFileName;
+    std::string outputFileName;
+    bool redirectPipe;
+    bool hasInputFile;
+    bool hasOutputFile;
 };
 

@@ -5,12 +5,12 @@
 #include <string>
 
 Command::Command() {
-    this->command_name = "";
-    this->input_filename = "";
-    this->output_filename = "";
-    this->redirect_pipe = false;
-    this->input = false;
-    this->output = false;
+    this->commandName = "";
+    this->inputFileName = "";
+    this->outputFileName = "";
+    this->redirectPipe = false;
+    this->hasInputFile = false;
+    this->hasOutputFile = false;
 }
 
 // Parse input command to single commands
@@ -36,12 +36,12 @@ std::vector<Command> Command::parseCommands(const std::vector<std::string>& comm
         if (command.empty())
             continue;
         Command newCommand = parseCommand(command);
-        if (newCommand.command_name.empty())
+        if (newCommand.commandName.empty())
             continue;
         if (!firstCommand) {
             firstCommand = true;
         } else {
-            newCommand.redirect_pipe = true;
+            newCommand.redirectPipe = true;
         }
         parsedCommands.push_back(newCommand);
     }
@@ -57,18 +57,24 @@ Command Command::parseCommand(std::string command) {
     if (!(stream >> token)) {
         return {};
     }
-    newCommand.command_name = token;
+    newCommand.commandName = token;
+    if (token.find("echo") != std::string::npos) {
+        if (token.rfind("@", 0) == 0) {
+            newCommand.commandName = "echo";
+            newCommand.specialParameters.push_back("@");
+        }
+    }
     token.clear();
     while (stream >> token) {
-        if (strcmp(token.c_str(), INPUT_FOR_COMMAND) == 0) {
+        if (strcmp(token.c_str(), INPUT_FOR_COMMAND.data()) == 0) {
             stream >> token;
-            newCommand.input = true;
-            newCommand.input_filename = token;
+            newCommand.hasInputFile = true;
+            newCommand.inputFileName = token;
         }
-        else if (strcmp(token.c_str(), OUTPUT_FOR_COMMAND) == 0) {
+        else if (strcmp(token.c_str(), OUTPUT_FOR_COMMAND.data()) == 0) {
             stream >> token;
-            newCommand.output = true;
-            newCommand.output_filename = token;
+            newCommand.hasOutputFile = true;
+            newCommand.outputFileName = token;
         }
         else {
             newCommand.parameters.push_back(token);
@@ -76,4 +82,15 @@ Command Command::parseCommand(std::string command) {
         token.clear();
     }
     return newCommand;
+}
+
+std::string Command::getParameters() {
+    std::string allParameters;
+    for (auto it = parameters.begin(); it != parameters.end(); it++) {
+        allParameters.append(*it);
+        if (it != parameters.end()) {
+            allParameters.append(" ");
+        }
+    }
+    return allParameters;
 }
