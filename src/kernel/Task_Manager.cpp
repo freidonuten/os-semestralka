@@ -192,7 +192,7 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 }
 
 void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
-	const auto return_code = [&regs, this]() -> kiv_os::NOS_Error {
+	const auto return_code = [&regs, this]() {
 		switch (static_cast<kiv_os::NOS_Process>(regs.rax.l)) {
 			case kiv_os::NOS_Process::Clone:
 				return clone(regs);
