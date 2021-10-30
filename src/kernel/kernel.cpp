@@ -2,9 +2,11 @@
 
 #include "kernel.h"
 #include "io.h"
+#include "Task_Manager.h"
 #include <Windows.h>
 
 HMODULE User_Programs;
+auto task_manager = Task_Manager();
 
 
 void Initialize_Kernel() {
@@ -16,15 +18,12 @@ void Shutdown_Kernel() {
 }
 
 void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
-
 	switch (static_cast<kiv_os::NOS_Service_Major>(regs.rax.h)) {
-	
 		case kiv_os::NOS_Service_Major::File_System:		
-			Handle_IO(regs);
-			break;
-
+			return Handle_IO(regs);
+		case kiv_os::NOS_Service_Major::Process:
+			return task_manager.syscall_dispatch(regs);
 	}
-
 }
 
 void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
