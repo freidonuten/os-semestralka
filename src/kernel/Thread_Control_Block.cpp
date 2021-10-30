@@ -10,7 +10,6 @@ Thread_Control_Block::Thread_Control_Block(
 {
 	instance = std::thread(entry, context); // this will throw system_error on failure
 	perform_state_transition(Execution_State::RUNNING);
-	this->parent->thread_insert(get_tid());
 }
 void Thread_Control_Block::perform_state_transition(const Execution_State new_state) {
 	if (new_state == Execution_State::FINISHED) {
