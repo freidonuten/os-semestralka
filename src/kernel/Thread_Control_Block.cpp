@@ -1,11 +1,12 @@
 #include "Thread_Control_Block.h"
+#include "Process_Control_Block.h"
 
 
 Thread_Control_Block::Thread_Control_Block(
 	Process_Control_Block& parent,
 	const kiv_os::TThread_Proc entry,
 	const kiv_hal::TRegisters& state
-) : parent(&parent), context(state)
+) : parent(parent), context(state)
 {
 	instance = std::thread(entry, context); // this will throw system_error on failure
 	perform_state_transition(Execution_State::RUNNING);
@@ -35,7 +36,7 @@ kiv_os::THandle Thread_Control_Block::get_tid() const {
 }
 
 kiv_os::THandle Thread_Control_Block::get_ppid() const {
-	return parent->get_pid();
+	return parent.get_pid();
 }
 
 Execution_State Thread_Control_Block::get_state() const {
@@ -65,7 +66,7 @@ uint16_t Thread_Control_Block::read_exit_code()
 	}
 
 	state = Execution_State::FREE;
-	parent->thread_remove(get_tid());
+	parent.thread_remove(get_tid());
 
 	return exit_code;
 }
