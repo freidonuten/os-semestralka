@@ -76,11 +76,7 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 }
 
 
-void Set_Error(const bool failed, kiv_hal::TRegisters &regs) {
-	if (failed) {
-		regs.flags.carry = true;
-		regs.rax.r = GetLastError();
-	}
-	else
-		regs.flags.carry = false;
+void Set_Error(const kiv_os::NOS_Error error, kiv_hal::TRegisters &regs) {
+	regs.flags.carry = (error != kiv_os::NOS_Error::Success);
+	regs.rax.r = static_cast<uint64_t>(error);
 }
