@@ -26,6 +26,7 @@ public:
 	explicit Process_Control_Block(const kiv_os::THandle pid);
 
 	const kiv_os::THandle get_pid() const;
+	const kiv_os::THandle get_tid() const;
 	const Execution_State get_state() const;
 	const char* get_cwd() const;
 	const bool is_main_thread(const kiv_os::THandle tid) const;

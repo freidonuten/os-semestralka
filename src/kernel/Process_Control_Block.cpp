@@ -14,6 +14,10 @@ const kiv_os::THandle Process_Control_Block::get_pid() const
 	return pid;
 }
 
+const kiv_os::THandle Process_Control_Block::get_tid() const {
+	return tid;
+}
+
 const Execution_State Process_Control_Block::get_state() const
 {
 	return state;
