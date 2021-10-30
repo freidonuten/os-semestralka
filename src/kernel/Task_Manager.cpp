@@ -8,6 +8,7 @@
 #include "Trigger.h"
 #include "Task_Manager.h"
 #include "Kernel_Utils.h"
+#include "Process_Control_Block.h"
 
 #include "kernel.h"
 
@@ -28,7 +29,7 @@ Thread_Control_Block& Task_Manager::get_current_thread() {
 }
 
 Thread_Control_Block& Task_Manager::get_thread(const kiv_os::THandle handle) {
-	return thread_table.at(handle);
+	return process_table.at(thread_table.at(handle)).get_thread(handle);
 }
 
 Process_Control_Block& Task_Manager::get_current_process() {
@@ -59,9 +60,7 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 		return kiv_os::NOS_Error::File_Not_Found;
 	}
 
-	auto thread = Thread_Control_Block(parent, entry, regs);
-
-	thread_table.emplace(thread.get_tid(), std::move(thread));
+	thread_table.emplace(parent.get_pid(), parent.thread_insert(entry, regs));
 
 	return kiv_os::NOS_Error::Success;
 }

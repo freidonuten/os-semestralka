@@ -4,11 +4,11 @@
 #include <unordered_map>
 #include <deque>
 #include "../api/api.h"
-#include "Process_Control_Block.h"
 #include "State.h"
 #include "Trigger.h"
 
 
+class Process_Control_Block;
 class Thread_Control_Block final {
 private:
 	using Signal_Handler_Table = std::unordered_map<kiv_os::NSignal_Id, kiv_os::TThread_Proc>;

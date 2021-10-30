@@ -1,12 +1,15 @@
 #pragma once
 
 #include <unordered_set>
+#include <unordered_map>
 #include "State.h"
+#include "../api/hal.h"
+#include "Thread_Control_Block.h"
 
 
 class Process_Control_Block final {
 private:
-	using Thread_Pool = std::unordered_set<kiv_os::THandle>;
+	using Thread_Pool = std::unordered_map<kiv_os::THandle, Thread_Control_Block>;
 	using FD_Pool = std::unordered_set<kiv_os::THandle>;
 	using Buffer = char[64]; // get rid of the magic number
 
@@ -27,7 +30,7 @@ public:
 	const char* get_cwd() const;
 	const bool is_main_thread(const kiv_os::THandle tid) const;
 	
-	void thread_insert(const kiv_os::THandle tid);
+	kiv_os::THandle thread_insert(const kiv_os::TThread_Proc entry_point, const kiv_hal::TRegisters& context);
 	void thread_remove(const kiv_os::THandle tid);
 	void fd_insert(const kiv_os::THandle fd);
 	void fd_remove(const kiv_os::THandle fd);
@@ -36,4 +39,5 @@ public:
 	void exit(const uint16_t code);
 
 	uint16_t read_exit_code();
+	Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 };

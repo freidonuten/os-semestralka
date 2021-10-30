@@ -12,7 +12,7 @@
 class Task_Manager final {
 	private:
 		using Process_Table = std::array<Process_Control_Block, constants::process_limit>;
-		using Thread_Table = std::unordered_map<kiv_os::THandle, Thread_Control_Block>;
+		using Thread_Table = std::unordered_map<kiv_os::THandle, kiv_os::THandle>;
 
 		
 		Process_Table process_table;
