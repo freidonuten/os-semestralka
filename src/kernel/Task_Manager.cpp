@@ -206,8 +206,5 @@ void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
 		return kiv_os::NOS_Error::Invalid_Argument;
 	}();
 
-	// if there is an error, set carry and put erno into ax
-	regs.flags.carry = (return_code == kiv_os::NOS_Error::Success)
-		? false
-		: regs.rax.x = static_cast<uint16_t>(return_code), true;
+	Set_Error(return_code, regs);
 }
