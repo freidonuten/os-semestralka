@@ -37,6 +37,5 @@ public:
 	void set_cwd(const char* buffer);
 	void exit(const uint16_t code);
 
-	uint16_t read_exit_code();
 	Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 };
