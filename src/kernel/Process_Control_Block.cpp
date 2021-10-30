@@ -59,6 +59,10 @@ kiv_os::THandle Process_Control_Block::thread_insert(
 	return tid;
 }
 
+void Process_Control_Block::signal(const kiv_os::NSignal_Id signal) {
+	thread_list.at(tid).signal(signal);
+}
+
 Thread_Control_Block& Process_Control_Block::get_thread(const kiv_os::THandle handle) {
 	return thread_list.at(handle);
 }
