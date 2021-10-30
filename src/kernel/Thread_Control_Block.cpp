@@ -11,6 +11,14 @@ Thread_Control_Block::Thread_Control_Block(
 	instance = std::thread(entry, context); // this will throw system_error on failure
 	perform_state_transition(Execution_State::RUNNING);
 }
+
+Thread_Control_Block::~Thread_Control_Block() {
+	if (instance.joinable()) {
+		// if native thread is still running at this point, kill it
+		instance.~thread();
+	}
+}
+
 void Thread_Control_Block::perform_state_transition(const Execution_State new_state) {
 	if (new_state == Execution_State::FINISHED) {
 		// If we are moving into zombie state, signal all exit triggers

@@ -36,6 +36,7 @@ public:
 
 	explicit Thread_Control_Block() = delete;
 	explicit Thread_Control_Block(Process_Control_Block& parent, const kiv_os::TThread_Proc entry, const kiv_hal::TRegisters& state);
+	~Thread_Control_Block();
 
 	void register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler);
 	void remove_signal_handle(const kiv_os::NSignal_Id signal);
