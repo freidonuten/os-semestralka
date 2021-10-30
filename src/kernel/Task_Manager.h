@@ -25,7 +25,7 @@ class Task_Manager final {
 		Thread_Control_Block& get_current_thread();
 		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 		Process_Control_Block& get_current_process();
-		Thread_Control_Block& get_process(const kiv_os::THandle handle);
+		Process_Control_Block& get_process(const kiv_os::THandle handle);
 		Process_Control_Block& alloc_first_free();
 
 		// syscall impl

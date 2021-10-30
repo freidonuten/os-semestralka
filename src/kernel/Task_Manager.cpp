@@ -33,7 +33,12 @@ Thread_Control_Block& Task_Manager::get_thread(const kiv_os::THandle handle) {
 }
 
 Process_Control_Block& Task_Manager::get_current_process() {
-	return process_table.at(get_current_thread().get_ppid());
+	return get_process(get_current_thread().get_ppid());
+}
+
+Process_Control_Block& Task_Manager::get_process(const kiv_os::THandle handle)
+{
+	return process_table.at(handle);
 }
 
 Process_Control_Block& Task_Manager::alloc_first_free() {
