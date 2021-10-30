@@ -62,6 +62,14 @@ void Thread_Control_Block::remove_signal_handle(const kiv_os::NSignal_Id signal)
 	signal_handlers.erase(signal);
 }
 
+void Thread_Control_Block::exit(const uint16_t exit_code) {
+	this->exit_code = exit_code;
+
+	perform_state_transition(Execution_State::FINISHED);
+
+	ExitThread(0);
+}
+
 void Thread_Control_Block::insert_exit_trigger(std::shared_ptr<Trigger> trigger) {
 	exit_triggers.push_back(trigger);
 }
