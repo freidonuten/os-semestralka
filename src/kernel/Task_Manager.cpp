@@ -54,8 +54,9 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 	// declare entry point
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
 	const auto entry = kiv_os::TThread_Proc(GetProcAddress(User_Programs, name_ptr));
+
 	if (!entry) {
-		throw std::runtime_error("Program not found");
+		return kiv_os::NOS_Error::File_Not_Found;
 	}
 
 	auto thread = Thread_Control_Block(parent, entry, regs);
