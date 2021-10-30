@@ -36,6 +36,7 @@ public:
 	void fd_insert(const kiv_os::THandle fd);
 	void fd_remove(const kiv_os::THandle fd);
 	void set_cwd(const char* buffer);
+	void allocate();
 	void exit(const uint16_t code);
 	void signal(const kiv_os::NSignal_Id signal);
 	void terminate();

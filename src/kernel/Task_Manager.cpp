@@ -51,6 +51,8 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 		throw std::runtime_error("Out of PCB slots");
 	}
 
+	process_slot->allocate();
+
 	return *process_slot;
 }
 
