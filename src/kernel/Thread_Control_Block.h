@@ -40,6 +40,7 @@ public:
 
 	void register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler);
 	void remove_signal_handle(const kiv_os::NSignal_Id signal);
+	void signal(const kiv_os::NSignal_Id signal);
 	void exit(const uint16_t exit_code);
 	void insert_exit_trigger(std::shared_ptr<Trigger> trigger);
 

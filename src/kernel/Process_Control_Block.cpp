@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Process_Control_Block.h"
 
 
@@ -71,4 +72,14 @@ void Process_Control_Block::thread_remove(const kiv_os::THandle tid) {
 
 	// otherwise just remove the thread
 	thread_list.erase(tid);
+}
+
+void Process_Control_Block::terminate() {
+	// let threads finish gracefully by signalling terminate
+	std::for_each(thread_list.begin(), thread_list.end(), [](auto& thread) {
+		thread.second.signal(kiv_os::NSignal_Id::Terminate);
+	});
+
+	// now bring the big hammer
+	thread_remove(tid);
 }

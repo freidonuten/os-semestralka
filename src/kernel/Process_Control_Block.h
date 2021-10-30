@@ -36,6 +36,7 @@ public:
 	void fd_remove(const kiv_os::THandle fd);
 	void set_cwd(const char* buffer);
 	void exit(const uint16_t code);
+	void terminate();
 
 	Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 };
