@@ -71,7 +71,7 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 		return kiv_os::NOS_Error::File_Not_Found;
 	}
 
-	thread_table.emplace(parent.get_pid(), parent.thread_insert(entry, regs));
+	thread_table.emplace(parent.thread_insert(entry, regs), parent.get_pid());
 
 	return kiv_os::NOS_Error::Success;
 }
