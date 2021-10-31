@@ -79,11 +79,8 @@ void Process_Control_Block::thread_remove(const kiv_os::THandle tid) {
 	thread_list.erase(tid);
 }
 
-void Process_Control_Block::allocate() {
-	if (state != Execution_State::FREE) {
-		throw std::runtime_error("Process double alloc!");
-	}
 
+void Process_Control_Block::allocate() {
 	state = Execution_State::READY;
 }
 
