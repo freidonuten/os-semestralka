@@ -12,16 +12,13 @@
 class Process_Control_Block;
 class Thread_Control_Block final {
 private:
-	using Signal_Handler_Table = std::unordered_map<kiv_os::NSignal_Id, kiv_os::TThread_Proc>;
-
 	const HANDLE native_handle;
 	union {
 		DWORD native_id;
 		kiv_os::THandle tid;
 	};
 	Process_Control_Block &parent;
-	uint16_t exit_code;
-	Signal_Handler_Table signal_handlers;
+	kiv_os::TThread_Proc signal_handler;
 	char** args; // null terminated strings?
 	
 
@@ -37,8 +34,7 @@ public:
 	explicit Thread_Control_Block() = delete;
 	explicit Thread_Control_Block(Process_Control_Block& parent, const kiv_os::TThread_Proc entry, const kiv_hal::TRegisters& state);
 
-	void register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler);
-	void remove_signal_handle(const kiv_os::NSignal_Id signal);
+	void register_signal_handle(const kiv_os::TThread_Proc handler = nullptr);
 	void signal(const kiv_os::NSignal_Id signal);
 	void exit(const uint16_t exit_code);
 

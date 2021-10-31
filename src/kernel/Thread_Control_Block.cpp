@@ -26,7 +26,6 @@ Thread_Control_Block::Thread_Control_Block(
 { }
 
 
-
 kiv_os::THandle Thread_Control_Block::current_tid() {
 	return static_cast<kiv_os::THandle>(GetCurrentThreadId());
 }
@@ -47,12 +46,16 @@ bool Thread_Control_Block::is_current() const {
 	return GetCurrentThreadId() == native_id;
 }
 
-void Thread_Control_Block::register_signal_handle(const kiv_os::NSignal_Id signal, const kiv_os::TThread_Proc handler) {
-	signal_handlers.emplace(signal, handler);
+void Thread_Control_Block::register_signal_handle(const kiv_os::TThread_Proc handler) {
+	signal_handler = handler;
 }
 
-void Thread_Control_Block::remove_signal_handle(const kiv_os::NSignal_Id signal) {
-	signal_handlers.erase(signal);
+void Thread_Control_Block::signal(const kiv_os::NSignal_Id signal) {
+	if (signal_handler) {
+		auto regs = kiv_hal::TRegisters{};
+		regs.rcx.r = static_cast<uint64_t>(signal);
+		signal_handler(regs);
+	}
 }
 
 void Thread_Control_Block::exit(const uint16_t exit_code) {
