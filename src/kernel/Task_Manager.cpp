@@ -114,6 +114,14 @@ const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
 	return kiv_os::NOS_Error::Success;
 }
 
+const kiv_os::NOS_Error Task_Manager::shutdown(kiv_hal::TRegisters& regs) {
+	std::for_each(process_table.begin(), process_table.end(), [](auto& process) {
+		process.terminate();
+	});
+
+	return kiv_os::NOS_Error::Success;
+}
+
 const kiv_os::NOS_Error Task_Manager::register_signal_handler(kiv_hal::TRegisters& regs) {
 	const auto signal = static_cast<kiv_os::NSignal_Id>(regs.rcx.r);
 	const auto handler = reinterpret_cast<kiv_os::TThread_Proc>(regs.rdx.r);
