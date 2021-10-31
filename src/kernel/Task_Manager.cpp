@@ -29,7 +29,13 @@ Thread_Control_Block& Task_Manager::get_current_thread() {
 }
 
 Thread_Control_Block& Task_Manager::get_thread(const kiv_os::THandle handle) {
-	return process_table.at(thread_table.at(handle)).get_thread(handle);
+	const auto resolve = [this](const auto tid) -> Thread_Control_Block& {
+		return process_table.at(thread_table.at(tid)).get_thread(tid);
+	};
+
+	return kut::is_proc(handle)
+		? resolve(get_process(handle).get_tid())
+		: resolve(handle);
 }
 
 Process_Control_Block& Task_Manager::get_current_process() {
