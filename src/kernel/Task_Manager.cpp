@@ -1,11 +1,9 @@
 ﻿#include <Windows.h>
-#include <functional>
 #include <algorithm>
 #include <stdexcept>
 #include <thread>
 #include "..\api\api.h"
 #include "handles.h"
-#include "Trigger.h"
 #include "Task_Manager.h"
 #include "Kernel_Utils.h"
 #include "Process_Control_Block.h"
