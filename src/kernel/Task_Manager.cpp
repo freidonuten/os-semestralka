@@ -53,7 +53,7 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 	);
 
 	// this is possibly fatal, we ran out of process slots
-	if (process_slot != process_table.cend()) {
+	if (process_slot == process_table.cend()) {
 		throw std::runtime_error("Out of PCB slots");
 	}
 
