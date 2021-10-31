@@ -59,11 +59,11 @@ void Thread_Control_Block::signal(const kiv_os::NSignal_Id signal) {
 }
 
 void Thread_Control_Block::exit(const uint16_t exit_code) {
-	ExitThread(this->exit_code = exit_code);
+	ExitThread(exit_code);
 }
 
 uint16_t Thread_Control_Block::read_exit_code() {
-	exit_code = static_cast<decltype(exit_code)>(WaitForSingleObject(native_handle, INFINITE));
+	const auto exit_code = static_cast<uint16_t>(WaitForSingleObject(native_handle, INFINITE));
 
 	parent.thread_remove(get_tid());
 
