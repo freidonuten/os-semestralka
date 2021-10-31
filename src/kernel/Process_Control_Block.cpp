@@ -52,8 +52,8 @@ kiv_os::THandle Process_Control_Block::thread_insert(
 	thread_list.insert(std::move(node));
 
 	// if this was the first thread, set state to running
-	if (state == Execution_State::FREE) {
-		state = Execution_State::RUNNING;
+	if (thread_list.size() == 1) {
+		this->tid = tid;
 	}
 
 	return tid;
