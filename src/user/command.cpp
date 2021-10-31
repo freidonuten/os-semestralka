@@ -5,92 +5,90 @@
 #include <string>
 
 Command::Command() {
-    this->commandName = "";
-    this->inputFileName = "";
-    this->outputFileName = "";
-    this->redirectPipe = false;
-    this->hasInputFile = false;
-    this->hasOutputFile = false;
+    this->command_name = "";
+    this->input_filename = "";
+    this->output_filename = "";
+    this->redirect_pipe = false;
+    this->has_input_file = false;
+    this->has_output_file = false;
 }
 
 // Parse input command to single commands
-std::vector<Command> Command::parseInput(std::string const& input) {
-    std::vector<std::string> commandsString;
+std::vector<Command> Command::Parse_Input(std::string const& input) {
+    std::vector<std::string> commands_string;
     std::vector<Command> commands;
     std::istringstream input_stream(input);
     std::string token;
-    bool firstCommand = false;
     while (std::getline(input_stream, token, '|')) {
-        commandsString.push_back(token);
+        commands_string.push_back(token);
     }
-    commands = parseCommands(commandsString);
-    
+    commands = Parse_Commands(commands_string);
     return commands;
 }
 
 // Parse single command to base command and parameters
-std::vector<Command> Command::parseCommands(const std::vector<std::string>& commands) {
-    std::vector<Command> parsedCommands;
-    bool firstCommand = false;
+std::vector<Command> Command::Parse_Commands(const std::vector<std::string>& commands) {
+    std::vector<Command> parsed_commands;
+    bool first_command = false;
     for (auto& command : commands) {
         if (command.empty())
             continue;
-        Command newCommand = parseCommand(command);
-        if (newCommand.commandName.empty())
+        Command new_command = Parse_Command(command);
+        if (new_command.command_name.empty())
             continue;
-        if (!firstCommand) {
-            firstCommand = true;
+        if (!first_command) {
+            first_command = true;
         } else {
-            newCommand.redirectPipe = true;
+            new_command.redirect_pipe = true;
         }
-        parsedCommands.push_back(newCommand);
+        parsed_commands.push_back(new_command);
     }
-    return parsedCommands;
+    return parsed_commands;
 }
 
-Command Command::parseCommand(std::string command) {
+Command Command::Parse_Command(std::string command) {
     const char* p_command = command.data();
     std::stringstream stream(p_command);
     std::string token;
     std::string filename;
-    Command newCommand;
+    Command new_command;
     if (!(stream >> token)) {
         return {};
     }
-    newCommand.commandName = token;
+    new_command.command_name = token;
     if (token.find("echo") != std::string::npos) {
         if (token.rfind("@", 0) == 0) {
-            newCommand.commandName = "echo";
-            newCommand.specialParameters.push_back("@");
+            new_command.command_name = "echo";
+            new_command.parameters.push_back("@");
         }
     }
     token.clear();
     while (stream >> token) {
         if (strcmp(token.c_str(), INPUT_FOR_COMMAND.data()) == 0) {
             stream >> token;
-            newCommand.hasInputFile = true;
-            newCommand.inputFileName = token;
+            new_command.has_input_file = true;
+            new_command.input_filename = token;
         }
         else if (strcmp(token.c_str(), OUTPUT_FOR_COMMAND.data()) == 0) {
             stream >> token;
-            newCommand.hasOutputFile = true;
-            newCommand.outputFileName = token;
+            new_command.has_output_file = true;
+            new_command.output_filename = token;
         }
         else {
-            newCommand.parameters.push_back(token);
+            new_command.parameters.push_back(token);
         }
         token.clear();
     }
-    return newCommand;
+    return new_command;
 }
 
-std::string Command::getParameters() {
-    std::string allParameters;
+std::string Command::Get_Parameters() {
+    std::string all_parameters;
     for (auto it = parameters.begin(); it != parameters.end(); it++) {
-        allParameters.append(*it);
+        all_parameters.append(*it);
         if (it != parameters.end()) {
-            allParameters.append(" ");
+            all_parameters.append(" ");
         }
     }
-    return allParameters;
+    return all_parameters;
 }

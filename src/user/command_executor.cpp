@@ -8,99 +8,46 @@
 #include <map>
 
 void cd(const std::string & path, kiv_os::THandle out) {
-	bool isSetDir = kiv_os_rtl::Set_Working_Dir(path);
-	if (!isSetDir) {
+	bool is_set_dir = kiv_os_rtl::Set_Working_Dir(path);
+	if (!is_set_dir) {
 		size_t chars = 0;
 		kiv_os_rtl::Write_File(out, ERROR_MSG_DIR_NOT_FOUND.data(), ERROR_MSG_DIR_NOT_FOUND.size(), chars);
 	}
 }
 
-void CommandExecutor::executeCommand(std::vector<Command> commands, const kiv_os::THandle& stdinHandle, const kiv_os::THandle& stdoutHandle) {
-	std::map<size_t, kiv_os::THandle> inPipes;
-	std::map<size_t, kiv_os::THandle> outPipes;
+void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
+	std::map<size_t, kiv_os::THandle> in_pipes;
+	std::map<size_t, kiv_os::THandle> out_pipes;
 	std::vector<kiv_os::THandle> handles;
-	size_t commandCounter = 0;
-	
-
-	if (!validCommands(commands)) {
-		size_t counter = 0;
-		kiv_os_rtl::Write_File(stdinHandle, ERROR_MSG_INVALID_COMMAND.data(), ERROR_MSG_INVALID_COMMAND.size(), counter);
-		return;
-	}
+	size_t command_counter = 0;
 
 	for (Command command : commands) {
-		kiv_os::THandle processHandle;
-		kiv_os::THandle pipeHandles[2];
-		kiv_os::THandle handleIn = stdinHandle;
-		kiv_os::THandle handleOut = stdoutHandle;
-		if (command.hasInputFile) {
-			kiv_os_rtl::Open_File(command.inputFileName, kiv_os::NFile_Attributes::System_File, kiv_os::NOpen_File::fmOpen_Always, handleIn);
+		kiv_os::THandle process_handle;
+		kiv_os::THandle pipe_handles[2];
+		kiv_os::THandle handle_in = stdin_handle;
+		kiv_os::THandle handle_out = stdout_handle;
+		if (command.has_input_file) {
+			kiv_os_rtl::Open_File(command.input_filename, kiv_os::NFile_Attributes::System_File, kiv_os::NOpen_File::fmOpen_Always, handle_in);
 		}
 
-		if (command.hasOutputFile) {
-			kiv_os_rtl::Open_File(command.outputFileName, kiv_os::NFile_Attributes::System_File, static_cast<kiv_os::NOpen_File>(0), handleOut);
+		if (command.has_output_file) {
+			kiv_os_rtl::Open_File(command.output_filename, kiv_os::NFile_Attributes::System_File, static_cast<kiv_os::NOpen_File>(0), handle_out);
 		}
 
-		if (command.redirectPipe) {
-			kiv_os_rtl::Create_Pipe(pipeHandles);
-			inPipes.insert(std::pair<size_t, kiv_os::THandle>(commandCounter, pipeHandles[0]));
-			outPipes.insert(std::pair<size_t, kiv_os::THandle>(commandCounter, pipeHandles[1]));
-			handleOut = pipeHandles[1];
+		if (command.redirect_pipe) {
+			kiv_os_rtl::Create_Pipe(pipe_handles);
+			in_pipes.insert(std::pair<size_t, kiv_os::THandle>(command_counter, pipe_handles[0]));
+			out_pipes.insert(std::pair<size_t, kiv_os::THandle>(command_counter, pipe_handles[1]));
+			handle_out = pipe_handles[1];
 		}
 
 		//?????
-		if ((commandCounter > 0) && (inPipes.find(commandCounter - 1) != inPipes.end())) {
-			handleIn = pipeHandles[commandCounter - 1];
+		if ((command_counter > 0) && (in_pipes.find(command_counter - 1) != in_pipes.end())) {
+			handle_in = pipe_handles[command_counter - 1];
 		}
 
-		kiv_os_rtl::Create_Process(command.commandName, command.getParameters(), handleIn, handleOut, processHandle);
-		handles.push_back(processHandle);
-		commandCounter++;
+		kiv_os_rtl::Create_Process(command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle);
+		handles.push_back(process_handle);
+		command_counter++;
 	}
-}
-
-bool CommandExecutor::validCommands(std::vector<Command> commands) {
-	bool returnCode = true;
-	std::for_each(commands.begin(), commands.end(), [=, &returnCode](Command command) -> void {
-		if (!(std::find(allCommands.begin(), allCommands.end(), command.commandName) != allCommands.end())) {
-			//TODO vymazat
-			//std::cout << "Command dont exist: " << command.command_name;
-			returnCode = false;
-			return;
-		} else if (command.hasInputFile && command.inputFileName.empty()) {
-			//TODO vymazat
-			//std::cout << "Command miss input: " << command.command_name;
-			returnCode = false;
-			return;
-		} else if (command.hasOutputFile && command.outputFileName.empty()) {
-			//TODO vymazat
-			//std::cout << "Command miss output: " << command.command_name;
-			returnCode = false;
-			return;
-		} else if (!validCommand(command)) {
-			//TODO vymazat
-			//std::cout << "input/output filename: " << command.command_name;
-			returnCode = false;
-			return;
-		}});
-	return returnCode;
-}
-
-bool CommandExecutor::validCommand(const Command& command) {
-	const bool input = validFileName(command.inputFileName);
-	const bool output = validFileName(command.outputFileName);
-	return (input & output);
-}
-
-bool CommandExecutor::validFileName(const std::string& filename) {
-	if (!filename.empty()) {
-		if (filename == INPUT_FOR_COMMAND || filename == OUTPUT_FOR_COMMAND) {
-			return false;
-		}
-		else {
-			bool matched = std::regex_match(filename, fileNameRegex);
-			return !matched;
-		}
-	}
-	return true;
 }

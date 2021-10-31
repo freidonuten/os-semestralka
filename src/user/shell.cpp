@@ -6,16 +6,16 @@
 #include <string>
 #include <vector>
 
-size_t printNewLinePrompt(const kiv_os::THandle& stdinHandle, const kiv_os::THandle& stdoutHandle) {
+size_t printNewLinePrompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
 	std::string currentDir = "";
 	size_t currentDirSize = currentDir.size();
 	size_t counter = 0;
 	kiv_os_rtl::Get_Working_Dir(currentDir, currentDirSize, counter);
 
 	// Zapis do konzole C:\>
-	kiv_os_rtl::Write_File(stdinHandle, prompt.data(), prompt.size(), counter);
-	kiv_os_rtl::Write_File(stdinHandle, beak.data(), beak.size(), counter);
-	kiv_os_rtl::Write_File(stdinHandle, currentDir.data(), currentDir.size(), counter);
+	kiv_os_rtl::Write_File(stdout_handle, prompt.data(), prompt.size(), counter);
+	kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
+	kiv_os_rtl::Write_File(stdout_handle, currentDir.data(), currentDir.size(), counter);
 	return counter;
 }
 
@@ -25,9 +25,9 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 	const size_t buffer_size = 256;
 	char buffer[buffer_size];
 	size_t counter;
-	kiv_os_rtl::Write_File(std_out, welcomeText.data(), welcomeText.size(), counter);
+	kiv_os_rtl::Write_File(std_out, welcome_text.data(), welcome_text.size(), counter);
 	std::vector<Command> commands;
-	CommandExecutor commandExecutor;
+	CommandExecutor command_executor;
 
 	// Console loop
 	while(1) {
@@ -38,14 +38,14 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 			buffer[counter] = 0;	//udelame z precteneho vstup null-terminated retezec
 
 			std::string input_command(buffer);
-			commands = Command::parseInput(input_command);
+			commands = Command::Parse_Input(input_command);
 
 			// Kontrola zda byl zadan nejaky prikaz
 			if (!commands.size()) {
-				kiv_os_rtl::Write_File(std_out, newLine.data(), newLine.size(), counter);
+				kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
 				continue;
 			}
-			commandExecutor.executeCommand(commands, std_in, std_out);
+			command_executor.Execute_Command(commands, std_in, std_out);
 			
 			if (strcmp(buffer, "exit") == 0) {
 				break;
@@ -57,7 +57,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 			kiv_os_rtl::Write_File(std_out, new_line, strlen(new_line), counter);
 			*/
 		}
-		kiv_os_rtl::Write_File(std_out, newLine.data(), newLine.size(), counter);
+		kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
 		commands.clear();
 	}
 	return 0;	

@@ -8,10 +8,5 @@
 
 class CommandExecutor {
 public:
-	void executeCommand(std::vector<Command> commands, const kiv_os::THandle &stdinHandle, const kiv_os::THandle &stdoutHandle);
-	bool validCommands(std::vector<Command> commands);
-
-private:
-	bool validCommand(const Command &command);
-	bool validFileName(const std::string &filename);
+	void Execute_Command(std::vector<Command> commands, const kiv_os::THandle &stdin_handle, const kiv_os::THandle &stdout_handle);
 };

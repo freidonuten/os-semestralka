@@ -52,131 +52,131 @@ bool kiv_os_rtl::Open_File(const std::string& filename, kiv_os::NFile_Attributes
 	regs.rdx.r = reinterpret_cast<uint64_t>(filename.data());
 	regs.rcx.r = static_cast<uint64_t>(flags);
 	regs.rdi.r = static_cast<uint64_t>(attributes);
-	const bool exitCode = kiv_os::Sys_Call(regs);
+	const bool exit_code = kiv_os::Sys_Call(regs);
 	open = regs.rax.x;
-	return exitCode;
+	return exit_code;
 }
 
-bool kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek newPosition, size_t &position) {
+bool kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek new_position, size_t &position) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Seek));
 	regs.rdx.x = handle;
 	regs.rdi.r = position;
 	regs.rcx.l = static_cast<uint8_t>(operation);
 
 	if (operation == kiv_os::NFile_Seek::Set_Position) {
-		regs.rcx.x = static_cast<uint16_t>(newPosition);
+		regs.rcx.x = static_cast<uint16_t>(new_position);
 	}
 	
-	const bool exitCode = kiv_os::Sys_Call(regs);
+	const bool exit_code = kiv_os::Sys_Call(regs);
 	
 	if (operation == kiv_os::NFile_Seek::Get_Position) {
 		position = regs.rax.x;
 	}
-	return exitCode;
+	return exit_code;
 }
 
 bool kiv_os_rtl::Close_Handle(kiv_os::THandle handle) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Close_Handle));
 	regs.rdx.x = handle;
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }
 
-bool kiv_os_rtl::Delete_File(const std::string &fileName) {
+bool kiv_os_rtl::Delete_File(const std::string &filename) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Delete_File));
-	regs.rdx.r = reinterpret_cast<uint64_t>(fileName.data());
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	regs.rdx.r = reinterpret_cast<uint64_t>(filename.data());
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }
 
 bool kiv_os_rtl::Set_Working_Dir(const std::string &path) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Set_Working_Dir));
 	regs.rdx.r = reinterpret_cast<uint64_t>(path.data());
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }
 
-bool kiv_os_rtl::Get_Working_Dir(const std::string &fileName, const size_t fileNameLenght, size_t &charsWritten) {
+bool kiv_os_rtl::Get_Working_Dir(const std::string &fileName, const size_t filename_lenght, size_t &chars_written) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Get_Working_Dir));
 	regs.rdx.r = reinterpret_cast<uint64_t>(fileName.data());
-	regs.rcx.r = static_cast<uint64_t>(fileNameLenght);
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	charsWritten = regs.rax.r;
-	return exitCode;
+	regs.rcx.r = static_cast<uint64_t>(filename_lenght);
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	chars_written = regs.rax.r;
+	return exit_code;
 }
 
 bool kiv_os_rtl::Create_Pipe(kiv_os::THandle *handles) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Create_Pipe));
 	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }
 
 /*
 	PROCESS
 */
 
-bool kiv_os_rtl::Create_Process(const std::string &name, const std::string &arguments, kiv_os::THandle handleStdin, kiv_os::THandle handleStdout, kiv_os::THandle &newProcess) {
+bool kiv_os_rtl::Create_Process(const std::string &name, const std::string &arguments, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle & new_process) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Clone));
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Process);
 	regs.rdx.r = reinterpret_cast<uint64_t>(name.data());
 	regs.rdi.r = reinterpret_cast<uint64_t>(arguments.data());
-	regs.rbx.e = (handleStdin << 16) | handleStdout;
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	newProcess = regs.rax.x;
-	return exitCode;
+	regs.rbx.e = (handle_stdin << 16) | handle_stdout;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	new_process = regs.rax.x;
+	return exit_code;
 }
 
-bool kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handleStdin, kiv_os::THandle handleStdout, kiv_os::THandle &newProcess) {
+bool kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle &new_process) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Clone));
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Thread);
 	regs.rdx.r = reinterpret_cast<uint64_t>(name);
 	regs.rdi.r = reinterpret_cast<uint64_t>(data);
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	newProcess = static_cast<kiv_os::THandle>(regs.rax.r);
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	new_process = static_cast<kiv_os::THandle>(regs.rax.r);
+	return exit_code;
 }
 
-bool kiv_os_rtl::Wait_For(kiv_os::THandle *handles, const size_t countHandles, kiv_os::THandle &index) {
+bool kiv_os_rtl::Wait_For(kiv_os::THandle *handles, const size_t count_handles, kiv_os::THandle &index) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Wait_For));
 	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
-	regs.rcx.r = static_cast<uint64_t>(countHandles);
-	const bool exitCode = kiv_os::Sys_Call(regs);
+	regs.rcx.r = static_cast<uint64_t>(count_handles);
+	const bool exit_code = kiv_os::Sys_Call(regs);
 	index = static_cast<kiv_os::THandle>(regs.rax.r);
-	return exitCode;
+	return exit_code;
 }
 
-bool kiv_os_rtl::Read_Exit_Code(const kiv_os::THandle handle, uint16_t &readedExitCode) {
+bool kiv_os_rtl::Read_Exit_Code(const kiv_os::THandle handle, uint16_t &readed_exit_code) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Read_Exit_Code));
 	regs.rdx.x = handle;
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	readedExitCode = regs.rcx.x;
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	readed_exit_code = regs.rcx.x;
+	return exit_code;
 }
 
-bool kiv_os_rtl::Exit(uint16_t &exitProcessThreadCode) {
+bool kiv_os_rtl::Exit(uint16_t &exit_process_thread_code) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Exit));
-	regs.rcx.x = exitProcessThreadCode;
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	regs.rcx.x = exit_process_thread_code;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }
 
 bool kiv_os_rtl::Shutdown() {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Shutdown));
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }
 
-bool kiv_os_rtl::Register_Signal_Handler(kiv_os::NSignal_Id signalId, kiv_os::TThread_Proc threadProc) {
+bool kiv_os_rtl::Register_Signal_Handler(kiv_os::NSignal_Id signalId, kiv_os::TThread_Proc thread_proc) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Register_Signal_Handler));
 	regs.rcx.r = static_cast<uint64_t>(signalId);
 
-	if (threadProc != 0) {
-		regs.rdx.r = reinterpret_cast<uint64_t>(threadProc);
+	if (thread_proc != 0) {
+		regs.rdx.r = reinterpret_cast<uint64_t>(thread_proc);
 	} else {
 		regs.rdx.r = reinterpret_cast<uint64_t>(Default_Signal_Handler);
 
 	}
-	const bool exitCode = kiv_os::Sys_Call(regs);
-	return exitCode;
+	const bool exit_code = kiv_os::Sys_Call(regs);
+	return exit_code;
 }

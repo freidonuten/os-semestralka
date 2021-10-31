@@ -5,7 +5,7 @@
 #include <string>
 #include <string_view>
 
-bool isEchoOn = true;
+bool is_echo_on = true;
 constexpr std::string_view ECHO_ON = "on";
 constexpr std::string_view ECHO_OFF = "off";
 constexpr std::string_view AT_SIGN = "@";

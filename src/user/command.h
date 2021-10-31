@@ -10,17 +10,16 @@ class Command
 {
 public:
     Command();
-    static std::vector<Command> parseInput(const std::string& input);
-    static std::vector<Command> parseCommands(const std::vector<std::string>& commands);
-    static Command parseCommand(std::string command);
-    std::string getParameters();
-    std::string commandName;
+    static std::vector<Command> Parse_Input(const std::string& input);
+    static std::vector<Command> Parse_Commands(const std::vector<std::string>& commands);
+    static Command Parse_Command(std::string command);
+    std::string Get_Parameters();
+    std::string command_name;
     std::vector<std::string> parameters;
-    std::vector<std::string> specialParameters;
-    std::string inputFileName;
-    std::string outputFileName;
-    bool redirectPipe;
-    bool hasInputFile;
-    bool hasOutputFile;
+    std::string input_filename;
+    std::string output_filename;
+    bool redirect_pipe;
+    bool has_input_file;
+    bool has_output_file;
 };
 
