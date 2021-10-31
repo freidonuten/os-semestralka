@@ -6,7 +6,6 @@
 #include <deque>
 #include "../api/api.h"
 #include "State.h"
-#include "Trigger.h"
 
 
 class Process_Control_Block;
