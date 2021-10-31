@@ -25,7 +25,7 @@ Task_Manager::Task_Manager()
 }
 
 Thread_Control_Block& Task_Manager::get_current_thread() {
-	return get_thread(Thread_Control_Block::get_tid_of(std::this_thread::get_id()));
+	return get_thread(Thread_Control_Block::current_tid());
 }
 
 Thread_Control_Block& Task_Manager::get_thread(const kiv_os::THandle handle) {
@@ -42,8 +42,7 @@ Process_Control_Block& Task_Manager::get_current_process() {
 	return get_process(get_current_thread().get_ppid());
 }
 
-Process_Control_Block& Task_Manager::get_process(const kiv_os::THandle handle)
-{
+Process_Control_Block& Task_Manager::get_process(const kiv_os::THandle handle) {
 	return process_table.at(handle);
 }
 
@@ -148,61 +147,35 @@ const kiv_os::NOS_Error Task_Manager::clone(kiv_hal::TRegisters& regs) {
 }
 
 const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
-	const auto handles_begin = reinterpret_cast<kiv_os::THandle*>(regs.rdx.r);
-	const auto handles_end = handles_begin + regs.rcx.r;
-	const auto find_finished = [handles_begin, handles_end, &regs, this]() {
-		// FIXME synchronization needed?
-		const auto finished_handle = std::find_if(handles_begin, handles_end,
-			[this](const auto handle) {
-				return kut::is_finished(get_thread(handle));
-			}
-		);
-		regs.rax.x = static_cast<uint16_t>(finished_handle - handles_begin);
-		return finished_handle != handles_end;
-	};
-
-	if (find_finished()) {
-		return kiv_os::NOS_Error::Success;
+	// there's a hard limit on object count
+	if (regs.rcx.e > constants::wait_obj_limit) {
+		return kiv_os::NOS_Error::Out_Of_Memory;
 	}
 
-	// all threads are working, initialize trigger
-	auto trigger = std::make_shared<Trigger>(); 
+	const auto handles = reinterpret_cast<kiv_os::THandle*>(regs.rdx.r);
+	const auto count = regs.rcx.e;
 
-	// insert trigger to each thread
-	std::for_each(handles_begin, handles_end,
-		[this, &trigger](const auto handle) {
-			get_thread(handle).insert_exit_trigger(trigger);
+	// remap userspace handles (tids/pids) to native handles
+	std::array<HANDLE, constants::wait_obj_limit> native_handles;
+	std::for_each(handles, handles + count,
+		[it = native_handles.begin(), this](const auto handle) mutable {
+			*it++ = get_thread(handle).get_native_handle();
 		}
 	);
 
-	// and now wait for trigger
-	trigger->wait();
+	// block until first signal
+	regs.rax.r = WaitForMultipleObjects(static_cast<DWORD>(count), native_handles.data(), false, INFINITE);
 
-	if (!find_finished()) {
-		// if we're here, something fucked up real bad
-		throw std::runtime_error("Process signaled but can't find signaling thread.");
-	}
-
-	return kiv_os::NOS_Error::Success;
+	return (regs.rax.x == INFINITE)
+		? kiv_os::NOS_Error::Unknown_Error
+		: kiv_os::NOS_Error::Success;
 }
 
 const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) {
-	const auto handle = static_cast<kiv_os::THandle>(regs.rdx.x);
-	const auto blocking_read = [this, &regs](const auto handle) {
-			auto& thread = get_thread(handle);
-
-			if (!kut::is_finished(thread)) {
-				auto trigger = std::make_shared<Trigger>();
-				thread.insert_exit_trigger(trigger);
-				trigger->wait();
-			}
-
-			return regs.rcx.x = thread.read_exit_code(), thread.get_tid();
-	};
-
-	thread_table.erase( // gc thread that had its exit code read
-		blocking_read(kut::is_proc(handle) ? get_process(handle).get_tid() : handle)
-	);
+	auto& thread = get_thread(static_cast<kiv_os::THandle>(regs.rdx.x));
+	
+	regs.rcx.x = thread.read_exit_code();
+	thread_table.erase(thread.get_tid());
 
 	return kiv_os::NOS_Error::Success;
 }
