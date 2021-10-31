@@ -94,6 +94,8 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 
 	create_thread(regs, process);
 
+	regs.rax.x = process.get_pid();
+
 	return kiv_os::NOS_Error::Success;
 }
 
