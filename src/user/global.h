@@ -9,6 +9,8 @@
 */
 constexpr std::string_view ERROR_MSG_DIR_NOT_FOUND = "Cannot found directory.\n";
 constexpr std::string_view ERROR_MSG_INVALID_COMMAND = "Invalid command.\n";
+constexpr std::string_view ERROR_MSG_INVALID_COMMAND_ARGUMENT = "Invalid command argument.\n";
+constexpr std::string_view ERROR_MSG_CANT_OPEN_FILE = "File can not be opened.\n";
 
 
 
