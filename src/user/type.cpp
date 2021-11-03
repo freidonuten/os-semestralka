@@ -36,7 +36,7 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 		kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, file_offset);
 		kiv_os_rtl::Read_File(file_handle, buffer, BUFFER_SIZE, chars_read);
 		file_content.append(buffer, chars_read);
-		file_offset += chars_readed;
+		file_offset += chars_read;
 		memset(buffer, 0, BUFFER_SIZE);
 
 	}
