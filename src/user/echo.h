@@ -5,6 +5,11 @@
 #include <string>
 #include <string_view>
 
+/*
+	Návratové hodnoty
+	0 - Success
+*/
+
 bool is_echo_on = true;
 constexpr std::string_view ECHO_ON = "on";
 constexpr std::string_view ECHO_OFF = "off";

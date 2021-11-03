@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\api\api.h"
+#include "../api/api.h"
 #include "../api/hal.h"
 #include <atomic>
 #include <string>
@@ -38,7 +38,7 @@ namespace kiv_os_rtl {
 	bool Create_Thread(void* name, void* data, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle& new_process);
 	bool Wait_For(kiv_os::THandle* handles, const size_t count_handles, kiv_os::THandle &index);
 	bool Read_Exit_Code(const kiv_os::THandle handle, uint16_t& readed_exit_code);
-	bool Exit(uint16_t& exit_process_thread_code);
+	bool Exit(uint16_t exit_process_thread_code);
 	bool Shutdown();
 	bool Register_Signal_Handler(kiv_os::NSignal_Id signal_id, kiv_os::TThread_Proc thread_proc);
 }

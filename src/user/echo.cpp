@@ -6,11 +6,11 @@ size_t __stdcall echo(const kiv_hal::TRegisters& regs) {
 	std::string output = "";
 	uint16_t exit_code = static_cast<uint16_t>(kiv_os::NOS_Error::Success);
 	char* parameters = reinterpret_cast<char *>(regs.rdi.r);
-	size_t written_chars = 0;
+	size_t chars_written = 0;
 
 	if (strlen(parameters) == 0) {
 		output.append(is_echo_on ? ECHO_IS_ON : ECHO_IS_OFF);
-		kiv_os_rtl::Write_File(stdout_handle, output.data(), output.size(), written_chars);
+		kiv_os_rtl::Write_File(stdout_handle, output.data(), output.size(), chars_written);
 	} else {
 		if (parameters == AT_SIGN.data()) {
 			// Pokud je na prvnim miste v parametrech @ preskocime ho
@@ -25,9 +25,9 @@ size_t __stdcall echo(const kiv_hal::TRegisters& regs) {
 		else {
 			output.append(parameters);
 			output.append(new_line);
-			kiv_os_rtl::Write_File(stdout_handle, output.data(), output.size(), written_chars);
+			kiv_os_rtl::Write_File(stdout_handle, output.data(), output.size(), chars_written);
 		}
 	}
-	kiv_os_rtl::Exit(exit_code);
+	kiv_os_rtl::Exit(0);
 	return 0;
 }

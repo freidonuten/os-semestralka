@@ -154,7 +154,7 @@ bool kiv_os_rtl::Read_Exit_Code(const kiv_os::THandle handle, uint16_t &readed_e
 	return exit_code;
 }
 
-bool kiv_os_rtl::Exit(uint16_t &exit_process_thread_code) {
+bool kiv_os_rtl::Exit(uint16_t exit_process_thread_code) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Exit));
 	regs.rcx.x = exit_process_thread_code;
 	const bool exit_code = kiv_os::Sys_Call(regs);

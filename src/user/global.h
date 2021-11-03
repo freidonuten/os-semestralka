@@ -23,3 +23,4 @@ constexpr std::string_view welcome_text = "Vitejte v kostre semestralni prace z 
 constexpr std::string_view prompt = "C:\\";
 constexpr std::string_view beak = ">";
 constexpr std::string_view new_line = "\n";
+constexpr kiv_os::THandle invalid_file_handle = static_cast<kiv_os::THandle>(-1);
