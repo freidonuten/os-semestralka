@@ -59,6 +59,7 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 	return *process_slot;
 }
 
+template<bool return_tid>
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent) {
 	// declare entry point
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
@@ -68,30 +69,28 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 		return kiv_os::NOS_Error::File_Not_Found;
 	}
 
-	thread_table.emplace(parent.thread_insert(entry, regs), parent.get_pid());
+	const auto tid = parent.thread_insert(entry, regs);
+	const auto pid = parent.get_pid();
+
+	thread_table.emplace(tid, pid);
+	regs.rax.x = return_tid ? tid : pid;
 
 	return kiv_os::NOS_Error::Success;
 }
 
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
-	return create_thread(regs, get_current_process());
+	return create_thread<true>(regs, get_current_process());
 }
 
 const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
-	// parse registers
-	const auto stdin_handle = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
-	const auto stdout_handle = static_cast<kiv_os::THandle>(regs.rbx.x);
-
 	// alloc process
 	auto &process = alloc_first_free();
+	auto child_regs = kiv_hal::TRegisters{ };
 
-	process.fd_insert(stdin_handle);
-	process.fd_insert(stdout_handle);
-	process.set_cwd(get_current_process().get_cwd());
+	child_regs.rax.x =  static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
+	child_regs.rbx.x =  static_cast<kiv_os::THandle>(regs.rbx.x);
 
-	create_thread(regs, process);
-
-	regs.rax.x = process.get_pid();
+	create_thread<false>(child_regs, process);
 
 	return kiv_os::NOS_Error::Success;
 }

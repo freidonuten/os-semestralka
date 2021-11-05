@@ -14,13 +14,13 @@ class Task_Manager final {
 		using Process_Table = std::array<Process_Control_Block, constants::process_limit>;
 		using Thread_Table = std::unordered_map<kiv_os::THandle, kiv_os::THandle>;
 
-		
 		Process_Table process_table;
 		Thread_Table thread_table;
 
 		// helper methods
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
+		template<bool return_tid>
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent);
 		Thread_Control_Block& get_current_thread();
 		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
