@@ -62,14 +62,6 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 		if (regs.rdx.l == 255) break;
 	}
 
-	////spustime shell - v realnem OS bychom ovsem spousteli login
-	//kiv_os::TThread_Proc shell = (kiv_os::TThread_Proc)GetProcAddress(User_Programs, "shell");
-	//if (shell) {
-	//	//spravne se ma shell spustit pres clone!
-	//	//ale ten v kostre pochopitelne neni implementovan		
-	//	shell(regs);
-	//}
-
 	char* shell = "shell";
 
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::Process);
