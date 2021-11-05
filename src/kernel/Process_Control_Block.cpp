@@ -2,9 +2,6 @@
 #include "Process_Control_Block.h"
 
 
-Process_Control_Block::Process_Control_Block()
-{ }
-
 Process_Control_Block::Process_Control_Block(const kiv_os::THandle pid)
 	: pid(pid)
 { }

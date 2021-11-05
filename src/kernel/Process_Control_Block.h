@@ -22,8 +22,8 @@ private:
 	
 
 public:
-	explicit Process_Control_Block();
-	explicit Process_Control_Block(const kiv_os::THandle pid);
+	Process_Control_Block() = default;
+	Process_Control_Block(const kiv_os::THandle pid);
 
 	const kiv_os::THandle get_pid() const;
 	const kiv_os::THandle get_tid() const;
