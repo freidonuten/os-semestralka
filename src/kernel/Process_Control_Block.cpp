@@ -76,9 +76,25 @@ void Process_Control_Block::thread_remove(const kiv_os::THandle tid) {
 	thread_list.erase(tid);
 }
 
+void Process_Control_Block::fd_insert(const kiv_os::THandle fd)
+{
+}
+
+
+void Process_Control_Block::fd_remove(const kiv_os::THandle fd)
+{
+}
+
+void Process_Control_Block::set_cwd(const char* buffer)
+{
+}
 
 void Process_Control_Block::allocate() {
 	state = Execution_State::READY;
+}
+
+void Process_Control_Block::exit(const uint16_t code)
+{
 }
 
 void Process_Control_Block::terminate() {
