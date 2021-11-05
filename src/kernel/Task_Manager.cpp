@@ -17,9 +17,7 @@ Task_Manager::Task_Manager()
 	: process_table{ }
 	, thread_table{ }
 {
-	for (auto i = 0; i < process_table.size(); ++i) {
-		process_table[i] = Process_Control_Block(i);
-	}
+	std::generate(process_table.begin(), process_table.end(), [i = 0]() mutable { return i++; });
 }
 
 Thread_Control_Block& Task_Manager::get_current_thread() {
