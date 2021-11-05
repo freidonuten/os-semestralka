@@ -20,8 +20,8 @@ class Task_Manager final {
 		// helper methods
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
-		template<bool return_tid>
-		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent);
+		template<bool return_tid, typename result_type>
+		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, result_type& result);
 		Thread_Control_Block& get_current_thread();
 		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 		Process_Control_Block& get_current_process();
