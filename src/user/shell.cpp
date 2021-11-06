@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+bool is_echo_on = true;
+
 size_t printNewLinePrompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
 	std::string currentDir = "";
 	size_t currentDirSize = currentDir.size();
@@ -13,9 +15,11 @@ size_t printNewLinePrompt(const kiv_os::THandle& stdin_handle, const kiv_os::THa
 	kiv_os_rtl::Get_Working_Dir(currentDir, currentDirSize, counter);
 
 	// Zapis do konzole C:\>
-	kiv_os_rtl::Write_File(stdout_handle, prompt.data(), prompt.size(), counter);
-	kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
-	kiv_os_rtl::Write_File(stdout_handle, currentDir.data(), currentDir.size(), counter);
+	if (is_echo_on) {
+		kiv_os_rtl::Write_File(stdout_handle, prompt.data(), prompt.size(), counter);
+		kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
+		kiv_os_rtl::Write_File(stdout_handle, currentDir.data(), currentDir.size(), counter);
+	}
 	return counter;
 }
 
@@ -25,6 +29,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 	const size_t buffer_size = 256;
 	char buffer[buffer_size];
 	size_t counter;
+
 	kiv_os_rtl::Write_File(std_out, welcome_text.data(), welcome_text.size(), counter);
 	std::vector<Command> commands;
 	CommandExecutor command_executor;
@@ -34,11 +39,20 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 		printNewLinePrompt(std_in, std_out);
 
 		if (kiv_os_rtl::Read_File(std_in, buffer, buffer_size, counter)) {
-			if ((counter > 0) && (counter == buffer_size)) counter--;
+			if ((counter > 0) && (counter == buffer_size)) {
+				counter--;
+			}
 			buffer[counter] = 0;	//udelame z precteneho vstup null-terminated retezec
-
 			std::string input_command(buffer);
 			commands = Command::Parse_Input(input_command);
+			
+			if (commands.front().command_name == "@echo") {
+				if (commands.front().Get_Parameters() == "off") {
+					is_echo_on = false;
+				} else if (commands.front().Get_Parameters() == "on") {
+					is_echo_on = true;
+				}
+			}
 
 			// Kontrola zda byl zadan nejaky prikaz
 			if (!commands.size()) {

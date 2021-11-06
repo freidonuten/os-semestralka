@@ -4,6 +4,7 @@
 #include "rtl.h"
 #include "global.h"
 #include <vector>
+#include <sstream>
 
 /*
 	Návratové hodnoty

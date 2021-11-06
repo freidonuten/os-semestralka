@@ -12,7 +12,6 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	size_t files_counter = 0;
 	size_t dir_counter = 0;
 	char buffer[dir_size];
-	memset(buffer, 0, dir_size);
 	 
 	if (strlen(p_filename) == 0) {
 		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
@@ -30,6 +29,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	}
 
 	while (true) {
+		memset(buffer, 0, dir_size);
 		kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
 		kiv_os_rtl::Read_File(file_handle, buffer, dir_size, chars_read);
 		if (chars_read == 0) {
@@ -46,21 +46,13 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 		offset += chars_read;
 	}
 
-	std::string dir_content = "";
-	
-	for each (kiv_os::TDir_Entry* entry in entries) {
-		dir_content.append(entry->file_name);
-		dir_content.append(new_line);
+	std::ostringstream dir_content;
+	for (const auto entry : entries) {
+		dir_content << entry->file_name << new_line;
 	}
 
-	dir_content.append(new_line);
-	dir_content.append("Files: ");
-	dir_content.append(std::to_string(files_counter));
-	dir_content.append(new_line);
-	dir_content.append("Directories: ");
-	dir_content.append(std::to_string(dir_counter));
-	dir_content.append(new_line);
-	kiv_os_rtl::Write_File(stdout_handle, dir_content.data(), dir_content.size(), chars_written);
+	dir_content << new_line << "Files: " << files_counter << new_line << "Directories: " << dir_counter << new_line;
+	kiv_os_rtl::Write_File(stdout_handle, dir_content.str().data(), dir_content.str().size(), chars_written);
 	kiv_os_rtl::Exit(0);
 	return 0;
 }
