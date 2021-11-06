@@ -1,41 +1,42 @@
 #include "file_descriptor.h"
 
-File_Descriptor_Table::File_Descriptor_Table() {
-	std::vector<std::shared_ptr<File_Descriptor>> temp;
-	this->descriptors = temp;
-}
-
-std::shared_ptr<File_Descriptor> File_Descriptor_Table::Create_Descriptor(std::uint16_t fat_first_cluster) {
-	std::shared_ptr<File_Descriptor> result = std::make_shared<File_Descriptor>();
-	result->fat_first_cluster = fat_first_cluster;
-	result->position = 0;
-
-	Add_Descriptor(result);
-	return result;
-}
-
-void File_Descriptor_Table::Add_Descriptor(std::shared_ptr<File_Descriptor> descriptor) {
+std::uint16_t File_Descriptor_Table::Create_Descriptor(std::shared_ptr<VFS_Element> element) {
 	int count = this->descriptors.size();
-
 	for (std::uint16_t i = 0; i < count; i++) {
-		if (this->descriptors[i] == nullptr) {
-			descriptor->descriptor_id = i;
-			this->descriptors[i] = descriptor;
-			return;
+		if (this->descriptors[i] = nullptr) {
+			this->descriptors[i] = element;
+			return i;
 		}
 	}
 
-	descriptor->descriptor_id = count;
-	this->descriptors.push_back(descriptor);
+	this->descriptors.push_back(element);
+	return count;
 }
 
-std::shared_ptr<File_Descriptor> File_Descriptor_Table::Get_Descriptor(std::uint16_t id) {
-
-	return this->descriptors[id];
+std::shared_ptr<VFS_Element> File_Descriptor_Table::Get_Descriptor(std::uint16_t id) {
+	if (Is_Valid(id)) {
+		return this->descriptors[id];
+	}
+	
 	//TODO Error Handler descriptor not existing
 }
 
-void File_Descriptor_Table::Remove_Handle(std::uint16_t id) {
-	this->descriptors[id] = nullptr;
+void File_Descriptor_Table::Remove_Descriptor(std::uint16_t id) {
+	if (Is_Valid(id)) {
+		this->descriptors[id] = nullptr;
+	}
 	//TODO Error Handler descriptor not existing
+}
+
+bool File_Descriptor_Table::Is_Valid(std::uint16_t id) {
+	int count = this->descriptors.size();
+	if (id >= count) {
+		return false;
+	}
+
+	if (this->descriptors[id] == nullptr) {
+		return false;
+	}
+
+	return true;
 }
