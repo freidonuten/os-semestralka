@@ -10,14 +10,9 @@ VFS_Element_Factory::VFS_Element_Factory(std::shared_ptr<IDisk> disk, std::share
 	this->directory_factory = std::make_shared<Fat_Directory_Factory>(this->file_factory);
 }
 
-std::shared_ptr<VFS_Element> VFS_Element_Factory::Create_New(std::shared_ptr<VFS_Element> parent_element, char file_name[12], std::uint8_t file_attributes) {
+std::shared_ptr<VFS_Element> VFS_Element_Factory::Create(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes) {
 	bool is_directory = Is_Directory(file_attributes);
 	std::shared_ptr<VFS_Element> result;
-
-	std::shared_ptr<VFS_Directory> parent_directory = std::dynamic_pointer_cast<VFS_Directory>(parent_element);
-	if (parent_directory == NULL) {
-		//TODO ERROR
-	}
 
 	if (is_directory) {
 		result = std::make_shared<VFS_Directory>(this->directory_factory, parent_directory, file_name, file_attributes);
@@ -26,42 +21,16 @@ std::shared_ptr<VFS_Element> VFS_Element_Factory::Create_New(std::shared_ptr<VFS
 		result = std::make_shared<VFS_File>(this->file_factory, parent_directory, file_name, file_attributes);
 	}
 
-	result->Create(parent_directory);
 	return result;
 }
 
-std::shared_ptr<VFS_Element> VFS_Element_Factory::Get_Existing(
-	std::shared_ptr<VFS_Element> parent_element, char file_name[12]) {
-
-	std::shared_ptr<VFS_Directory> parent_directory = std::dynamic_pointer_cast<VFS_Directory>(parent_element);
-	if (parent_directory == NULL) {
-		//TODO ERROR
-	}
-
-	auto entry = parent_directory->Get_Child(file_name);
-
-	bool is_directory = Is_Directory(entry->file_attributes);
-	std::shared_ptr<VFS_Element> result;
-
-	if (is_directory) {
-		result = std::make_shared<VFS_Directory>(this->directory_factory, parent_directory, 
-			entry->file_name, entry->file_attributes);
-	}
-	else {
-		result = std::make_shared<VFS_File>(this->file_factory, parent_directory,
-			 entry->file_name, entry->file_attributes);
-	}
-
-	result->Open(entry->file_start, entry->file_size);
-	return result;
-}
 
 std::shared_ptr<VFS_Element> VFS_Element_Factory::Create_Root_Directory() {
 	char filename[12] = "";
 	std::shared_ptr<VFS_Element> result = std::make_shared<Root_Directory>(
 		this->directory_factory, nullptr, filename, 0xff);
 
-	result->Create(nullptr);
+	result->Create();
 	return result;
 }
 
@@ -78,6 +47,10 @@ void VFS_Element::Change_Attributes(std::uint16_t file_attributes) {
 
 std::uint16_t VFS_Element::Read_Attributes() {
 	return this->file_attributes;
+}
+
+char* VFS_Element::Read_File_Name() {
+	return this->file_name;
 }
 
 
