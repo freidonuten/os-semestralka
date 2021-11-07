@@ -1,104 +1,153 @@
-#include "disk.h"
-#include "filesystem_info.h"
-#include "fat_io.h"
-#include "cluster_io.h"
-#include "global_structs.h"
-#include "fat_file.h"
+#include "test.h"
 
-#include "vfs_directory.h"
-#include "vfs_file.h"
+#include "../../api/api.h"
+#include "../../api/hal.h"
 
-#include <vector>
 #include <iostream>
 
+void set_working_dir(char* path) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Set_Working_Dir);
+	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
 
-int test1() {
-	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(1024 * 1024, 512);
-	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(1024 * 1024, 1, 512, 12);
-	std::shared_ptr<Fat_File_Factory> file_factory = std::make_shared<Fat_File_Factory>(disk, info);
+void write_file(int handle, void* buffer, int how_many_bytes) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Write_File);
+	regs.rdx.x = handle;
+	regs.rdi.r = reinterpret_cast<uint64_t>(buffer);
+	regs.rcx.r = how_many_bytes;
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
 
-	auto file1 = file_factory->Create_New_File();
+void read_file(int handle, void *buffer, int how_many_bytes) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Read_File);
+	regs.rdx.x = handle;
+	regs.rdi.r = reinterpret_cast<uint64_t>(buffer);
+	regs.rcx.r = how_many_bytes;
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 
+}
 
-	std::uint8_t* data = new std::uint8_t[10000];
-	for (int i = 0; i < 10000; i++) {
-		data[i] = i * 2 + 1;
+int open_file(char* path) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File);
+	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rcx.r = 1;
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+	return regs.rax.x;
+}
+
+int create_dir(char* path) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File);
+	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rcx.r = 0;
+	regs.rdi.r = 0x11; //directory + readonly
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+	return regs.rax.x;
+}
+
+int create_file(char* path) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File);
+	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rcx.r = 0;
+	regs.rdi.r = 0x0;
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+	return regs.rax.x;
+}
+
+void close_handle(int handle) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Close_Handle);
+	regs.rdx.x = handle;
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+void seek(int handle, int offset, kiv_os::NFile_Seek whence) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Seek);
+	regs.rdx.x = handle;
+	regs.rdi.r = offset;
+	regs.rcx.l = static_cast<uint8_t>(whence);
+	regs.rcx.h = static_cast<uint8_t>(kiv_os::NFile_Seek::Set_Position);
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+void filesystem_test() {
+	kiv_hal::TRegisters registers;
+
+	for (int i = 0; i < 15; i++) {
+		char dir_name[12];
+		sprintf_s(dir_name, "dir%d", i);
+		create_dir(dir_name);
 	}
 
-	file1->Change_File_Size(50);
-	file1->Write_To_File(200, 10000, static_cast<void*>(data));
+	kiv_os::TDir_Entry entries[15];
+	char root_name[12] = "";
+	int root_handle = open_file(root_name);
+	read_file(root_handle, static_cast<void*>(entries), 15 * sizeof(kiv_os::TDir_Entry));
 
-
-	std::uint16_t file_start = file1->Get_File_Start();
-	std::uint64_t file_size = file1->Get_File_Size();
-	auto file2 = file_factory->Get_Existing_File(file_start, file_size);
-
-	std::uint8_t* data2 = new std::uint8_t[10000];
-	file2->Read_From_File(200, 10000, data2);
-
-
-
-	file2->Change_File_Size(30);
-
-	file2->Remove_File();
-
-
-	return 0;
-}
-
-int test2() {
-	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(1024 * 1024, 512);
-	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(1024 * 1024, 1, 512, 12);
-	std::shared_ptr<VFS_Element_Factory> element_factory = std::make_shared<VFS_Element_Factory>(disk, info);
-	std::shared_ptr<VFS_Element> root = element_factory->Create_Root_Directory();
-
-	std::uint8_t dir_attributes = 0x11;
-	char dir1_name[12] = "dir1";
-	char dir2_name[12] = "dir2";
-	std::uint8_t file_attributes = 0x00;
-	char file1_name[12] = "file1";
-	std::shared_ptr<VFS_Element> directory1 = element_factory->Create_New(root, dir1_name, dir_attributes);
-	std::shared_ptr<VFS_Element> directory2 = element_factory->Create_New(directory1, dir2_name, dir_attributes);
-	std::shared_ptr<VFS_Element> file1 = element_factory->Create_New(directory2, file1_name, file_attributes);
-
-	char data[25] = "Ahoj, jak se mas? :-)";
-	file1->Write(5000, 25, static_cast<void*>(data));
-
-	std::shared_ptr<VFS_Element> file2 = element_factory->Get_Existing(directory2, file1_name);
-
-	char* data2 = new char[25];
-	file2->Read(5000, 25, data2);
-
-	std::cout << data << " = " << data2 << std::endl;
-	
-
-	TDir_Entry* entry = static_cast<TDir_Entry*>(calloc(1, sizeof(TDir_Entry)));
-	directory1->Read(0, 24, static_cast<void*>(entry));
-
-	return 1;
-}
-
-int filesystem_test() {
-
-
-	/*std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(256 * 1024, 512);
-	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(256 * 1024, 2, 512, 12);
-	std::unique_ptr<Fat_IO> fat_io = std::make_unique<Fat_IO>(info, disk);
-
-	for (int i = 0; i < 100; i++) {
-		fat_io->Set_Entry_Value(i, i * 2);
+	for (int i = 0; i < 15; i++) {
+		std::cout << entries[i].file_name << std::endl;
 	}
 
-	fat_io->Save_Changes();
+	char path[256];
+	int temp;
 
+	sprintf_s(path, "dir0");
+	temp = create_dir(path);
+	close_handle(temp);
 
-	for (int i = 0; i < 100; i++) {
-		std::uint64_t val = fat_io->Get_Entry_Value(i);
-		std::cout << val << std::endl;
-	}*/
+	sprintf_s(path, "dir0/dir1");
+	temp = create_dir(path);
+	close_handle(temp);
 
-	test2();
-	return 0;
-	
+	sprintf_s(path, "dir0/dir1/dir2");
+	temp = create_dir(path);
+	set_working_dir(path);
+	close_handle(temp);
+
+	sprintf_s(path, "dir3");
+	temp = create_dir(path);
+	close_handle(temp);
+
+	sprintf_s(path, "dir3/dir4");
+	temp = create_dir(path);
+	close_handle(temp);
+
+	sprintf_s(path, "/");
+	set_working_dir(path);
+
+	sprintf_s(path, "dir0/dir1/dir2/dir3/dir4/dir5");
+	temp = create_dir(path);
+	set_working_dir(path);
+	close_handle(temp);
+
+	sprintf_s(path, "file");
+	int file_handle = create_file(path);
+
+	std::uint64_t numbers[500];
+	for (int i = 0; i < 500; i++) {
+		numbers[i] = i * 100;
+	}
+
+	write_file(file_handle, static_cast<void*>(numbers), 500 * sizeof(std::uint64_t));
+	seek(file_handle, 250 * sizeof(std::uint64_t), kiv_os::NFile_Seek::Beginning);
+	read_file(file_handle, numbers, 250 * sizeof(std::uint64_t));
+
+	for (int i = 0; i < 250; i++) {
+		std::cout << numbers[i] << " = " << numbers[i + 250] << std::endl;
+	}
 }
-

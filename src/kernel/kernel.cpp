@@ -5,7 +5,11 @@
 #include "filesystem/test.h"
 #include <Windows.h>
 
+#include <memory>
+#include "filesystem/vfs.h"
+
 HMODULE User_Programs;
+std::unique_ptr<VFS> vfs;
 
 
 void Initialize_Kernel() {
@@ -21,7 +25,7 @@ void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 	switch (static_cast<kiv_os::NOS_Service_Major>(regs.rax.h)) {
 	
 		case kiv_os::NOS_Service_Major::File_System:		
-			Handle_IO(regs);
+			vfs->Proceed_Action(regs);
 			break;
 
 	}
@@ -29,13 +33,17 @@ void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 }
 
 void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
-	filesystem_test();
-	return;
 	Initialize_Kernel();
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
+	vfs = std::make_unique<VFS>();
+	filesystem_test();
+	return;
+	kiv_hal::TRegisters regs;
 
 	//v ramci ukazky jeste vypiseme dostupne disky
-	kiv_hal::TRegisters regs;
+	
+	
+	
 	for (regs.rdx.l = 0; ; regs.rdx.l++) {
 		kiv_hal::TDrive_Parameters params;		
 		regs.rax.h = static_cast<uint8_t>(kiv_hal::NDisk_IO::Drive_Parameters);;

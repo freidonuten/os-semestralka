@@ -1,1 +1,1 @@
-int filesystem_test();
+void filesystem_test();
