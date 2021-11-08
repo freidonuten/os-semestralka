@@ -36,8 +36,8 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	Initialize_Kernel();
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
 	vfs = std::make_unique<VFS>();
-	filesystem_test();
-	return;
+	//filesystem_test();
+	//return;
 	kiv_hal::TRegisters regs;
 
 	//v ramci ukazky jeste vypiseme dostupne disky
