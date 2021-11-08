@@ -43,6 +43,12 @@
     <Filter Include="Header Files\fs\vfs">
       <UniqueIdentifier>{43563b26-f580-4481-83ae-962d3e8892cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\processes">
+      <UniqueIdentifier>{f0c94322-25e9-4448-8f77-83203ff0dedd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Processes">
+      <UniqueIdentifier>{13f8b4aa-a489-49c0-8939-2e268197bada}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\kernel\kernel.cpp">
@@ -167,6 +173,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.cpp">
       <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\Thread_Control_Block.cpp">
+      <Filter>Source Files\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\Task_Manager.cpp">
+      <Filter>Source Files\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\Process_Control_Block.cpp">
+      <Filter>Source Files\Processes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,6 +310,24 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.h">
       <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\constants.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Kernel_Utils.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Process_Control_Block.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\State.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Task_Manager.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Thread_Control_Block.h">
+      <Filter>Header Files\processes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

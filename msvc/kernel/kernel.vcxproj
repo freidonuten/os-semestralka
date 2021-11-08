@@ -60,10 +60,14 @@
     <ClCompile Include="..\..\src\kernel\handles.cpp" />
     <ClCompile Include="..\..\src\kernel\io.cpp" />
     <ClCompile Include="..\..\src\kernel\kernel.cpp" />
+    <ClCompile Include="..\..\src\kernel\Process_Control_Block.cpp" />
+    <ClCompile Include="..\..\src\kernel\Task_Manager.cpp" />
+    <ClCompile Include="..\..\src\kernel\Thread_Control_Block.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\api\api.h" />
     <ClInclude Include="..\..\src\api\hal.h" />
+    <ClInclude Include="..\..\src\kernel\constants.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\actions\action.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\actions\action_factory.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\actions\close_handle_action.h" />
@@ -104,6 +108,11 @@
     <ClInclude Include="..\..\src\kernel\handles.h" />
     <ClInclude Include="..\..\src\kernel\io.h" />
     <ClInclude Include="..\..\src\kernel\kernel.h" />
+    <ClInclude Include="..\..\src\kernel\Kernel_Utils.h" />
+    <ClInclude Include="..\..\src\kernel\Process_Control_Block.h" />
+    <ClInclude Include="..\..\src\kernel\State.h" />
+    <ClInclude Include="..\..\src\kernel\Task_Manager.h" />
+    <ClInclude Include="..\..\src\kernel\Thread_Control_Block.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4305463-59C5-40C3-9A1A-92976A40562D}</ProjectGuid>
@@ -192,6 +201,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;KERNEL_EXPORTS;KERNEL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
