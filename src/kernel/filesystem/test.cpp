@@ -1,9 +1,10 @@
-#include "test.h"
+﻿#include "test.h"
 
 #include "../../api/api.h"
 #include "../../api/hal.h"
 
 #include <iostream>
+#include <thread>
 
 void set_working_dir(char* path) {
 	kiv_hal::TRegisters regs;
@@ -13,7 +14,7 @@ void set_working_dir(char* path) {
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 }
 
-void write_file(int handle, void* buffer, int how_many_bytes) {
+size_t write_file(int handle, void* buffer, int how_many_bytes) {
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Write_File);
@@ -21,9 +22,11 @@ void write_file(int handle, void* buffer, int how_many_bytes) {
 	regs.rdi.r = reinterpret_cast<uint64_t>(buffer);
 	regs.rcx.r = how_many_bytes;
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+
+	return regs.rax.r;
 }
 
-void read_file(int handle, void *buffer, int how_many_bytes) {
+size_t read_file(int handle, void *buffer, int how_many_bytes) {
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Read_File);
@@ -32,6 +35,7 @@ void read_file(int handle, void *buffer, int how_many_bytes) {
 	regs.rcx.r = how_many_bytes;
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 
+	return regs.rax.r;
 }
 
 int open_file(char* path) {
@@ -83,6 +87,50 @@ void seek(int handle, int offset, kiv_os::NFile_Seek whence) {
 	regs.rcx.l = static_cast<uint8_t>(whence);
 	regs.rcx.h = static_cast<uint8_t>(kiv_os::NFile_Seek::Set_Position);
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+void pipe(kiv_os::THandle *handles) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Create_Pipe);
+	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+char buffer1[256] = "Slunce je zlatou skobou na vobloze přibitý, pod sluncem sedlo kožený";
+char buffer2[256] = "";
+
+void writer(kiv_os::THandle handle) {
+	int wrote;
+	char* begin = buffer1;
+	size_t remaining = strlen(buffer1);
+
+	while (wrote = write_file(handle, begin, remaining)) {
+		begin += wrote;
+		remaining -= wrote;
+	}
+}
+
+void reader(kiv_os::THandle handle) {
+	int read;
+	char* begin = buffer2;
+
+	while (read = read_file(handle, begin, 30)) {
+		begin += read;
+	}
+}
+
+void test_pipes() {
+	kiv_os::THandle handles[2] = { 0 };
+	pipe(handles);
+
+	std::thread t_writer(writer, handles[0]);
+	std::thread t_reader(reader, handles[1]);
+
+	t_writer.join();
+	t_reader.join();
+
+	return;
 }
 
 void filesystem_test() {
