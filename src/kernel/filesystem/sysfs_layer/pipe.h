@@ -39,7 +39,7 @@ namespace Pipe {
 
 	class End : public VFS_Element {
 	protected:
-		std::shared_ptr<Base> pipe;
+		const std::shared_ptr<Base> pipe;
 
 		End(std::shared_ptr<Base> pipe);
 
