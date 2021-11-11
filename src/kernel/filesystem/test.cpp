@@ -97,18 +97,12 @@ void pipe(kiv_os::THandle *handles) {
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 }
 
-char buffer1[256] = "Slunce je zlatou skobou na vobloze přibitý, pod sluncem sedlo kožený";
+char buffer1[256] = "Slunce je zlatou skobou na vobloze pribity, pod sluncem sedlo kozeny";
 char buffer2[256] = "";
 
 void writer(kiv_os::THandle handle) {
-	int wrote;
-	char* begin = buffer1;
-	size_t remaining = strlen(buffer1);
-
-	while (wrote = write_file(handle, begin, remaining)) {
-		begin += wrote;
-		remaining -= wrote;
-	}
+	write_file(handle, buffer1, strlen(buffer1));
+	close_handle(handle);
 }
 
 void reader(kiv_os::THandle handle) {
