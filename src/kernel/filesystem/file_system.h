@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../../api/hal.h"
-#include "../../../api/api.h"
+#include "../../api/hal.h"
+#include "../../api/api.h"
 
-#include "../utils/global_constants.h"
-#include "../vfs_layer/path.h"
-#include "../vfs.h"
+#include "utils/global_constants.h"
+#include "vfs_layer/path.h"
+#include "vfs.h"
 
 
 #include <memory>
