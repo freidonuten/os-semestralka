@@ -1,11 +1,18 @@
 #include "pipe.h"
 
 
-constexpr size_t Pipe::inc(const size_t a) const {
+constexpr size_t Pipe::Base::inc(const size_t a) const {
 	return (a + 1) % BUFFER_SIZE;
 }
 
-int Pipe::Write(std::uint64_t, size_t limit, void* source_vp) {
+int Pipe::Base::Write(std::uint64_t offset, size_t limit, void* source_vp) {
+	if (partially_closed) {
+		// pipe is either closed to write => don't write
+		// or pipe is closed to read
+		//   => it's waste of cpu to write when nobody's going to read
+		return 0;
+	}
+
 	std::unique_lock<std::mutex> lock(mutex);
 
 	while (begin == inc(end)) {
@@ -13,19 +20,30 @@ int Pipe::Write(std::uint64_t, size_t limit, void* source_vp) {
 	}
 
 	auto source = reinterpret_cast<char*>(source_vp);
-	auto index = 0;
+	auto index = offset;
 
-	while (index < limit && begin != inc(end)) {
+	while (index < limit && inc(end) != begin) {
 		buffer[end] = source[index++];
 		end = inc(end);
 	}
 
-	cond_readable.notify_one();
+	cond_readable.notify_all();
+	lock.unlock();
+
+	// we didn't finish writing, wait until someone reads and write the rest
+	// This recursive call shouldn't be called a lot with a reasonably sized buffer
+	if (index < limit) {
+		index += Write(index, limit, source_vp);
+	}
 
 	return index;
 }
 
-int Pipe::Read(std::uint64_t, size_t limit, void* target_vp) {
+int Pipe::Base::Read(std::uint64_t, size_t limit, void* target_vp) {
+	if (Is_Closed()) {
+		return 0;
+	}
+
 	// wait until there's something to read
 	std::unique_lock<std::mutex> lock(mutex);
 
@@ -43,7 +61,36 @@ int Pipe::Read(std::uint64_t, size_t limit, void* target_vp) {
 	}
 
 	// I read something, let's notify a writer
-	cond_writable.notify_one();
+	cond_writable.notify_all();
 
 	return index; // return how much has been read
+}
+
+void Pipe::Base::Close_End() {
+	partially_closed = true;
+}
+
+bool Pipe::Base::Is_Closed() const {
+	return partially_closed && begin == end;
+}
+
+Pipe::Write_End::Write_End(std::shared_ptr<Base> pipe) : End(pipe)
+{ }
+
+int Pipe::Write_End::Write(std::uint64_t offset, size_t limit, void* buffer) {
+	return pipe->Write(offset, limit, buffer);
+}
+
+Pipe::Read_End::Read_End(std::shared_ptr<Base> pipe) : End(pipe)
+{ }
+
+int Pipe::Read_End::Read(std::uint64_t offset, size_t limit, void* buffer) {
+	return pipe->Read(offset, limit, buffer);
+}
+
+Pipe::End::End(std::shared_ptr<Base> pipe) : pipe(pipe)
+{ }
+
+Pipe::End::~End() {
+	pipe->Close_End();
 }
