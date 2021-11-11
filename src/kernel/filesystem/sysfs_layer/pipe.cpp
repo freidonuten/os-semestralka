@@ -94,3 +94,12 @@ Pipe::End::End(std::shared_ptr<Base> pipe) : pipe(pipe)
 Pipe::End::~End() {
 	pipe->Close_End();
 }
+
+Pipe::RW_Pair Pipe::Factory() {
+	const auto base = std::make_shared<Base>();
+
+	return {
+		std::make_shared<Write_End>(base),
+		std::make_shared<Read_End>(base)
+	};
+}

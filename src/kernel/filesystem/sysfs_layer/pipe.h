@@ -62,6 +62,11 @@ namespace Pipe {
 		virtual int Read(std::uint64_t offset, size_t limit, void* buffer) override;
 	};
 
+	using RW_Pair = std::tuple<
+		std::shared_ptr<Pipe::Write_End>,
+		std::shared_ptr<Pipe::Read_End>
+	>;
 
+	RW_Pair Factory();
 
 }
