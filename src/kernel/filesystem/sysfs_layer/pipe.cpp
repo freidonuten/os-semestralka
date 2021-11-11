@@ -13,27 +13,22 @@ int Pipe::Base::Write(std::uint64_t offset, size_t limit, void* source_vp) {
 		return 0;
 	}
 
-	std::unique_lock<std::mutex> lock(mutex);
-
-	while (begin == inc(end)) {
-		cond_writable.wait(lock);
-	}
-
 	auto source = reinterpret_cast<char*>(source_vp);
 	auto index = offset;
 
-	while (index < limit && inc(end) != begin) {
-		buffer[end] = source[index++];
-		end = inc(end);
-	}
+	while (index < limit) {
+		std::unique_lock<std::mutex> lock(mutex);
 
-	cond_readable.notify_all();
-	lock.unlock();
+		while (begin == inc(end)) {
+			cond_writable.wait(lock);
+		}
 
-	// we didn't finish writing, wait until someone reads and write the rest
-	// This recursive call shouldn't be called a lot with a reasonably sized buffer
-	if (index < limit) {
-		index += Write(index, limit, source_vp);
+		while (index < limit && inc(end) != begin) {
+			buffer[end] = source[index++];
+			end = inc(end);
+		}
+
+		cond_readable.notify_all();
 	}
 
 	return index;
