@@ -8,10 +8,11 @@
 
 #include <memory>
 #include "filesystem/vfs.h"
+#include "filesystem/actions/action.h"
 
 HMODULE User_Programs;
-std::unique_ptr<VFS> vfs;
 auto task_manager = Task_Manager();
+auto fs_dispatch = file_system::Dispatcher();
 
 
 void Initialize_Kernel() {
@@ -25,8 +26,7 @@ void Shutdown_Kernel() {
 void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 	switch (static_cast<kiv_os::NOS_Service_Major>(regs.rax.h)) {
 		case kiv_os::NOS_Service_Major::File_System:		
-			vfs->Proceed_Action(regs);
-			break;
+			return fs_dispatch(regs);
 		case kiv_os::NOS_Service_Major::Process:
 			return task_manager.syscall_dispatch(regs);
 	}
@@ -35,7 +35,6 @@ void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	Initialize_Kernel();
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
-	vfs = std::make_unique<VFS>();
 	//filesystem_test();
 	//return;
 	kiv_hal::TRegisters regs;
