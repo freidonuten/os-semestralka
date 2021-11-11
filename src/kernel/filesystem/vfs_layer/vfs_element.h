@@ -43,6 +43,7 @@ public:
 	//GENERATE PHYSICAL REPRESENTATION OF ENTRY IN FOLDER ON DISK
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
+	virtual ~VFS_Element() { /* empty virtual dtor */ }
 };
 
 class VFS_Element_Factory {
