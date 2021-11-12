@@ -16,14 +16,8 @@
     <Filter Include="Source Files\fs">
       <UniqueIdentifier>{3390f931-64b6-416f-997a-2b118c2e0f51}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\fs\actions">
-      <UniqueIdentifier>{39cf7c3c-14c9-4ad0-a1a4-ddc7ab3513ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\fs">
       <UniqueIdentifier>{ff8d47ad-7eab-4d97-ac0f-d52c80bbbaea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\fs\action">
-      <UniqueIdentifier>{68e221b1-409a-4cfa-af2d-2ff7defe18c0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\fs\fat">
       <UniqueIdentifier>{dfd50062-f527-4a78-a1c9-a4bfe77838ee}</UniqueIdentifier>
@@ -66,49 +60,7 @@
     <ClCompile Include="..\..\src\kernel\filesystem\test-old.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\action_factory.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\close_handle_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\create_pipe_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\delete_file_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\get_file_attributes_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\get_working_dir_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\open_file_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\read_file_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\seek_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_file_attributes_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_working_dir_action.cpp">
-      <Filter>Source Files\fs\actions</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\test.cpp">
-      <Filter>Source Files\fs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs.cpp">
-      <Filter>Source Files\fs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\actions\write_file_action.cpp">
       <Filter>Source Files\fs</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\cluster_io.cpp">
@@ -183,6 +135,12 @@
     <ClCompile Include="..\..\src\kernel\Process_Control_Block.cpp">
       <Filter>Source Files\Processes</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\file_system.cpp">
+      <Filter>Source Files\fs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\kernel\kernel.h">
@@ -199,48 +157,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\io.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\action_factory.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\close_handle_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\create_pipe_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\delete_file_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\get_file_attributes_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\get_working_dir_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\set_file_attributes_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\set_working_dir_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\open_file_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\read_file_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\seek_action.h">
-      <Filter>Header Files\fs\action</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\actions\write_file_action.h">
-      <Filter>Header Files\fs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs.h">
-      <Filter>Header Files\fs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\test.h">
       <Filter>Header Files\fs</Filter>
@@ -328,6 +244,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\Thread_Control_Block.h">
       <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\file_system.h">
+      <Filter>Header Files\fs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

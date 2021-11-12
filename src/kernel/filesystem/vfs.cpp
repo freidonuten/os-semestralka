@@ -1,6 +1,4 @@
-//vfs.cpp must know action factory
-//action factory includes action which includes vfs
-#include "actions/action_factory.h"
+#include "vfs.h"
 
 VFS::VFS() {
 	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(1024 * 1024, 512);
@@ -9,13 +7,7 @@ VFS::VFS() {
 	this->root = this->element_factory->Create_Root_Directory();
 	char root_name[MAX_FILENAME_SIZE] = "";
 	this->current_path = std::make_shared<Path>(root_name);
-	this->action_factory = std::make_shared<Action_Factory>(this);
 	this->descriptor_table = std::make_shared<File_Descriptor_Table>();
-}
-
-void VFS::Proceed_Action(kiv_hal::TRegisters &regs) {
-	auto action = this->action_factory->Get_Action(regs);
-	action->Run();
 }
 
 std::shared_ptr<File_Descriptor_Table> VFS::Get_Descriptor_Table() {
