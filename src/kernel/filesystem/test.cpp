@@ -120,7 +120,7 @@ void reader(kiv_os::THandle handle) {
 }
 
 void test_pipes() {
-	constexpr auto N = 16;
+	constexpr auto N = 64;
 	size_t time_total = 0;
 
 	std::random_device rd;

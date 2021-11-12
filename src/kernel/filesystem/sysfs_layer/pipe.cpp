@@ -1,8 +1,18 @@
 #include "pipe.h"
 
 
-constexpr size_t Pipe::Base::inc(const size_t a) const {
-	return (a + 1) % BUFFER_SIZE;
+void Pipe::Base::advance_end() {
+	if (++end == buffer.cend()) {
+		end = buffer.begin();
+	}
+	++filled;
+}
+
+void Pipe::Base::advance_begin() {
+	if (++begin == buffer.cend()) {
+		begin = buffer.begin();
+	}
+	--filled;
 }
 
 int Pipe::Base::Write(size_t limit, void* source_vp) {
@@ -13,24 +23,23 @@ int Pipe::Base::Write(size_t limit, void* source_vp) {
 		return 0;
 	}
 
-	auto source = reinterpret_cast<char*>(source_vp);
-	auto index = 0;
+	const auto source_begin = reinterpret_cast<char*>(source_vp);
+	const auto source_end = source_begin + limit;
+	auto source = source_begin;
 
-	while (index < limit) {
+	while (source < source_end) {
 		std::unique_lock<std::mutex> lock(mutex);
-		cond_writable.wait(lock, [this]() {return filled < BUFFER_SIZE;  });
+		cond_writable.wait(lock, [this]() { return filled < BUFFER_SIZE; });
 
-		while (index < limit && filled < BUFFER_SIZE) {
-			buffer[end] = source[index++];
-			end = inc(end);
-			filled++;
+		while (source < source_end && filled < BUFFER_SIZE) {
+			*end = *source++;
+			advance_end();
 		}
 
-		lock.unlock();
 		cond_readable.notify_all();
 	}
 
-	return index;
+	return source - source_begin;
 }
 
 int Pipe::Base::Read(size_t limit, void* target_vp) {
@@ -42,16 +51,13 @@ int Pipe::Base::Read(size_t limit, void* target_vp) {
 	const auto target_begin = reinterpret_cast<char*>(target_vp);
 	const auto target_end = target_begin + limit;
 	auto target = target_begin;
-	//auto index = 0;
 
 	while (target < target_end && filled) {
-		*target++ = buffer[begin];
-		begin = inc(begin);
-		filled--;
+		*target++ = *begin;
+		advance_begin();
 	}
 
 	// I read something, let's notify a writer
-	lock.unlock();
 	cond_writable.notify_all();
 
 	return target - target_begin; // return how much has been read

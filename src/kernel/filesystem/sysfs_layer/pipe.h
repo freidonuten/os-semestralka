@@ -11,9 +11,11 @@ namespace Pipe {
 	private:
 		static constexpr size_t BUFFER_SIZE = 4096;
 
-		std::array<char, BUFFER_SIZE> buffer = {};
-		size_t begin = 0;
-		size_t end = 0;
+		using buffer_type = std::array<char, BUFFER_SIZE>;
+
+		buffer_type buffer = {};
+		buffer_type::iterator begin = buffer.begin();
+		buffer_type::iterator end = buffer.begin();
 		size_t filled = 0;
 		bool partially_closed = false;
 
@@ -21,7 +23,8 @@ namespace Pipe {
 		std::condition_variable cond_readable;
 		std::condition_variable cond_writable;
 
-		constexpr size_t inc(const size_t a) const;
+		void advance_end();
+		void advance_begin();
 
 	public:
 		Base() = default;
