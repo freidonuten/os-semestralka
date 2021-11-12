@@ -7,13 +7,14 @@
 
 
 namespace Pipe {
-	class Base final : public VFS_Element {
+	class Base {
 	private:
-		static constexpr size_t BUFFER_SIZE = 32;
+		static constexpr size_t BUFFER_SIZE = 4096;
 
 		std::array<char, BUFFER_SIZE> buffer = {};
 		size_t begin = 0;
 		size_t end = 0;
+		size_t filled = 0;
 		bool partially_closed = false;
 
 		std::mutex mutex;
@@ -30,13 +31,13 @@ namespace Pipe {
 		Base& operator=(const Base&) = delete;
 		Base& operator=(const Base&&) = delete;
 
-		virtual int Write(std::uint64_t offset, size_t limit, void* buffer) override;
-		virtual int Read (std::uint64_t /*unused*/, size_t limit, void* buffer) override;
+		int Write(size_t limit, void* buffer);
+		int Read (size_t limit, void* buffer);
 
 		void Close_End();
-		bool Is_Closed() const;
 	};
 
+	template <class Derived> // CRTP
 	class End : public VFS_Element {
 	protected:
 		const std::shared_ptr<Base> pipe;
@@ -46,16 +47,24 @@ namespace Pipe {
 	public:
 		End() = delete;
 		~End();
+
+		int Write(std::uint64_t offset, size_t limit, void* buffer) override {
+			return static_cast<Derived*>(this)->Write(offset, limit, buffer);
+		}
+
+		int Read(std::uint64_t offset, size_t limit, void* buffer) override {
+			return static_cast<Derived*>(this)->Read(offset, limit, buffer);
+		};
 	};
 
-	struct Write_End final : public End {
+	struct Write_End final : public End<Write_End> {
 		Write_End() = delete;
 		Write_End(std::shared_ptr<Base> pipe);
 		
 		virtual int Write(std::uint64_t offset, size_t limit, void* buffer) override;
 	};
 
-	struct Read_End final : public End {
+	struct Read_End final : public End<Read_End> {
 		Read_End() = delete;
 		Read_End(std::shared_ptr<Base> pipe);
 
