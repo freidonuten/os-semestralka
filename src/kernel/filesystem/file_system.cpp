@@ -1,4 +1,5 @@
 ﻿#include "file_system.h"
+#include "sysfs_layer/pipe.h"
 #include <map>
 
 
@@ -35,7 +36,14 @@ void file_system::close_handle(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
-	// TODO
+	auto [write_end, read_end] = Pipe::Factory();
+
+	auto desc_table = vfs.Get_Descriptor_Table();
+	auto ptr = reinterpret_cast<kiv_os::THandle*>(regs.rdx.r);
+
+	// output is write end and read end of the pipe
+	ptr[0] = desc_table->Create_Descriptor(write_end);
+	ptr[1] = desc_table->Create_Descriptor(read_end);
 }
 
 void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {

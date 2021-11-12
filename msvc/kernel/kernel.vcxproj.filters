@@ -43,6 +43,12 @@
     <Filter Include="Source Files\Processes">
       <UniqueIdentifier>{13f8b4aa-a489-49c0-8939-2e268197bada}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\fs\sysfs">
+      <UniqueIdentifier>{2041dd05-9d67-478c-9866-b0edf8d261c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\sysfs">
+      <UniqueIdentifier>{2066430d-2205-4c4a-b111-5f46fd2db628}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\kernel\kernel.cpp">
@@ -140,6 +146,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\file_system.cpp">
       <Filter>Source Files\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.cpp">
+      <Filter>Source Files\fs\sysfs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\file_system.h">
       <Filter>Header Files\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.h">
+      <Filter>Header Files\fs\sysfs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
