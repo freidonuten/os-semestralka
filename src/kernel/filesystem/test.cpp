@@ -1,9 +1,11 @@
-#include "test.h"
+﻿#include "test.h"
 
 #include "../../api/api.h"
 #include "../../api/hal.h"
 
 #include <iostream>
+#include <thread>
+#include <random>
 
 void set_working_dir(char* path) {
 	kiv_hal::TRegisters regs;
@@ -13,7 +15,7 @@ void set_working_dir(char* path) {
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 }
 
-void write_file(int handle, void* buffer, int how_many_bytes) {
+size_t write_file(int handle, void* buffer, int how_many_bytes) {
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Write_File);
@@ -21,9 +23,11 @@ void write_file(int handle, void* buffer, int how_many_bytes) {
 	regs.rdi.r = reinterpret_cast<uint64_t>(buffer);
 	regs.rcx.r = how_many_bytes;
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+
+	return regs.rax.r;
 }
 
-void read_file(int handle, void *buffer, int how_many_bytes) {
+size_t read_file(int handle, void *buffer, int how_many_bytes) {
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Read_File);
@@ -32,6 +36,7 @@ void read_file(int handle, void *buffer, int how_many_bytes) {
 	regs.rcx.r = how_many_bytes;
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 
+	return regs.rax.r;
 }
 
 int open_file(char* path) {
@@ -83,6 +88,73 @@ void seek(int handle, int offset, kiv_os::NFile_Seek whence) {
 	regs.rcx.l = static_cast<uint8_t>(whence);
 	regs.rcx.h = static_cast<uint8_t>(kiv_os::NFile_Seek::Set_Position);
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+void pipe(kiv_os::THandle *handles) {
+	kiv_hal::TRegisters regs;
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Create_Pipe);
+	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+constexpr size_t TEST_LENGTH = 1 << 20;
+constexpr size_t WRITE_BATCH = TEST_LENGTH / 1024;
+char buffer1[TEST_LENGTH] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+char buffer2[TEST_LENGTH] = "";
+
+void writer(kiv_os::THandle handle) {
+	for (size_t i = 0; i < TEST_LENGTH; i += WRITE_BATCH) {
+		write_file(handle, buffer1 + i, WRITE_BATCH);
+	}
+	close_handle(handle);
+}
+
+void reader(kiv_os::THandle handle) {
+	int read;
+	char* begin = buffer2;
+
+	while (read = read_file(handle, begin, 32)) {
+		begin += read;
+	}
+}
+
+void test_pipes() {
+	constexpr auto N = 16;
+	size_t time_total = 0;
+
+	std::random_device rd;
+
+	for (auto i = 40; i < TEST_LENGTH; ++i) {
+		buffer1[i] = rd();
+	}
+
+	for (int i = 0; i < N; ++i) {
+		kiv_os::THandle handles[2] = { 0 };
+		pipe(handles);
+
+		const auto start = std::chrono::high_resolution_clock::now();
+
+		std::thread t_writer(writer, handles[0]);
+		std::thread t_reader(reader, handles[1]);
+
+		t_writer.join();
+		t_reader.join();
+
+		const auto end = std::chrono::high_resolution_clock::now();
+		const auto time_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		
+		time_total += time_elapsed;
+
+		std::cout << time_elapsed << "[us]\n";
+	}
+	std::cout <<"cmp result: " << memcmp(buffer1, buffer2, TEST_LENGTH) << "\n";
+
+	std::cout << "avg: " << time_total / N / 1000. << "[ms]\n";
+	std::cout << "looping now, kill me...\n";
+	while (1);
+
+	return;
 }
 
 void filesystem_test() {

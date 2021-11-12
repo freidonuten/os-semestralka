@@ -18,31 +18,32 @@ protected:
 	std::shared_ptr<Fat_Directory> parent_fat_directory;
 public:
 	//IS CALLED BY PARENT DIRECTORY
-	virtual void Create() = 0;
-	virtual void Open(std::uint16_t file_start, std::uint16_t file_size) = 0;
-	virtual bool Remove() = 0;
+	virtual void Create();
+	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
+	virtual bool Remove();
 
 	//OPERATIONS CALLED BY ACTIONS
-	virtual int Write(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) = 0;
-	virtual int Read(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) = 0;
-	virtual void Change_Size(std::uint32_t desired_size) = 0;
+	virtual int Write(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
+	virtual int Read(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
+	virtual void Change_Size(std::uint32_t desired_size);
 	virtual void Change_Attributes(std::uint16_t file_attributes);
 	virtual std::uint16_t Read_Attributes();
 	virtual char* Read_File_Name();
 
 	//DIRECTORY ACTIONS
-	virtual std::shared_ptr<VFS_Element> Create_Child(char file_name[12], std::uint16_t file_attributes) = 0;
-	virtual std::shared_ptr<VFS_Element> Open_Child(char file_name[12]) = 0;
-	virtual bool Contains_Child(char file_name[12]) = 0;
-	virtual void Remove_Child(char file_name[12]) = 0;
+	virtual std::shared_ptr<VFS_Element> Create_Child(char file_name[12], std::uint16_t file_attributes);
+	virtual std::shared_ptr<VFS_Element> Open_Child(char file_name[12]);
+	virtual bool Contains_Child(char file_name[12]);
+	virtual void Remove_Child(char file_name[12]);
 	
-	virtual std::shared_ptr<Fat_Dir_Entry> Get_ChildO(char file_name[12]) = 0;
-	virtual void Update_ChildO(char old_file_name[12], Fat_Dir_Entry entry) = 0;
+	virtual std::shared_ptr<Fat_Dir_Entry> Get_ChildO(char file_name[12]);
+	virtual void Update_ChildO(char old_file_name[12], Fat_Dir_Entry entry);
 
 
 	//GENERATE PHYSICAL REPRESENTATION OF ENTRY IN FOLDER ON DISK
-	virtual Fat_Dir_Entry Generate_Dir_Entry() = 0;
+	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
+	virtual ~VFS_Element() { /* empty virtual dtor */ }
 };
 
 class VFS_Element_Factory {
