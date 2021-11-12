@@ -150,6 +150,9 @@
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.cpp">
       <Filter>Source Files\fs\sysfs</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\kernel\kernel.h">
@@ -261,6 +264,9 @@
       <Filter>Header Files\fs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.h">
+      <Filter>Header Files\fs\sysfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\stream.h">
       <Filter>Header Files\fs\sysfs</Filter>
     </ClInclude>
   </ItemGroup>

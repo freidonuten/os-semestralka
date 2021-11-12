@@ -32,6 +32,7 @@
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\filesystem_info.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\sector_io.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\test-old.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\test.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\utils\bitmap.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\filesystem_info.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\sector_io.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.h" />
+    <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\stream.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\test.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\utils\bitmap.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\utils\bit_utils.h" />
