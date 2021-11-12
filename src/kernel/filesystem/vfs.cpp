@@ -1,4 +1,5 @@
 #include "vfs.h"
+#include "sysfs_layer/stream.h"
 
 VFS::VFS() {
 	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(1024 * 1024, 512);
@@ -8,6 +9,14 @@ VFS::VFS() {
 	char root_name[MAX_FILENAME_SIZE] = "";
 	this->current_path = std::make_shared<Path>(root_name);
 	this->descriptor_table = std::make_shared<File_Descriptor_Table>();
+
+	// initialize stdio -- not sure if this is
+	// the right place to be doing this... Probably not.
+	const auto [console_input, console_output] = stream::Factory();
+
+	// these descriptors need to be 0 and 1
+	descriptor_table->Create_Descriptor(console_input);
+	descriptor_table->Create_Descriptor(console_output);
 }
 
 std::shared_ptr<File_Descriptor_Table> VFS::Get_Descriptor_Table() {

@@ -79,6 +79,7 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_Process::Clone);
 	regs.rcx.l = static_cast<uint8_t>(kiv_os::NClone::Create_Process);
 	regs.rdx.r = reinterpret_cast<uint64_t>(shell);
+	regs.rbx.e = 1;
 
 	Sys_Call(regs); // Clone shell
 
