@@ -153,8 +153,29 @@ void test_pipes() {
 	std::cout << "avg: " << time_total / N / 1000. << "[ms]\n";
 	std::cout << "looping now, kill me...\n";
 	while (1);
+}
 
-	return;
+void descriptor_perftest() {
+	kiv_os::THandle handles[2] = { 0 };
+	size_t time_total = 0;
+	constexpr auto N = 1024 << 2;
+
+	for (int i = 0; i < N; ++i) {
+		const auto start = std::chrono::high_resolution_clock::now();
+
+		for (size_t i = 0; i < 1000; ++i) {
+			pipe(handles);
+			close_handle(handles[0]);
+			close_handle(handles[1]);
+		}
+
+		const auto end = std::chrono::high_resolution_clock::now();
+		const auto time_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		time_total += time_elapsed;
+	}
+	std::cout << "avg: " << time_total / N << "[us]\n";
+	std::cout << "looping now, kill me...\n";
+	while (1);
 }
 
 void filesystem_test() {
