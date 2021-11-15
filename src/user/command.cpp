@@ -27,9 +27,24 @@ std::vector<Command> Command::Parse_Input(std::string const& input) {
 }
 
 // Parse single command to base command and parameters
-std::vector<Command> Command::Parse_Commands(const std::vector<std::string>& commands) {
+std::vector<Command> Command::Parse_Commands(std::vector<std::string>& commands) {
     std::vector<Command> parsed_commands;
     bool first_command = false;
+
+    if (commands.empty()) {
+        return {};
+    }
+
+    for (auto it = commands.begin(); it != commands.end(); ++it) {
+        auto line = *it;
+        if (line.find("@echo") != std::string::npos) { 
+            commands.erase(it);
+            commands.insert(commands.begin(), std::move(line));
+        }
+    }
+
+    
+
     for (auto& command : commands) {
         if (command.empty())
             continue;
@@ -56,12 +71,6 @@ Command Command::Parse_Command(std::string command) {
         return {};
     }
     new_command.command_name = token;
-    if (token.find("echo") != std::string::npos) {
-        if (token.rfind("@", 0) == 0) {
-            new_command.command_name = "echo";
-            new_command.parameters.push_back("@");
-        }
-    }
     token.clear();
     while (stream >> token) {
         if (strcmp(token.c_str(), INPUT_FOR_COMMAND.data()) == 0) {

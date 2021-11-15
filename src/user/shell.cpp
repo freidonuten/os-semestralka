@@ -8,7 +8,7 @@
 
 bool is_echo_on = true;
 
-size_t printNewLinePrompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
+size_t Print_Newline_Prompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
 	std::string currentDir = "";
 	size_t currentDirSize = currentDir.size();
 	size_t counter = 0;
@@ -36,7 +36,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 
 	// Console loop
 	while(1) {
-		printNewLinePrompt(std_in, std_out);
+		Print_Newline_Prompt(std_in, std_out);
 
 		if (kiv_os_rtl::Read_File(std_in, buffer, buffer_size, counter)) {
 			if ((counter > 0) && (counter == buffer_size)) {

@@ -20,6 +20,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 	std::map<size_t, kiv_os::THandle> out_pipes;
 	std::vector<kiv_os::THandle> handles;
 	size_t command_counter = 0;
+	size_t chars_written = 0;
 
 	for (Command command : commands) {
 		kiv_os::THandle process_handle;
@@ -28,10 +29,20 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		kiv_os::THandle handle_out = stdout_handle;
 		if (command.has_input_file) {
 			kiv_os_rtl::Open_File(command.input_filename, kiv_os::NFile_Attributes::System_File, kiv_os::NOpen_File::fmOpen_Always, handle_in);
+			if (handle_in == invalid_file_handle) {
+				kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+				kiv_os_rtl::Exit(2);
+				return;
+			}
 		}
 
 		if (command.has_output_file) {
 			kiv_os_rtl::Open_File(command.output_filename, kiv_os::NFile_Attributes::System_File, static_cast<kiv_os::NOpen_File>(0), handle_out);
+			if (handle_in == invalid_file_handle) {
+				kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+				kiv_os_rtl::Exit(2);
+				return;
+			}
 		}
 
 		if (command.redirect_pipe) {
@@ -41,9 +52,8 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			handle_out = pipe_handles[1];
 		}
 
-		//?????
 		if ((command_counter > 0) && (in_pipes.find(command_counter - 1) != in_pipes.end())) {
-			handle_in = pipe_handles[command_counter - 1];
+			handle_in = in_pipes[command_counter - 1];
 		}
 
 		kiv_os_rtl::Create_Process(command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle);

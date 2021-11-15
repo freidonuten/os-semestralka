@@ -11,7 +11,7 @@ class Command
 public:
     Command();
     static std::vector<Command> Parse_Input(const std::string& input);
-    static std::vector<Command> Parse_Commands(const std::vector<std::string>& commands);
+    static std::vector<Command> Parse_Commands(std::vector<std::string>& commands);
     static Command Parse_Command(std::string command);
     std::string Get_Parameters();
     std::string command_name;
