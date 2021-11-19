@@ -9,10 +9,11 @@ class CWD {
 private:
 	std::vector<std::string> implementation;
 	void Merge(CWD&& other) noexcept;
+	void Setup_Raw_Elements(char* path);
+	void Cleanup();
 public:
 	CWD(char* path);
 
-	void Reduce(int levels);
 	void Append(char* path);
 	void Print(char* buffer);
 };

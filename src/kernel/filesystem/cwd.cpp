@@ -1,6 +1,11 @@
 #include "cwd.h"
 
 CWD::CWD(char* path) {
+	this->Setup_Raw_Elements(path);
+	this->Cleanup();
+}
+
+void CWD::Setup_Raw_Elements(char* path) {
 	std::stringstream temp(path);
 	std::string token;
 
@@ -8,8 +13,40 @@ CWD::CWD(char* path) {
 		if (token.compare("") == 0) {
 			continue;
 		}
+
 		this->implementation.push_back(token);
 	}
+}
+
+void CWD::Cleanup() {
+	//we will iterate through old implementation (which includes .. a .)
+	//we will ignore .
+	//for .. we will remove previous element
+	//we will copy the rest to new implementation
+
+	std::vector<std::string> new_implementation;
+
+	for (auto element : this->implementation) {
+		if (element.compare(".") == 0) {
+			continue;
+		}
+
+		if (element.compare("..") == 0) {
+			if (new_implementation.size() > 0) {
+				new_implementation.pop_back();
+			}
+			continue;
+		}
+
+		new_implementation.push_back(std::move(element));
+	}
+
+	this->implementation.erase(
+		this->implementation.begin(),
+		this->implementation.end()
+	);
+
+	this->implementation = new_implementation;
 }
 
 void CWD::Merge(CWD&& other) noexcept {
@@ -26,19 +63,11 @@ void CWD::Merge(CWD&& other) noexcept {
 	);
 }
 
-void CWD::Reduce(int levels) {
-	if (levels > this->implementation.size()) {
-		throw std::runtime_error("Can't reduce more path elements than available.");
-	}
-
-	for (int i = 0; i < levels; i++) {
-		this->implementation.pop_back();
-	}
-}
-
 void CWD::Append(char* path) {
-	CWD other(path);
+	CWD other("");
+	other.Setup_Raw_Elements(path);
 	this->Merge(std::move(other));
+	this->Cleanup(); //perform the cleanup only in merged directory
 }
 
 void CWD::Print(char* buffer) {

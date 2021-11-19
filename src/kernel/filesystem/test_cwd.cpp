@@ -21,7 +21,7 @@ void test_cwd() {
 
 	CWD cwd2 = cwd1;
 	print(cwd2);
-	cwd2.Reduce(3);
+	cwd2.Append("/../../..");
 	print(cwd2);
 	print(cwd1);
 }
