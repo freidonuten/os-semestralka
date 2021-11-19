@@ -48,7 +48,6 @@
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.cpp" />
     <ClCompile Include="..\..\src\kernel\handles.cpp" />
-    <ClCompile Include="..\..\src\kernel\io.cpp" />
     <ClCompile Include="..\..\src\kernel\kernel.cpp" />
     <ClCompile Include="..\..\src\kernel\Process_Control_Block.cpp" />
     <ClCompile Include="..\..\src\kernel\Task_Manager.cpp" />
@@ -86,7 +85,6 @@
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.h" />
     <ClInclude Include="..\..\src\kernel\handles.h" />
-    <ClInclude Include="..\..\src\kernel\io.h" />
     <ClInclude Include="..\..\src\kernel\kernel.h" />
     <ClInclude Include="..\..\src\kernel\Kernel_Utils.h" />
     <ClInclude Include="..\..\src\kernel\Process_Control_Block.h" />
