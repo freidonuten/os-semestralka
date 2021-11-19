@@ -3,7 +3,7 @@
 
 void print(CWD& cwd) {
 	char buffer[256];
-	cwd.Print(buffer);
+	cwd.Print(buffer, 256);
 	std::cout << buffer << std::endl;
 }
 
@@ -18,6 +18,8 @@ void test_cwd() {
 	print(cwd1);
 	cwd1.Append(path3);
 	print(cwd1);
+
+	int printed = cwd1.Print(nullptr, 10);
 
 	CWD cwd2 = cwd1;
 	print(cwd2);

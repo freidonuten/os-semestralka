@@ -10,7 +10,7 @@ void CWD::Setup_Raw_Elements(char* path) {
 	std::string token;
 
 	while (std::getline(temp, token, '/')) {
-		if (token.compare("") == 0) {
+		if (!token.size()) { //is empty
 			continue;
 		}
 
@@ -41,10 +41,7 @@ void CWD::Cleanup() {
 		new_implementation.push_back(std::move(element));
 	}
 
-	this->implementation.erase(
-		this->implementation.begin(),
-		this->implementation.end()
-	);
+	this->implementation.clear();
 
 	this->implementation = new_implementation;
 }
@@ -57,10 +54,7 @@ void CWD::Merge(CWD&& other) noexcept {
 		std::make_move_iterator(other.implementation.end())
 	);
 
-	other.implementation.erase(
-		other.implementation.begin(),
-		other.implementation.end()
-	);
+	other.implementation.clear();
 }
 
 void CWD::Append(char* path) {
@@ -70,7 +64,23 @@ void CWD::Append(char* path) {
 	this->Cleanup(); //perform the cleanup only in merged directory
 }
 
-void CWD::Print(char* buffer) {
+const int CWD::Get_Path_Size() {
+	int result = 0;
+	for (auto element : this->implementation) {
+		result += element.size();
+		result++; // '/' in path
+	}
+	result++; //null termination
+	return result;
+}
+
+const int CWD::Print(char* buffer, int buffer_size) {
+	int required_size = Get_Path_Size();
+
+	if (buffer_size < required_size) {
+		return 0;
+	}
+
 	char* ptr = buffer;
 	for (auto path_element : this->implementation) {
 		*ptr = '/';
@@ -82,4 +92,6 @@ void CWD::Print(char* buffer) {
 
 	}
 	*ptr = 0; //NULL TERMINATION
+
+	return required_size;
 }
