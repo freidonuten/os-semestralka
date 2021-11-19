@@ -4,6 +4,7 @@
 #include "filesystem/test.h"
 #include "Task_Manager.h"
 #include <Windows.h>
+#include "filesystem/cwd.h"
 
 #include <memory>
 #include "filesystem/vfs.h"
@@ -34,6 +35,7 @@ void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	Initialize_Kernel();
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
+	test_cwd();
 	//filesystem_test();
 	//return;
 	kiv_hal::TRegisters regs;

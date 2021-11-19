@@ -49,6 +49,12 @@
     <Filter Include="Source Files\fs\sysfs">
       <UniqueIdentifier>{2066430d-2205-4c4a-b111-5f46fd2db628}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\fs\cwd">
+      <UniqueIdentifier>{02561140-600e-40dc-bb2c-94634de9805b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\cwd">
+      <UniqueIdentifier>{984293cc-8009-45ae-afef-48947d1f3cff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\kernel\kernel.cpp">
@@ -149,6 +155,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\cwd.cpp">
+      <Filter>Source Files\fs\cwd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\test_cwd.cpp">
+      <Filter>Source Files\fs\cwd</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -262,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\stream.h">
       <Filter>Header Files\fs\sysfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\cwd.h">
+      <Filter>Header Files\fs\cwd</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
