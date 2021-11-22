@@ -35,6 +35,8 @@ public:
 
 
 
+
+
 struct Fat_Dir_Entry {
 	std::uint16_t file_attributes;
 	char file_name[12];
@@ -69,3 +71,7 @@ struct Descriptor_Entry {
 	std::shared_ptr<VFS_Element> element;
 	std::uint64_t position;
 };
+
+namespace global_structs {
+	Fat_Dir_Entry Create_Empty_Fat_Dir_Entry();
+}

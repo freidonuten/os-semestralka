@@ -26,7 +26,7 @@ public:
 
 	std::vector<Fat_Dir_Entry> Read_All_Entries();
 	bool Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
-	Fat_Dir_Entry Read_Entry_By_Name(char file_name[8 + 1 + 3], bool* not_found);
+	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]); //bool out = > true = ok, false = not_found
 	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
 	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
 

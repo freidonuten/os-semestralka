@@ -23,7 +23,11 @@ public:
 	virtual std::uint64_t Seek(std::uint64_t offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation);
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
-	//DIRECTORY METHODS (to be continued)
+	//DIRECTORY METHODS (wrappers)
+	bool Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]);
+	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
+	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
 };
 
 class VFS_Root_Directory2 : public VFS_Directory2 {

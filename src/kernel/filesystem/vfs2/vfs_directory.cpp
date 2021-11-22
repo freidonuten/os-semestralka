@@ -24,9 +24,7 @@ void VFS_Directory2::Open(std::uint16_t file_start, std::uint16_t file_size) {
 }
 
 bool VFS_Directory2::Remove() {
-	bool is_not_empty;
-	this->self_fat_directory->Remove_Directory(&is_not_empty);
-	return !is_not_empty;
+	return this->self_fat_directory->Remove_Directory();
 }
 
 std::uint64_t VFS_Directory2::Write(size_t how_many_bytes, void* buffer) {
@@ -89,6 +87,22 @@ std::uint64_t VFS_Directory2::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entr
 Fat_Dir_Entry VFS_Directory2::Generate_Dir_Entry() {
 	return Fat_Dir_Entry_Factory::Create(this->file_attributes, this->file_name,
 		this->self_fat_directory->Get_File_Start(), this->self_fat_directory->Get_File_Size());
+}
+
+bool VFS_Directory2::Create_New_Entry(Fat_Dir_Entry entry) {
+	return this->self_fat_directory->Create_New_Entry(entry);
+}
+
+std::tuple<Fat_Dir_Entry, bool> VFS_Directory2::Read_Entry_By_Name(char file_name[8 + 1 + 3]) {
+	return this->self_fat_directory->Read_Entry_By_Name(file_name);
+}
+
+bool VFS_Directory2::Remove_Entry(char file_name[8 + 1 + 3]) {
+	return this->self_fat_directory->Remove_Entry(file_name);
+}
+
+bool VFS_Directory2::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry) {
+	return this->self_fat_directory->Change_Entry(old_file_name, new_entry);
 }
 
 bool VFS_Root_Directory2::Remove() {

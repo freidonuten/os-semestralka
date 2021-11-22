@@ -60,15 +60,15 @@ std::vector<Fat_Dir_Entry> Fat_Directory::Read_All_Entries() {
 	return entry_vector;
 }
 
-Fat_Dir_Entry Fat_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3],  bool* not_found) {
+std::tuple<Fat_Dir_Entry, bool> Fat_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3]) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, file_name);
 	if (index != -1) {
-		*not_found = false;
-		return entries[index];
+		return { entries[index], true };
 	}
 	else {
-		*not_found = true;
+		Fat_Dir_Entry empty = global_structs::Create_Empty_Fat_Dir_Entry();
+		return { empty, false };
 	}
 	
 }
