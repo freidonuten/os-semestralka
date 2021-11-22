@@ -26,16 +26,16 @@ std::uint64_t Fat_Directory::Get_File_Size() {
 	return this->file->Get_File_Size();
 }
 
-void Fat_Directory::Create_New_Entry(Fat_Dir_Entry entry, bool* exists) {
+bool Fat_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
 	auto entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, entry.file_name);
 	if (index == -1) {
-		*exists = false;
 		entries.push_back(entry);
 		Write_Entries(entries);
+		return true;
 	}
 	else {
-		*exists = true;
+		return false;
 	}
 	
 }
@@ -73,40 +73,40 @@ Fat_Dir_Entry Fat_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3],  bool
 	
 }
 
-void Fat_Directory::Remove_Entry(char file_name[8 + 1 + 3], bool* not_found) {
+bool Fat_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, file_name);
 	if (index != -1) {
-		*not_found = false;
 		Set_Last_Element_To_Index(entries, index);
+		return true;
 	}
 	else {
-		*not_found = true;
+		return false;
 	}
 	
 }
 
-void Fat_Directory::Remove_Directory(bool* not_empty) {
+bool Fat_Directory::Remove_Directory() {
 	if (this->Is_Empty()) {
-		*not_empty = false;
 		this->file->Remove_File();
 		this->file = nullptr;
+		return true;
 	}
 	else {
-		*not_empty = true;
+		return false;
 	}
 }
 
-void Fat_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry, bool* not_found) {
+bool Fat_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, old_file_name);
 	if (index != -1) {
-		*not_found = false;
 		entries[index] = new_entry;
 		Write_Entries(entries);
+		return true;
 	}
 	else {
-		*not_found = true;
+		return false;
 	}
 }
 
