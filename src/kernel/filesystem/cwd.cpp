@@ -64,7 +64,7 @@ void CWD::Append(char* path) {
 	this->Cleanup(); //perform the cleanup only in merged directory
 }
 
-const int CWD::Get_Path_Size() {
+int CWD::Get_Path_Size() const {
 	int result = 0;
 	for (auto element : this->implementation) {
 		result += element.size();
@@ -74,7 +74,7 @@ const int CWD::Get_Path_Size() {
 	return result;
 }
 
-const int CWD::Print(char* buffer, int buffer_size) {
+int CWD::Print(char* buffer, int buffer_size) const{
 	int required_size = Get_Path_Size();
 
 	if (buffer_size < required_size) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fat_element.h"
+#include "vfs_fat_element.h"
 #include "../fat_layer/fat_directory.h"
 
 class VFS_Directory2 : public VFS_Fat_Element2 {	

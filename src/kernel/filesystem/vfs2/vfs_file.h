@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fat_element.h"
+#include "vfs_fat_element.h"
 
 #include "../fat_layer/fat_directory.h"
 #include "../fat_layer/fat_file.h"

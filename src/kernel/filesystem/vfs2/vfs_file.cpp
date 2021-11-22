@@ -11,10 +11,8 @@ VFS_File2::VFS_File2(std::shared_ptr<Fat_File_Factory> fat_file_factory, std::sh
 }
 
 bool VFS_File2::Is_Convertable(std::uint16_t required_file_attributes) {
-	if (api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory)) {
-		return false;
-	}
-	return true;
+	//Can't be directory, can be ro file
+	return !api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory);
 }
 
 void VFS_File2::Create() {

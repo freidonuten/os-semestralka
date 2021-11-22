@@ -11,12 +11,12 @@ private:
 	void Merge(CWD&& other) noexcept;
 	void Setup_Raw_Elements(char* path);
 	void Cleanup();
-	const int Get_Path_Size();
+	int Get_Path_Size() const;
 public:
 	CWD(char* path);
 
 	void Append(char* path);
-	const int Print(char* buffer, int buffer_size);
+	int Print(char* buffer, int buffer_size) const;
 };
 
 void test_cwd();

@@ -10,12 +10,9 @@ VFS_Directory2::VFS_Directory2(std::shared_ptr<Fat_Directory_Factory> factory, c
 }
 
 bool VFS_Directory2::Is_Convertable(std::uint16_t required_file_attributes) {
-	if (api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory) &&
-		api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Read_Only))
-	{
-		return true;
-	}
-	return false;
+	//must be read only directory
+	return api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory) &&
+		api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Read_Only);
 }
 
 void VFS_Directory2::Create() {
