@@ -2,9 +2,8 @@
 #include "../utils/char_utils.h"
 #include "../utils/api_utils.h"
 
-VFS_Directory2::VFS_Directory2(std::shared_ptr<Fat_Directory_Factory> factory, std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint16_t file_attributes) {
+VFS_Directory2::VFS_Directory2(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes) {
 	this->fat_directory_factory = factory;
-	this->parent_fat_directory = parent_directory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
 	this->file_attributes = file_attributes;
 	this->file_position = 0;
@@ -95,7 +94,7 @@ Fat_Dir_Entry VFS_Directory2::Generate_Dir_Entry() {
 		this->self_fat_directory->Get_File_Start(), this->self_fat_directory->Get_File_Size());
 }
 
-bool VFS_Root_Directory::Remove() {
+bool VFS_Root_Directory2::Remove() {
 	//TODO PERMISSION DENIED
 	return false;
 }

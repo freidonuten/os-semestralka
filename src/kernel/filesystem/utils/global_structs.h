@@ -10,6 +10,13 @@ enum class Task_Type : std::uint8_t {
 	WRITE
 };
 
+enum class VFS_Fat_Element_Type : std::uint8_t {
+	DIRECTORY,
+	FILE,
+	ROFILE,
+	INVALID
+};
+
 struct IO_Task {
 	std::vector<std::uint64_t> data_blocks; //sectors or clusters depending on context
 	std::uint64_t starting_byte;

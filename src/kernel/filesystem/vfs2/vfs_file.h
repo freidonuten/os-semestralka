@@ -5,8 +5,9 @@
 #include "../fat_layer/fat_directory.h"
 #include "../fat_layer/fat_file.h"
 
-class VFS_File2 : public Fat_Element2 {
+class VFS_File2 : public VFS_Fat_Element2 {
 protected:
+	std::shared_ptr<Fat_Directory> parent_fat_directory;
 	std::shared_ptr<Fat_File_Factory> fat_file_factory;
 	std::shared_ptr<Fat_File> fat_file;
 

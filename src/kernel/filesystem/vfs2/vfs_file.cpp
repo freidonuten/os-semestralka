@@ -32,7 +32,8 @@ bool VFS_File2::Remove() {
 
 std::uint64_t VFS_File2::Write(size_t how_many_bytes, void* buffer) {
 	this->fat_file->Write_To_File(this->file_position, how_many_bytes, buffer);
-	this->parent_fat_directory->Change_Entry(this->file_name, this->Generate_Dir_Entry());
+	bool not_found;
+	this->parent_fat_directory->Change_Entry(this->file_name, this->Generate_Dir_Entry(), &not_found);
 	//TODO kolik jsem jich zapsal
 	this->file_position += how_many_bytes;
 	return how_many_bytes;
