@@ -1,7 +1,7 @@
 #include "stream.h"
 
 
-int stream::Input_Console_Stream::Read(std::uint64_t, size_t n, void* buffer_vp) {
+std::uint64_t stream::Input_Console_Stream::Read(size_t n, void* buffer_vp) {
 	auto buffer = static_cast<char*>(buffer_vp);
 	auto registers = kiv_hal::TRegisters();
 	auto pos = size_t(0);
@@ -49,7 +49,7 @@ int stream::Input_Console_Stream::Read(std::uint64_t, size_t n, void* buffer_vp)
 	return pos;
 }
 
-int stream::Output_Console_Stream::Write(std::uint64_t, size_t n, void* buffer) {
+std::uint64_t stream::Output_Console_Stream::Write(size_t n, void* buffer) {
 	kiv_hal::TRegisters registers;
 	registers.rax.h = static_cast<decltype(registers.rax.h)>(kiv_hal::NVGA_BIOS::Write_String);
 	registers.rdx.r = reinterpret_cast<uint64_t>(buffer);
@@ -60,7 +60,7 @@ int stream::Output_Console_Stream::Write(std::uint64_t, size_t n, void* buffer) 
 	return registers.rax.r ? n : 0;
 }
 
-std::tuple<std::shared_ptr<VFS_Element>, std::shared_ptr<VFS_Element>>
+std::tuple<std::shared_ptr<VFS_Element2>, std::shared_ptr<VFS_Element2>>
 stream::Factory() {
 	return {
 		std::make_shared<stream::Input_Console_Stream>(),

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../vfs_layer/vfs_element.h"
+#include "../vfs2/vfs_element.h"
+
 #include <array>
 #include <condition_variable>
 #include <mutex>
@@ -34,14 +35,14 @@ namespace Pipe {
 		Base& operator=(const Base&) = delete;
 		Base& operator=(const Base&&) = delete;
 
-		int Write(size_t limit, void* buffer);
-		int Read (size_t limit, void* buffer);
+		std::uint64_t Write(size_t limit, void* buffer);
+		std::uint64_t Read (size_t limit, void* buffer);
 
 		void Close_End();
 	};
 
 	template <class Derived> // CRTP
-	class End : public VFS_Element {
+	class End : public VFS_Element2 {
 	protected:
 		const std::shared_ptr<Base> pipe;
 
@@ -51,12 +52,12 @@ namespace Pipe {
 		End() = delete;
 		~End();
 
-		int Write(std::uint64_t offset, size_t limit, void* buffer) override {
-			return static_cast<Derived*>(this)->Write(offset, limit, buffer);
+		std::uint64_t Write(size_t limit, void* buffer) override {
+			return static_cast<Derived*>(this)->Write(limit, buffer);
 		}
 
-		int Read(std::uint64_t offset, size_t limit, void* buffer) override {
-			return static_cast<Derived*>(this)->Read(offset, limit, buffer);
+		std::uint64_t Read(size_t limit, void* buffer) override {
+			return static_cast<Derived*>(this)->Read(limit, buffer);
 		};
 	};
 
@@ -64,14 +65,14 @@ namespace Pipe {
 		Write_End() = delete;
 		Write_End(std::shared_ptr<Base> pipe);
 		
-		virtual int Write(std::uint64_t offset, size_t limit, void* buffer) override;
+		virtual std::uint64_t Write(size_t limit, void* buffer) override;
 	};
 
 	struct Read_End final : public End<Read_End> {
 		Read_End() = delete;
 		Read_End(std::shared_ptr<Base> pipe);
 
-		virtual int Read(std::uint64_t offset, size_t limit, void* buffer) override;
+		virtual std::uint64_t Read(size_t limit, void* buffer) override;
 	};
 
 	using RW_Pair = std::tuple<

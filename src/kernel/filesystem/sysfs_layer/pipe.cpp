@@ -15,7 +15,7 @@ void Pipe::Base::advance_begin() {
 	--filled;
 }
 
-int Pipe::Base::Write(size_t limit, void* source_vp) {
+std::uint64_t Pipe::Base::Write(size_t limit, void* source_vp) {
 	if (partially_closed) {
 		// pipe is either closed to write => don't write
 		// or pipe is closed to read
@@ -42,7 +42,7 @@ int Pipe::Base::Write(size_t limit, void* source_vp) {
 	return source - source_begin;
 }
 
-int Pipe::Base::Read(size_t limit, void* target_vp) {
+std::uint64_t Pipe::Base::Read(size_t limit, void* target_vp) {
 	 // if write end is closed we don't need to synchronize
 	std::unique_lock<std::mutex> lock(mutex);
 	cond_readable.wait(lock, [this]() { return filled > 0 || partially_closed; });
@@ -72,14 +72,14 @@ void Pipe::Base::Close_End() {
 Pipe::Write_End::Write_End(std::shared_ptr<Base> pipe) : End(pipe)
 { }
 
-int Pipe::Write_End::Write(std::uint64_t offset, size_t limit, void* buffer) {
+std::uint64_t Pipe::Write_End::Write(size_t limit, void* buffer) {
 	return pipe->Write(limit, buffer);
 }
 
 Pipe::Read_End::Read_End(std::shared_ptr<Base> pipe) : End(pipe)
 { }
 
-int Pipe::Read_End::Read(std::uint64_t offset, size_t limit, void* buffer) {
+std::uint64_t Pipe::Read_End::Read(size_t limit, void* buffer) {
 	return pipe->Read(limit, buffer);
 }
 

@@ -47,7 +47,7 @@ void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
+	/*const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
 
 	const auto root_directory = vfs.Get_Root();
 	const auto path_to_file = vfs.Get_Path(path_argument);
@@ -57,11 +57,11 @@ void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	char filename[MAX_FILENAME_SIZE];
 
 	path_to_file->Read_Filename(filename);
-	parent_element->Remove_Child(filename);
+	parent_element->Remove_Child(filename);*/
 }
 
 void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto result = [regs, &vfs]() {
+	/*const auto result = [regs, &vfs]() {
 		const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
 		const auto open_file_constants = static_cast<kiv_os::NOpen_File>(regs.rcx.r);
 		const auto file_attributes = regs.rdi.r;
@@ -91,11 +91,11 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 		return parent_element->Create_Child(filename, file_attributes);
 	}();
 
-	regs.rax.x = vfs.Get_Descriptor_Table()->Create_Descriptor(result);
+	regs.rax.x = vfs.Get_Descriptor_Table()->Create_Descriptor(result);*/
 }
 
 void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto descriptor = regs.rdx.x;
+	/*const auto descriptor = regs.rdx.x;
 	const auto buffer = reinterpret_cast<char*>(regs.rdi.r);
 	const auto count = regs.rcx.r;
 
@@ -104,11 +104,11 @@ void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto written_bytes = entry->element->Write(entry->position, count, buffer);
 	entry->position += written_bytes;
 
-	regs.rax.r = written_bytes;
+	regs.rax.r = written_bytes;*/
 }
 
 void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto descriptor = regs.rdx.x;
+	/*const auto descriptor = regs.rdx.x;
 	const auto buffer = reinterpret_cast<char*>(regs.rdi.r);
 	const auto count = regs.rcx.r;
 
@@ -116,11 +116,11 @@ void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto read_bytes = entry->element->Read(entry->position, count, buffer);
 
 	entry->position += read_bytes;
-	regs.rax.r = read_bytes;
+	regs.rax.r = read_bytes;*/
 }
 
 void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto descriptor = regs.rdx.x;
+	/*const auto descriptor = regs.rdx.x;
 	const auto seek_offset = regs.rdi.r;
 	const auto seek_type = static_cast<kiv_os::NFile_Seek>(regs.rcx.l);
 	const auto seek_operation = static_cast<kiv_os::NFile_Seek>(regs.rcx.h);
@@ -150,17 +150,17 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 	case kiv_os::NFile_Seek::Set_Position:
 		//DO NOTHING
 		break;
-	}
+	}*/
 }
 
 void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto path_attr = reinterpret_cast<char*>(regs.rdx.r);
+	/*const auto path_attr = reinterpret_cast<char*>(regs.rdx.r);
 	const auto root_directory = vfs.Get_Root();
 
 	const auto path_to_file = vfs.Get_Path(path_attr);
 	const auto element = path_to_file->Get_Element(root_directory);
 
-	regs.rdi.r = element->Read_Attributes();
+	regs.rdi.r = element->Read_Attributes();*/
 }
 
 void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -172,14 +172,14 @@ void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
+	/*const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
 	const auto file_attributes = regs.rdi.r; // FIXME tady byl narrowing cast 64->16, takhle je to správně?
 	const auto root_directory = vfs.Get_Root();
 
 	auto path_to_file = vfs.Get_Path(path_argument);
 	auto element = path_to_file->Get_Element(root_directory);
 
-	element->Change_Attributes(file_attributes);
+	element->Change_Attributes(file_attributes);*/
 }
 
 void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -194,7 +194,4 @@ void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 	else {
 		//TODO ERROR
 	}
-
-
-	
 }

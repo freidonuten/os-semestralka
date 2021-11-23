@@ -8,6 +8,7 @@ VFS_Directory::VFS_Directory(VFS_Element_Factory* element_factory, std::shared_p
 	this->parent_fat_directory = parent_directory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
 	this->file_attributes = file_attributes;
+
 }
 
 void VFS_Directory::Create() {
@@ -19,13 +20,7 @@ void VFS_Directory::Open(std::uint16_t file_start, std::uint16_t file_size) {
 }
 
 bool VFS_Directory::Remove() {
-	if (this->self_fat_directory->Get_File_Size() != 0) {
-		//TODO ERROR NOT EMPTY
-		return false;
-	}
-
-	this->self_fat_directory->Remove_Directory();
-	return true;
+	return this->self_fat_directory->Remove_Directory();
 }
 
 int VFS_Directory::Write(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
@@ -47,7 +42,8 @@ void VFS_Directory::Change_Size(std::uint32_t desired_size) {
 
 std::shared_ptr<Fat_Dir_Entry> VFS_Directory::Get_ChildO(char file_name[12]) {
 	auto result = this->self_fat_directory->Read_Entry_By_Name(file_name);
-	return std::make_shared<Fat_Dir_Entry>(result);
+	auto entry = std::get<0>(result);
+	return std::make_shared<Fat_Dir_Entry>(entry);
 }
 
 std::shared_ptr<VFS_Element> VFS_Directory::Create_Child(char file_name[12], std::uint16_t file_attributes) {
@@ -59,14 +55,16 @@ std::shared_ptr<VFS_Element> VFS_Directory::Create_Child(char file_name[12], std
 }
 
 std::shared_ptr<VFS_Element> VFS_Directory::Open_Child(char file_name[12]) {
-	Fat_Dir_Entry entry = this->self_fat_directory->Read_Entry_By_Name(file_name);
+	auto temp = this->self_fat_directory->Read_Entry_By_Name(file_name);
+	auto entry = std::get<0>(temp);
 	auto result = this->element_factory->Create(this->self_fat_directory, entry.file_name, entry.file_attributes);
 	result->Open(entry.file_start, entry.file_size);
 	return result;
 }
 
 bool VFS_Directory::Contains_Child(char file_name[12]) {
-	return this->self_fat_directory->Contains_Entry(file_name);
+	this->self_fat_directory->Read_Entry_By_Name(file_name);
+	return false;
 }
 
 void VFS_Directory::Remove_Child(char file_name[12]) {
@@ -103,8 +101,12 @@ void VFS_Directory::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries
 
 void VFS_Directory::Add_Child(Fat_Dir_Entry entry) {
 	this->self_fat_directory->Create_New_Entry(entry);
-	Fat_Dir_Entry self_entry = this->Generate_Dir_Entry();
-	this->parent_fat_directory->Change_Entry(this->file_name, self_entry);
+
+
+		Fat_Dir_Entry self_entry = this->Generate_Dir_Entry();
+		this->parent_fat_directory->Change_Entry(this->file_name, self_entry);
+
+
 }
 
 
@@ -112,13 +114,9 @@ void Root_Directory::Create(std::shared_ptr<VFS_Directory> parent_vfs_directory)
 	this->self_fat_directory = this->fat_directory_factory->Create_New_Directory();
 }
 
-void Root_Directory::Remove(std::shared_ptr<VFS_Directory> parent_vfs_directory) {
-	if (this->self_fat_directory->Get_File_Size() != 0) {
-		//TODO ERROR NOT EMPTY
-		return;
-	}
-
-	this->self_fat_directory->Remove_Directory();
+bool Root_Directory::Remove(std::shared_ptr<VFS_Directory> parent_vfs_directory) {
+	//ERROR CANT REMOVE ROOT DIRECTORY
+	return false;
 }
 
 void Root_Directory::Add_Child(Fat_Dir_Entry entry) {

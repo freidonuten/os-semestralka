@@ -48,8 +48,7 @@ public:
 	using VFS_Directory::VFS_Directory;
 
 	virtual void Create(std::shared_ptr<VFS_Directory> parent_vfs_directory);
-	virtual void Remove(std::shared_ptr<VFS_Directory> parent_vfs_directory);
+	virtual bool Remove(std::shared_ptr<VFS_Directory> parent_vfs_directory);
 
-	
 	virtual void Remove_Child(char file_name[12]);
 };

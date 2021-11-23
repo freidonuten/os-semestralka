@@ -11,15 +11,15 @@ class CWD {
 private:
 	std::vector<std::string> implementation;
 	void Merge(CWD&& other) noexcept;
-	void Setup_Raw_Elements(char* path);
+	void Setup_Raw_Elements(const char* path);
 	void Cleanup();
 	int Get_Path_Size() const;
 
 
 public:
-	CWD(char* path);
+	CWD(const char* path);
 
-	void Append(char* path);
+	void Append(const char* path);
 	int Print(char* buffer, int buffer_size) const;
 
 

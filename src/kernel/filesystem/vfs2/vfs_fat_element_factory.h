@@ -25,5 +25,5 @@ public:
 	VFS_Fat_Element_Factory2(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);
 
 	std::shared_ptr<VFS_Fat_Element2> Make(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
-	std::shared_ptr<VFS_Fat_Element2> Make_Root_Directory();
+	std::shared_ptr<VFS_Directory2> Make_Root_Directory();
 };

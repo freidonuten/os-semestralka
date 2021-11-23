@@ -1,11 +1,11 @@
 #include "cwd.h"
 
-CWD::CWD(char* path) {
+CWD::CWD(const char* path) {
 	this->Setup_Raw_Elements(path);
 	this->Cleanup();
 }
 
-void CWD::Setup_Raw_Elements(char* path) {
+void CWD::Setup_Raw_Elements(const char* path) {
 	std::stringstream temp(path);
 	std::string token;
 
@@ -57,7 +57,7 @@ void CWD::Merge(CWD&& other) noexcept {
 	other.implementation.clear();
 }
 
-void CWD::Append(char* path) {
+void CWD::Append(const char* path) {
 	CWD other("");
 	other.Setup_Raw_Elements(path);
 	this->Merge(std::move(other));

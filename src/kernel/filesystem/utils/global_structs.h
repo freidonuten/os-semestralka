@@ -71,13 +71,6 @@ struct TDir_Entry {
 	char file_name[8 + 1 + 3];	//8.3 FAT
 };
 
-class VFS_Element; //forward declaration
-
-struct Descriptor_Entry {
-	std::shared_ptr<VFS_Element> element;
-	std::uint64_t position;
-};
-
 namespace global_structs {
 	Fat_Dir_Entry Create_Empty_Fat_Dir_Entry();
 }

@@ -20,9 +20,9 @@ std::shared_ptr<VFS_Fat_Element2> VFS_Fat_Element_Factory2::Make(std::shared_ptr
 	}
 }
 
-std::shared_ptr<VFS_Fat_Element2> VFS_Fat_Element_Factory2::Make_Root_Directory() {
+std::shared_ptr<VFS_Directory2> VFS_Fat_Element_Factory2::Make_Root_Directory() {
 	char filename[12] = "";
-	std::shared_ptr<VFS_Fat_Element2> result = std::make_shared<VFS_Root_Directory2>(
+	std::shared_ptr<VFS_Directory2> result = std::make_shared<VFS_Root_Directory2>(
 		this->directory_factory, filename, 0xff);
 
 	return result;
