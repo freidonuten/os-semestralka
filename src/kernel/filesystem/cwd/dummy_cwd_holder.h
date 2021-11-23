@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cwd.h"
-#include "vfs2/vfs_directory.h"
+#include "../vfs2/vfs_directory.h"
 
 #include <tuple>
 

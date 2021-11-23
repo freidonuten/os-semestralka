@@ -21,6 +21,11 @@ void test_cwd() {
 
 	int printed = cwd1.Print(nullptr, 10);
 
+	for (auto it = cwd1.begin(); it < cwd1.end(); it++) {
+		std::cout << *it << std::endl;
+	}
+
+
 	CWD cwd2 = cwd1;
 	print(cwd2);
 	cwd2.Append("/../../..");

@@ -37,6 +37,7 @@ public:
 		pointer operator->() { return m_ptr; }
 		Iterator& operator++() { m_ptr++; return *this; }
 		Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
+		Iterator operator+(int number) { Iterator tmp(this->m_ptr); tmp.m_ptr += number; return tmp;}
 		friend bool operator== (const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; };
 		friend bool operator!= (const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; };
 		friend bool operator< (const Iterator& a, const Iterator& b) { return a.m_ptr < b.m_ptr; };

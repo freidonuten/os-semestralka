@@ -17,6 +17,12 @@ enum class VFS_Fat_Element_Type : std::uint8_t {
 	INVALID
 };
 
+enum class Open_Directory_Error : std::uint8_t {
+	OK,
+	PATH_NOT_EXISTING,
+	NOT_A_DIRECTORY
+};
+
 struct IO_Task {
 	std::vector<std::uint64_t> data_blocks; //sectors or clusters depending on context
 	std::uint64_t starting_byte;

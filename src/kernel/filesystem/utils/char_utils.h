@@ -2,5 +2,5 @@
 
 class Char_Utils {
 public:
-	static void Copy_Array(char* destination, char* source, int count);
+	static void Copy_Array(char* destination, const char* source, int count);
 };
