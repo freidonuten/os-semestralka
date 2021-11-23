@@ -167,7 +167,8 @@ void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto buffer = reinterpret_cast<char*>(regs.rdx.r);
 	const auto buffer_size = regs.rcx.r;
 
-	regs.rdi.r = vfs.Get_Current_Path()->Read_Path(buffer, buffer_size);
+	auto [cwd, directory] = vfs.Get_CWD();
+	regs.rdi.r = cwd->Print(buffer, buffer_size);
 }
 
 void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -184,7 +185,16 @@ void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 	char* path_argument = reinterpret_cast<char*>(regs.rdx.r);
 
-	auto root_directory = vfs.Get_Root(); // FIXME co se s tímhle dělá, má to side efekty? Smazat?
-	std::shared_ptr<Path> new_path = vfs.Get_Path(path_argument);
-	vfs.Set_Current_Path(new_path);
+	std::shared_ptr<CWD> new_cwd = std::make_shared<CWD>(path_argument);
+	auto [new_dir, error] = vfs.Open_Directory(new_cwd);
+	
+	if (error == Open_Directory_Error::OK) {
+		vfs.Set_CWD(new_cwd, new_dir);
+	}
+	else {
+		//TODO ERROR
+	}
+
+
+	
 }

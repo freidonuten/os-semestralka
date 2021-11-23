@@ -13,5 +13,6 @@ private:
 	std::shared_ptr<VFS_Directory2> root;
 	std::shared_ptr<VFS_Fat_Element_Factory2> factory;
 public:
-	std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> Open_Directory(CWD& cwd);
-}
+	CWD_Opener(std::shared_ptr<VFS_Directory2> root, std::shared_ptr<VFS_Fat_Element_Factory2> factory);
+	std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
+};
