@@ -25,7 +25,7 @@ std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> CWD_Opener::Op
 			}
 		}
 
-		directory->Open();
+		directory->Open(dir_entry.file_start, dir_entry.file_size);
 		current = directory;
 	}
 
