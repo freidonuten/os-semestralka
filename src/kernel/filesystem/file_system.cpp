@@ -201,13 +201,17 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto path_attr = reinterpret_cast<char*>(regs.rdx.r);
-	const auto root_directory = vfs.Get_Root();
+	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
+	
+	auto [cwd, dir] = vfs.Get_CWD();
+	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
 
-	const auto path_to_file = vfs.Get_Path(path_attr);
-	const auto element = path_to_file->Get_Element(root_directory);
+	if (!found) {
+		//TODO error not found
+		return;
+	}
 
-	regs.rdi.r = element->Read_Attributes();*/
+	//TODO return dir_entry.file_attrs
 }
 
 void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -219,14 +223,33 @@ void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
+	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
 	const auto file_attributes = regs.rdi.r; // FIXME tady byl narrowing cast 64->16, takhle je to správně?
-	const auto root_directory = vfs.Get_Root();
+	//dokonce bude 64->8, narrowing castu je vsude plno, nastesti je vypise prekladac
+	
+	auto [cwd, dir] = vfs.Get_CWD();
+	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
 
-	auto path_to_file = vfs.Get_Path(path_argument);
-	auto element = path_to_file->Get_Element(root_directory);
+	if (!found) {
+		//TODO error not found
+		return;
+	}
 
-	element->Change_Attributes(file_attributes);*/
+	auto element = vfs.Make_File(dir->Get_Fat_Directory(), dir_entry.file_name, dir_entry.file_attributes);
+	element->Open(dir_entry.file_start, dir_entry.file_size);
+	bool changed = element->Set_File_Attributes(file_attributes);
+	if (!changed) {
+		//TODO nemuzu zmenit soubor na slozku nebo naopak, nevim, jaky error se na to nejvic hodi
+		return;
+	}
+
+	auto new_dir_entry = dir->Generate_Dir_Entry();
+	bool found = dir->Change_Entry(filename, new_dir_entry);
+	if (!found) {
+		//TODO unknown error
+		return;
+	}
+
 }
 
 void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
