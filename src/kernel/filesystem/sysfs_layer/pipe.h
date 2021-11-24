@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../vfs2/vfs_element.h"
+#include "../vfs_layer/vfs_element.h"
 
 #include <array>
 #include <condition_variable>

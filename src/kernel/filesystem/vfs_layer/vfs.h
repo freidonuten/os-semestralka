@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../../api/hal.h"
-#include "fat_layer/disk.h"
-#include "fat_layer/filesystem_info.h"
-#include "vfs_layer/file_descriptor.h"
+#include "../../../api/hal.h"
+#include "../fat_layer/disk.h"
+#include "../fat_layer/filesystem_info.h"
+#include "../vfs_layer/file_descriptor.h"
 
-#include "cwd/dummy_cwd_holder.h"
-#include "cwd/cwd_opener.h"
-#include "vfs2/vfs_fat_element_factory.h"
+#include "../cwd/dummy_cwd_holder.h"
+#include "../cwd/cwd_opener.h"
+#include "../vfs_layer/vfs_fat_element_factory.h"
 
 #include <memory>
 #include <tuple>

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../vfs2/vfs_directory.h"
+#include "../vfs_layer/vfs_directory.h"
 #include "cwd.h"
 #include "../utils/global_constants.h"
-#include "../vfs2/vfs_fat_element_factory.h"
+#include "../vfs_layer/vfs_fat_element_factory.h"
 
 #include <tuple>
 #include <memory>

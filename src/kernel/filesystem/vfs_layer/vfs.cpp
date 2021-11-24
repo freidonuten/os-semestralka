@@ -1,5 +1,5 @@
 #include "vfs.h"
-#include "sysfs_layer/stream.h"
+#include "../sysfs_layer/stream.h"
 
 VFS::VFS() {
 	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(1024 * 1024, 512);

@@ -7,7 +7,7 @@
 #include "filesystem/cwd/cwd.h"
 
 #include <memory>
-#include "filesystem/vfs.h"
+#include "filesystem/vfs_layer/vfs.h"
 #include "filesystem/file_system.h"
 
 HMODULE User_Programs;
