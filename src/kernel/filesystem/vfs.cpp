@@ -41,3 +41,7 @@ std::shared_ptr<VFS_Directory2> VFS::Get_Root2() {
 std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> VFS::Open_Directory(std::shared_ptr<CWD> cwd) {
 	return this->cwd_opener->Open_Directory(cwd);
 }
+
+std::shared_ptr<VFS_Fat_Element2> VFS::Make_File(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes) {
+	return this->Make_File(parent_directory, file_name, file_attributes);
+}

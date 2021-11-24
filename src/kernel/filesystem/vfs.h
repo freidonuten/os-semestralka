@@ -34,4 +34,6 @@ public:
 	void Set_CWD(std::shared_ptr<CWD> cwd, std::shared_ptr<VFS_Directory2>);
 	std::shared_ptr<VFS_Directory2> Get_Root2();
 	std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
+
+	std::shared_ptr<VFS_Fat_Element2> Make_File(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
 };

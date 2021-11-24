@@ -28,6 +28,7 @@ public:
 	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]);
 	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
 	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
+	std::shared_ptr<Fat_Directory> Get_Fat_Directory();
 };
 
 class VFS_Root_Directory2 : public VFS_Directory2 {

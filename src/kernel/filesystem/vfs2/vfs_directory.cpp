@@ -105,6 +105,10 @@ bool VFS_Directory2::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry n
 	return this->self_fat_directory->Change_Entry(old_file_name, new_entry);
 }
 
+std::shared_ptr<Fat_Directory> VFS_Directory2::Get_Fat_Directory() {
+	return this->self_fat_directory;
+}
+
 bool VFS_Root_Directory2::Remove() {
 	//TODO PERMISSION DENIED
 	return false;

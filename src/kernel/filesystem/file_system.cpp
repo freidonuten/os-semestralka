@@ -1,5 +1,6 @@
 ﻿#include "file_system.h"
 #include "sysfs_layer/pipe.h"
+#include "utils/char_utils.h"
 #include <map>
 
 
@@ -7,19 +8,19 @@ void file_system::Dispatcher::operator()(kiv_hal::TRegisters& regs) {
 	using kiv_os::NOS_File_System;
 	static constexpr auto dispatch_table = [](const auto op) {
 		switch (op) {
-			case NOS_File_System::Close_Handle:		  return close_handle;
-			case NOS_File_System::Create_Pipe:		  return create_pipe;
-			case NOS_File_System::Delete_File:		  return delete_file;
-			case NOS_File_System::Get_File_Attribute: return get_file_attr;
-			case NOS_File_System::Get_Working_Dir:	  return get_cwd;
-			case NOS_File_System::Open_File:		  return open_file;
-			case NOS_File_System::Read_File:		  return read_file;
-			case NOS_File_System::Seek:				  return seek;
-			case NOS_File_System::Set_File_Attribute: return set_file_attr;
-			case NOS_File_System::Set_Working_Dir:    return set_cwd;
-			case NOS_File_System::Write_File:		  return write_file;
-			default: // handle error
-				throw "Handle this!";
+		case NOS_File_System::Close_Handle:		  return close_handle;
+		case NOS_File_System::Create_Pipe:		  return create_pipe;
+		case NOS_File_System::Delete_File:		  return delete_file;
+		case NOS_File_System::Get_File_Attribute: return get_file_attr;
+		case NOS_File_System::Get_Working_Dir:	  return get_cwd;
+		case NOS_File_System::Open_File:		  return open_file;
+		case NOS_File_System::Read_File:		  return read_file;
+		case NOS_File_System::Seek:				  return seek;
+		case NOS_File_System::Set_File_Attribute: return set_file_attr;
+		case NOS_File_System::Set_Working_Dir:    return set_cwd;
+		case NOS_File_System::Write_File:		  return write_file;
+		default: // handle error
+			throw "Handle this!";
 		}
 	};
 	const auto call = [this, &regs](const auto& func) {
@@ -47,51 +48,97 @@ void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
+	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
 
-	const auto root_directory = vfs.Get_Root();
-	const auto path_to_file = vfs.Get_Path(path_argument);
-	const auto path_to_parent = path_to_file->Get_Parent();
-	const auto parent_element = path_to_parent->Get_Element(root_directory);
+	auto [cwd, dir] = vfs.Get_CWD();
+	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
 
-	char filename[MAX_FILENAME_SIZE];
+	if (!found) {
+		//TODO error not found
+		return;
+	}
 
-	path_to_file->Read_Filename(filename);
-	parent_element->Remove_Child(filename);*/
+	auto element = vfs.Make_File(dir->Get_Fat_Directory(), dir_entry.file_name, dir_entry.file_attributes);
+	element->Open(dir_entry.file_start, dir_entry.file_size);
+
+	
+	bool deleted = element->Remove();
+	if (!deleted) {
+		//TODO error directory not empty, unknown error for file
+		return;
+	}
+	
+	bool removed_from_dir = dir->Remove_Entry(filename);
+	if (!removed_from_dir) {
+		//TODO unknown ERROR
+		return;
+	}
+}
+
+std::tuple<std::shared_ptr<VFS_Element2>, bool> open_file_open(VFS& vfs, std::shared_ptr<VFS_Directory2> dir, char* filename) {
+	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
+
+
+	if (!found) {
+		//TODO ERROR filename not found
+		return { nullptr, false };
+	}
+
+	auto element = vfs.Make_File(dir->Get_Fat_Directory(), dir_entry.file_name, dir_entry.file_attributes);
+	element->Open(dir_entry.file_start, dir_entry.file_size);
+
+	return { element, true };
+}
+
+std::tuple<std::shared_ptr<VFS_Element2>, bool> open_file_create(VFS& vfs, std::shared_ptr<VFS_Directory2> dir, char* filename, uint64_t file_attrs) {
+	dir->Remove_Entry(filename); //we will not check return value, it doesn't matter if it exists or not
+
+	auto element = vfs.Make_File(dir->Get_Fat_Directory(), filename, file_attrs);
+	element->Create();
+	auto dir_entry = element->Generate_Dir_Entry();
+	auto exists = dir->Create_New_Entry(dir_entry);
+
+	if (exists) {
+		//strange error, we have removed the file on line 1 this function
+		bool removed = element->Remove();
+		if (removed) {
+			//even stranger error, this should be file or empty folder
+			//now we are in inconsistent state
+			return { nullptr, false };
+		}
+		return { nullptr, false };
+	}
+
+	return { element, true };
 }
 
 void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto result = [regs, &vfs]() {
-		const auto path_argument = reinterpret_cast<char*>(regs.rdx.r);
-		const auto open_file_constants = static_cast<kiv_os::NOpen_File>(regs.rcx.r);
-		const auto file_attributes = regs.rdi.r;
+	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
+	const auto open_file_constants = static_cast<kiv_os::NOpen_File>(regs.rcx.r);
+	const auto file_attributes = regs.rdi.r;
 
-		auto path_to_file = vfs.Get_Path(path_argument);
-		auto root_directory = vfs.Get_Root();
+	if (utils::Is_Valid_Filename(filename) == false) {
+		//TODO ERROR invalid filename
+		return;
+	}
 
-		if (path_to_file->Is_Empty()) {
-			return root_directory;
-		}
+	auto [cwd, dir] = vfs.Get_CWD();
 
-		auto path_to_parent = path_to_file->Get_Parent();
+	bool is_ok;
+	std::shared_ptr<VFS_Element2> element;
+	if (open_file_constants == kiv_os::NOpen_File::fmOpen_Always) {
+		std::tie(element, is_ok) = open_file_open(vfs, dir, filename);
+	}
+	else {
+		std::tie(element, is_ok) = open_file_create(vfs, dir, filename, file_attributes);
+	}
 
-		char filename[MAX_FILENAME_SIZE];
-		
-		path_to_file->Read_Filename(filename);
-		auto parent_element = path_to_parent->Get_Element(root_directory);
+	if (!is_ok) {
+		//TODO ERROR filename already exists for OPEN, unknown ERROR for CREATE
+		return;
+	}
 
-		if (open_file_constants == kiv_os::NOpen_File::fmOpen_Always) {
-			return parent_element->Open_Child(filename);
-		}
-
-		if (parent_element->Contains_Child(filename)) {
-			parent_element->Remove_Child(filename);
-		}
-
-		return parent_element->Create_Child(filename, file_attributes);
-	}();
-
-	regs.rax.x = vfs.Get_Descriptor_Table()->Create_Descriptor(result);*/
+	regs.rax.x = vfs.Get_Descriptor_Table()->Create_Descriptor(element);
 }
 
 void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -187,7 +234,7 @@ void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	std::shared_ptr<CWD> new_cwd = std::make_shared<CWD>(path_argument);
 	auto [new_dir, error] = vfs.Open_Directory(new_cwd);
-	
+
 	if (error == Open_Directory_Error::OK) {
 		vfs.Set_CWD(new_cwd, new_dir);
 	}
