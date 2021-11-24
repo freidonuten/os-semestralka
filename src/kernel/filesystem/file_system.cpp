@@ -142,62 +142,51 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto descriptor = regs.rdx.x;
+	const auto descriptor = regs.rdx.x;
 	const auto buffer = reinterpret_cast<char*>(regs.rdi.r);
 	const auto count = regs.rcx.r;
 
-	auto entry = vfs.Get_Descriptor_Table()->Get_Descriptor(descriptor);
+	auto element = vfs.Get_Descriptor_Table()->Get_Descriptor(descriptor);
+	const auto written_bytes = element->Write(count, buffer);
 
-	const auto written_bytes = entry->element->Write(entry->position, count, buffer);
-	entry->position += written_bytes;
-
-	regs.rax.r = written_bytes;*/
+	regs.rax.r = written_bytes;
 }
 
 void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto descriptor = regs.rdx.x;
+	const auto descriptor = regs.rdx.x;
 	const auto buffer = reinterpret_cast<char*>(regs.rdi.r);
 	const auto count = regs.rcx.r;
 
-	auto entry = vfs.Get_Descriptor_Table()->Get_Descriptor(descriptor);
-	const auto read_bytes = entry->element->Read(entry->position, count, buffer);
+	auto element = vfs.Get_Descriptor_Table()->Get_Descriptor(descriptor);
+	const auto read_bytes = element->Read(count, buffer);
 
-	entry->position += read_bytes;
-	regs.rax.r = read_bytes;*/
+	regs.rax.r = read_bytes;
 }
 
 void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
-	/*const auto descriptor = regs.rdx.x;
+	const auto descriptor = regs.rdx.x;
 	const auto seek_offset = regs.rdi.r;
-	const auto seek_type = static_cast<kiv_os::NFile_Seek>(regs.rcx.l);
+	const auto seek_start = static_cast<kiv_os::NFile_Seek>(regs.rcx.l);
 	const auto seek_operation = static_cast<kiv_os::NFile_Seek>(regs.rcx.h);
 
-	auto entry = vfs.Get_Descriptor_Table()->Get_Descriptor(descriptor);
+	auto element = vfs.Get_Descriptor_Table()->Get_Descriptor(descriptor);
+	auto [position, result] = element->Seek(seek_offset, seek_start, seek_operation);
 
-	switch (seek_type) {
-	case kiv_os::NFile_Seek::Beginning:
-		entry->position = seek_offset;
-		break;
-	case kiv_os::NFile_Seek::Current:
-		entry->position += seek_offset;
-		break;
-	case kiv_os::NFile_Seek::End:
-		auto dir_entry = entry->element->Generate_Dir_Entry();
-		entry->position = dir_entry.file_size += seek_offset;
-		break;
+	switch(result) {
+		case Seek_Result::NO_ERROR_POSITION_NOT_RETURNED:
+			break;
+		case Seek_Result::NO_ERROR_POSITION_RETURNED:
+			regs.rax.r = position;
+			break;
+		case Seek_Result::ERROR_INVALID_PARAMETERS:
+			//TODO INVALID PARAMETERS
+			break;
+		case Seek_Result::ERROR_SETTING_SIZE:
+			//TODO IO ERROR
+			break;
 	}
 
-	switch (seek_operation) {
-	case kiv_os::NFile_Seek::Get_Position:
-		regs.rax.r = entry->position;
-		break;
-	case kiv_os::NFile_Seek::Set_Size:
-		entry->element->Change_Size(entry->position);
-		break;
-	case kiv_os::NFile_Seek::Set_Position:
-		//DO NOTHING
-		break;
-	}*/
+	
 }
 
 void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {

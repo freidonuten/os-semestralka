@@ -38,9 +38,7 @@ std::uint64_t VFS_Directory2::Read(size_t how_many_bytes, void* buffer) {
 	return bytes_read;
 }
 
-std::uint64_t VFS_Directory2::Seek(std::uint64_t seek_offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation) {
-	std::uint64_t result = static_cast<std::uint64_t>(-1);
-
+std::tuple<uint64_t, Seek_Result> VFS_Directory2::Seek(std::uint64_t seek_offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation) {
 	switch (start_position) {
 	case kiv_os::NFile_Seek::Beginning:
 		this->file_position = seek_offset;
@@ -52,20 +50,20 @@ std::uint64_t VFS_Directory2::Seek(std::uint64_t seek_offset, kiv_os::NFile_Seek
 		std::uint64_t file_size = this->self_fat_directory->Get_File_Size();
 		this->file_position = file_size;
 		break;
+	default:
+		return { 0, Seek_Result::ERROR_INVALID_PARAMETERS };
 	}
 
 	switch (seek_operation) {
 	case kiv_os::NFile_Seek::Get_Position:
-		result = this->file_position;
-		break;
+		return { this->file_position, Seek_Result::NO_ERROR_POSITION_RETURNED };
 	case kiv_os::NFile_Seek::Set_Size:
-		//TODO ERROR, CANT CHANGE FILE SIZE
-		break;
+		return { 0, Seek_Result::ERROR_SETTING_SIZE };
 	case kiv_os::NFile_Seek::Set_Position:
-		//DO NOTHING
-		break;
+		return { 0, Seek_Result::NO_ERROR_POSITION_NOT_RETURNED };
 	}
-	return result;
+
+	return { 0, Seek_Result::ERROR_INVALID_PARAMETERS };
 }
 
 std::uint64_t VFS_Directory2::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, void* buffer, size_t max_bytes) {

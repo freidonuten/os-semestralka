@@ -74,3 +74,10 @@ struct TDir_Entry {
 namespace global_structs {
 	Fat_Dir_Entry Create_Empty_Fat_Dir_Entry();
 }
+
+enum class Seek_Result : std::uint8_t {
+	NO_ERROR_POSITION_RETURNED,
+	NO_ERROR_POSITION_NOT_RETURNED,
+	ERROR_SETTING_SIZE,
+	ERROR_INVALID_PARAMETERS
+};

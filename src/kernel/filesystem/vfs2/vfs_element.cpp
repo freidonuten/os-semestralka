@@ -30,7 +30,7 @@ std::uint64_t VFS_Element2::Read(size_t how_many_bytes, void* buffer) {
 	throw std::runtime_error("Unsupported operation READ.");
 }
 
-std::uint64_t VFS_Element2::Seek(std::uint64_t offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation) {
+std::tuple<uint64_t, Seek_Result> VFS_Element2::Seek(std::uint64_t offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation) {
 	throw std::runtime_error("Unsupported operation SEEK.");
 }
 
