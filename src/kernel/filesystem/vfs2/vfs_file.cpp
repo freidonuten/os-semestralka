@@ -52,8 +52,7 @@ std::tuple<uint64_t, Seek_Result> VFS_File2::Seek(std::uint64_t seek_offset, kiv
 		this->file_position += seek_offset;
 		break;
 	case kiv_os::NFile_Seek::End:
-		std::uint64_t file_size = this->fat_file->Get_File_Size();
-		this->file_position = file_size;
+		this->file_position = this->fat_file->Get_File_Size();
 		break;
 	default:
 		return { 0, Seek_Result::ERROR_INVALID_PARAMETERS };

@@ -233,8 +233,8 @@ void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 	}
 
 	auto new_dir_entry = dir->Generate_Dir_Entry();
-	bool found = dir->Change_Entry(filename, new_dir_entry);
-	if (!found) {
+	bool entry_changed = dir->Change_Entry(filename, new_dir_entry);
+	if (!entry_changed) {
 		//TODO unknown error
 		return;
 	}
