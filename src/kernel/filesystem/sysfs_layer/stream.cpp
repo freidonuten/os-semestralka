@@ -60,7 +60,7 @@ std::uint64_t stream::Output_Console_Stream::Write(size_t n, void* buffer) {
 	return registers.rax.r ? n : 0;
 }
 
-std::tuple<std::shared_ptr<VFS_Element2>, std::shared_ptr<VFS_Element2>>
+std::tuple<std::shared_ptr<VFS_Element>, std::shared_ptr<VFS_Element>>
 stream::Factory() {
 	return {
 		std::make_shared<stream::Input_Console_Stream>(),

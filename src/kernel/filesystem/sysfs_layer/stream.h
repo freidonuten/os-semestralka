@@ -6,7 +6,7 @@
 namespace stream {
 
 	template<class Impl>
-	struct __Stream_Base : public VFS_Element2 {
+	struct __Stream_Base : public VFS_Element {
 
 		std::uint64_t Write(size_t how_many_bytes, void* buffer) {
 			return static_cast<Impl*>(this)->Write(how_many_bytes, buffer);
@@ -25,5 +25,5 @@ namespace stream {
 		std::uint64_t Write(size_t n, void* buffer);
 	};
 
-	std::tuple<std::shared_ptr<VFS_Element2>, std::shared_ptr<VFS_Element2>> Factory();
+	std::tuple<std::shared_ptr<VFS_Element>, std::shared_ptr<VFS_Element>> Factory();
 }

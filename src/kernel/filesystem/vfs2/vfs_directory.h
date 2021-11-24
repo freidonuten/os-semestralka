@@ -3,7 +3,7 @@
 #include "vfs_fat_element.h"
 #include "../fat_layer/fat_directory.h"
 
-class VFS_Directory2 : public VFS_Fat_Element2 {	
+class VFS_Directory : public VFS_Fat_Element {	
 protected:
 	std::shared_ptr<Fat_Directory_Factory> fat_directory_factory;
 	std::shared_ptr<Fat_Directory> self_fat_directory;
@@ -12,7 +12,7 @@ protected:
 
 	virtual bool Is_Convertable(std::uint16_t file_attributes);
 public:
-	VFS_Directory2(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes);
+	VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes);
 
 	//VFS ELEMENT METHODS
 	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
@@ -31,9 +31,9 @@ public:
 	std::shared_ptr<Fat_Directory> Get_Fat_Directory();
 };
 
-class VFS_Root_Directory2 : public VFS_Directory2 {
+class VFS_Root_Directory : public VFS_Directory {
 public:
-	using VFS_Directory2::VFS_Directory2;
+	using VFS_Directory::VFS_Directory;
 
 	virtual bool Remove();
 };

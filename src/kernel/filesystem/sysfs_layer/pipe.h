@@ -42,7 +42,7 @@ namespace Pipe {
 	};
 
 	template <class Derived> // CRTP
-	class End : public VFS_Element2 {
+	class End : public VFS_Element {
 	protected:
 		const std::shared_ptr<Base> pipe;
 

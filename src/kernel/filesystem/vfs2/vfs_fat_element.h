@@ -3,7 +3,7 @@
 #include "vfs_element.h"
 #include "../fat_layer/fat_directory.h"
 
-class VFS_Fat_Element2 : public VFS_Element2 {
+class VFS_Fat_Element : public VFS_Element {
 protected:
 	std::uint16_t file_attributes;
 	char file_name[12]; //TODO change to std::array<char, MAX_FILENAME_SIZE> (na hodne mistech)

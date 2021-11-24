@@ -10,9 +10,9 @@
 
 class CWD_Opener {
 private:
-	std::shared_ptr<VFS_Directory2> root;
-	std::shared_ptr<VFS_Fat_Element_Factory2> factory;
+	std::shared_ptr<VFS_Directory> root;
+	std::shared_ptr<VFS_Fat_Element_Factory> factory;
 public:
-	CWD_Opener(std::shared_ptr<VFS_Directory2> root, std::shared_ptr<VFS_Fat_Element_Factory2> factory);
-	std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
+	CWD_Opener(std::shared_ptr<VFS_Directory> root, std::shared_ptr<VFS_Fat_Element_Factory> factory);
+	std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
 };

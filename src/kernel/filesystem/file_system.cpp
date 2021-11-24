@@ -75,7 +75,7 @@ void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	}
 }
 
-std::tuple<std::shared_ptr<VFS_Element2>, bool> open_file_open(VFS& vfs, std::shared_ptr<VFS_Directory2> dir, char* filename) {
+std::tuple<std::shared_ptr<VFS_Element>, bool> open_file_open(VFS& vfs, std::shared_ptr<VFS_Directory> dir, char* filename) {
 	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
 
 
@@ -90,7 +90,7 @@ std::tuple<std::shared_ptr<VFS_Element2>, bool> open_file_open(VFS& vfs, std::sh
 	return { element, true };
 }
 
-std::tuple<std::shared_ptr<VFS_Element2>, bool> open_file_create(VFS& vfs, std::shared_ptr<VFS_Directory2> dir, char* filename, uint64_t file_attrs) {
+std::tuple<std::shared_ptr<VFS_Element>, bool> open_file_create(VFS& vfs, std::shared_ptr<VFS_Directory> dir, char* filename, uint64_t file_attrs) {
 	dir->Remove_Entry(filename); //we will not check return value, it doesn't matter if it exists or not
 
 	auto element = vfs.Make_File(dir->Get_Fat_Directory(), filename, file_attrs);
@@ -125,7 +125,7 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	auto [cwd, dir] = vfs.Get_CWD();
 
 	bool is_ok;
-	std::shared_ptr<VFS_Element2> element;
+	std::shared_ptr<VFS_Element> element;
 	if (open_file_constants == kiv_os::NOpen_File::fmOpen_Always) {
 		std::tie(element, is_ok) = open_file_open(vfs, dir, filename);
 	}

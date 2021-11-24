@@ -14,7 +14,7 @@
 #include "../utils/api_utils.h"
 #include "../../../api/api.h"
 
-class VFS_Fat_Element_Factory2 {
+class VFS_Fat_Element_Factory {
 private:
 	std::shared_ptr<Fat_File_Factory> file_factory;
 	std::shared_ptr<Fat_Directory_Factory> directory_factory;
@@ -22,8 +22,8 @@ private:
 	VFS_Fat_Element_Type Get_Element_Type(std::uint8_t file_attributes);
 
 public:
-	VFS_Fat_Element_Factory2(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);
+	VFS_Fat_Element_Factory(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);
 
-	std::shared_ptr<VFS_Fat_Element2> Make(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
-	std::shared_ptr<VFS_Directory2> Make_Root_Directory();
+	std::shared_ptr<VFS_Fat_Element> Make(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
+	std::shared_ptr<VFS_Directory> Make_Root_Directory();
 };

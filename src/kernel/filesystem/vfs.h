@@ -20,9 +20,9 @@ private:
 
 
 	//na cisto dole
-	std::shared_ptr<VFS_Fat_Element_Factory2> element_factory2;
+	std::shared_ptr<VFS_Fat_Element_Factory> element_factory2;
 	std::unique_ptr<Dummy_CWD_Holder> cwd_holder;
-	std::shared_ptr<VFS_Directory2> root2;
+	std::shared_ptr<VFS_Directory> root2;
 	std::unique_ptr<CWD_Opener> cwd_opener;
 	
 public:
@@ -30,10 +30,10 @@ public:
 
 	std::shared_ptr<File_Descriptor_Table> Get_Descriptor_Table();
 
-	std::tuple<std::shared_ptr<CWD>, std::shared_ptr<VFS_Directory2>> Get_CWD();
-	void Set_CWD(std::shared_ptr<CWD> cwd, std::shared_ptr<VFS_Directory2>);
-	std::shared_ptr<VFS_Directory2> Get_Root2();
-	std::tuple<std::shared_ptr<VFS_Directory2>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
+	std::tuple<std::shared_ptr<CWD>, std::shared_ptr<VFS_Directory>> Get_CWD();
+	void Set_CWD(std::shared_ptr<CWD> cwd, std::shared_ptr<VFS_Directory>);
+	std::shared_ptr<VFS_Directory> Get_Root2();
+	std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
 
-	std::shared_ptr<VFS_Fat_Element2> Make_File(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
+	std::shared_ptr<VFS_Fat_Element> Make_File(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
 };

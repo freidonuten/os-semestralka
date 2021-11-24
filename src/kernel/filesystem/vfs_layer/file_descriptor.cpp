@@ -1,6 +1,6 @@
 #include "file_descriptor.h"
 
-std::uint16_t File_Descriptor_Table::Create_Descriptor(std::shared_ptr<VFS_Element2> element) {
+std::uint16_t File_Descriptor_Table::Create_Descriptor(std::shared_ptr<VFS_Element> element) {
 	int count = this->descriptors.size();
 	for (std::uint16_t i = 0; i < count; i++) {
 		if (this->descriptors[i] == nullptr) {
@@ -13,7 +13,7 @@ std::uint16_t File_Descriptor_Table::Create_Descriptor(std::shared_ptr<VFS_Eleme
 	return count;
 }
 
-std::shared_ptr<VFS_Element2> File_Descriptor_Table::Get_Descriptor(std::uint16_t id) {
+std::shared_ptr<VFS_Element> File_Descriptor_Table::Get_Descriptor(std::uint16_t id) {
 	if (Is_Valid(id)) {
 		return this->descriptors[id];
 	}
