@@ -4,6 +4,11 @@
 #include <memory>
 #include <vector>
 
+enum class Path_Type : std::uint8_t {
+	ABSOLUTE_PATH,
+	RELATIVE_PATH,
+	INVALID
+};
 
 enum class Task_Type : std::uint8_t {
 	READ,
@@ -73,7 +78,7 @@ struct TDir_Entry {
 
 namespace global_structs {
 	Fat_Dir_Entry Create_Empty_Fat_Dir_Entry();
-}
+};
 
 enum class Seek_Result : std::uint8_t {
 	NO_ERROR_POSITION_RETURNED,
@@ -81,3 +86,4 @@ enum class Seek_Result : std::uint8_t {
 	ERROR_SETTING_SIZE,
 	ERROR_INVALID_PARAMETERS
 };
+

@@ -1,5 +1,7 @@
 #include "fat_directory.h"
 
+#include <string>
+
 Fat_Directory_Factory::Fat_Directory_Factory(std::shared_ptr<Fat_File_Factory> file_factory) {
 	this->file_factory = file_factory;
 }
@@ -119,12 +121,10 @@ void Fat_Directory::Write_Entries(std::vector<Fat_Dir_Entry> entries) {
 }
 
 bool Fat_Directory::Filenames_Equal(char name1[8 + 3 + 1], char name2[8 + 3 + 1]) {
-	for (int i = 0; i < 8 + 3 + 1; i++) {
-		if (name1[i] != name2[i]) {
-			return false;
-		}
-	}
-	return true;
+	std::string string1(name1);
+	std::string string2(name2);
+	
+	return string1.compare(string2) == 0;
 }
 
 int Fat_Directory::Get_Index_Of_Searched(std::vector<Fat_Dir_Entry> entries, char file_name[8 + 1 + 3]) {

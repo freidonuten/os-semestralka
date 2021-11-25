@@ -15,11 +15,12 @@ VFS::VFS() {
 	descriptor_table->Create_Descriptor(console_output);
 
 
-	this->element_factory2 = std::make_shared<VFS_Fat_Element_Factory>(disk, info);
-	this->root2 = this->element_factory2->Make_Root_Directory();
+	this->element_factory = std::make_shared<VFS_Fat_Element_Factory>(disk, info);
+	this->root = this->element_factory->Make_Root_Directory();
+	this->root->Create();
 	std::shared_ptr<CWD> temp_cwd = std::make_shared<CWD>("");
-	this->cwd_holder = std::make_unique<Dummy_CWD_Holder>(temp_cwd, this->root2);
-	this->cwd_opener = std::make_unique<CWD_Opener>(this->root2, this->element_factory2);
+	this->cwd_holder = std::make_unique<Dummy_CWD_Holder>(temp_cwd, this->root);
+	this->cwd_opener = std::make_unique<CWD_Opener>(this->root, this->element_factory);
 }
 
 std::shared_ptr<File_Descriptor_Table> VFS::Get_Descriptor_Table() {
@@ -34,8 +35,8 @@ void VFS::Set_CWD(std::shared_ptr<CWD> cwd, std::shared_ptr<VFS_Directory> direc
 	this->cwd_holder->Set_Value(cwd, directory);
 }
 
-std::shared_ptr<VFS_Directory> VFS::Get_Root2() {
-	return this->root2;
+std::shared_ptr<VFS_Directory> VFS::Get_Root() {
+	return this->root;
 }
 
 std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> VFS::Open_Directory(std::shared_ptr<CWD> cwd) {
@@ -43,5 +44,5 @@ std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> VFS::Open_Direc
 }
 
 std::shared_ptr<VFS_Fat_Element> VFS::Make_File(std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes) {
-	return this->Make_File(parent_directory, file_name, file_attributes);
+	return this->element_factory->Make(parent_directory, file_name, file_attributes);
 }

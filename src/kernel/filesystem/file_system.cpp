@@ -96,9 +96,9 @@ std::tuple<std::shared_ptr<VFS_Element>, bool> open_file_create(VFS& vfs, std::s
 	auto element = vfs.Make_File(dir->Get_Fat_Directory(), filename, file_attrs);
 	element->Create();
 	auto dir_entry = element->Generate_Dir_Entry();
-	auto exists = dir->Create_New_Entry(dir_entry);
+	auto not_exists = dir->Create_New_Entry(dir_entry);
 
-	if (exists) {
+	if (!not_exists) {
 		//strange error, we have removed the file on line 1 this function
 		bool removed = element->Remove();
 		if (removed) {
@@ -200,7 +200,7 @@ void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 		return;
 	}
 
-	//TODO return dir_entry.file_attrs
+	regs.rdi.r = dir_entry.file_attributes;
 }
 
 void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -242,9 +242,25 @@ void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
-	char* path_argument = reinterpret_cast<char*>(regs.rdx.r);
+	const char* path = reinterpret_cast<char*>(regs.rdx.r);
+	
+	Path_Type type = utils::Get_Path_Type(path);
 
-	std::shared_ptr<CWD> new_cwd = std::make_shared<CWD>(path_argument);
+	std::shared_ptr<CWD> new_cwd;
+
+	if (type == Path_Type::ABSOLUTE_PATH) {
+		new_cwd = std::make_shared<CWD>(path);
+	}
+	else if (type == Path_Type::RELATIVE_PATH) {
+		auto [cwd, dir] = vfs.Get_CWD();
+		new_cwd = std::make_shared<CWD>(*cwd); //copy
+		new_cwd->Append(path);
+	}
+	else {
+		//TODO ERROR invalid password
+		return;
+	}
+
 	auto [new_dir, error] = vfs.Open_Directory(new_cwd);
 
 	if (error == Open_Directory_Error::OK) {
