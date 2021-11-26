@@ -2,12 +2,12 @@
 
 #include "../utils/char_utils.h"
 
-CWD_Opener::CWD_Opener(std::shared_ptr<VFS_Directory> root, std::shared_ptr<VFS_Fat_Element_Factory> factory) {
+Path_Dir_Opener::Path_Dir_Opener(std::shared_ptr<VFS_Directory> root, std::shared_ptr<VFS_Fat_Element_Factory> factory) {
 	this->root = root;
 	this->factory = factory;
 }
 
-std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> CWD_Opener::Open_Directory(std::shared_ptr<CWD> cwd) {
+std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> Path_Dir_Opener::Open_Directory(std::shared_ptr<Path> cwd) {
 	auto current = this->root;
 	for (auto it = cwd->begin(); it < cwd->end(); it++) {
 		char temp[MAX_FILENAME_SIZE];

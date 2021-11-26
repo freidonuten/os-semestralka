@@ -8,11 +8,11 @@
 #include <tuple>
 #include <memory>
 
-class CWD_Opener {
+class Path_Dir_Opener {
 private:
 	std::shared_ptr<VFS_Directory> root;
 	std::shared_ptr<VFS_Fat_Element_Factory> factory;
 public:
-	CWD_Opener(std::shared_ptr<VFS_Directory> root, std::shared_ptr<VFS_Fat_Element_Factory> factory);
-	std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> Open_Directory(std::shared_ptr<CWD> cwd);
+	Path_Dir_Opener(std::shared_ptr<VFS_Directory> root, std::shared_ptr<VFS_Fat_Element_Factory> factory);
+	std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> Open_Directory(std::shared_ptr<Path> cwd);
 };

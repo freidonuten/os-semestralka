@@ -13,7 +13,7 @@ std::uint16_t Handler_Table::Create_Descriptor(std::shared_ptr<VFS_Element> elem
 	return count;
 }
 
-std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Get_Descriptor(std::uint16_t id) {
+std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Get_Element(std::uint16_t id) {
 	if (Is_Valid(id)) {
 		return { this->descriptors[id], true };
 	}
@@ -21,7 +21,7 @@ std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Get_Descriptor(std
 	return { nullptr, false };
 }
 
-std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Remove_Descriptor(std::uint16_t id) {
+std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Remove_Element(std::uint16_t id) {
 	if (Is_Valid(id)) {
 		auto result = this->descriptors[id];
 		this->descriptors[id] = nullptr;

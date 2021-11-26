@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "../cwd/cwd.h"
+
 enum class Path_Type : std::uint8_t {
 	ABSOLUTE_PATH,
 	RELATIVE_PATH,
@@ -44,10 +46,6 @@ public:
 		size_t how_many_bytes_to_operate, void* buffer, Task_Type type);
 };
 
-
-
-
-
 struct Fat_Dir_Entry {
 	std::uint16_t file_attributes;
 	char file_name[12];
@@ -85,5 +83,61 @@ enum class Seek_Result : std::uint8_t {
 	NO_ERROR_POSITION_NOT_RETURNED,
 	ERROR_SETTING_SIZE,
 	ERROR_INVALID_PARAMETERS
+};
+
+struct Handle_Info {
+	int cwd_count;
+	bool is_open;
+	std::uint16_t id;
+	std::shared_ptr<Path> path;
+};
+
+enum class Handle_Open_Result {
+	RETURNED,
+	NOT_EXISTS,
+	ALREADY_OPENED
+};
+
+enum class Handle_Close_Result {
+	CLOSED,
+	NOT_EXISTS
+};
+
+enum class Open_Result {
+	OK,
+	INVALID_FILENAME,
+	FILE_NOT_FOUND,
+	ALREADY_OPENED,
+	CANT_REMOVE_PREVIOUS,
+	UNKNOWN_ERROR
+};
+
+enum class Delete_Result {
+	OK,
+	FILE_OPENED,
+	FILE_NOT_EXISTING,
+	CANT_REMOVE,
+	UNKNOWN_ERROR
+};
+
+enum class Set_File_Attrs_Result {
+	OK,
+	FILE_OPENED,
+	FILE_NOT_EXISTING,
+	CANT_CHANGE
+};
+
+enum class Set_CWD_Result {
+	OK,
+	INVALID_PATH,
+	PATH_NOT_FOUND,
+	NOT_A_DIRECTORY,
+	UNKNOWN_ERROR
+};
+
+enum class Get_CWD_From_Handle_Result {
+	VALID_DIRECTORY,
+	NOT_A_DIRECTORY,
+	NOT_FOUND
 };
 

@@ -7,20 +7,21 @@
 #include <iterator>
 #include <cstddef>
 
-class CWD {
+class Path {
 private:
 	std::vector<std::string> implementation;
-	void Merge(CWD&& other) noexcept;
+	void Merge(Path&& other) noexcept;
 	void Setup_Raw_Elements(const char* path);
 	void Cleanup();
 	int Get_Path_Size() const;
 
 
 public:
-	CWD(const char* path);
+	Path(const char* path);
 
 	void Append(const char* path);
 	int Print(char* buffer, int buffer_size) const;
+	std::string To_String() const;
 
 
 

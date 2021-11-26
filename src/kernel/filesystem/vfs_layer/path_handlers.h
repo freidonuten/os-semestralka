@@ -25,7 +25,6 @@ public:
 
 	Path_Handlers(std::shared_ptr<Handler_Table> handler_table);
 
-	std::tuple<std::uint16_t, bool> Add_Path_Element(std::shared_ptr<VFS_Element> element, std::shared_ptr<Path> path);
 	std::tuple<std::uint16_t, bool> Add_Path_Element(std::shared_ptr<VFS_Element> element, std::shared_ptr<Path> path, int cwd_count, bool is_open);
 	std::tuple<std::shared_ptr<VFS_Element>, Handle_Close_Result> Close_Handle(std::uint16_t id);
 

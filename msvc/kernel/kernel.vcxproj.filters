@@ -55,6 +55,12 @@
     <Filter Include="Source Files\fs\cwd">
       <UniqueIdentifier>{984293cc-8009-45ae-afef-48947d1f3cff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\fs\actions">
+      <UniqueIdentifier>{60bd0a42-1ce1-4cca-a76e-7bca865c69dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs\actions">
+      <UniqueIdentifier>{3c7c68fa-8c92-4361-a15d-e7500bd35c1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\kernel\kernel.cpp">
@@ -117,7 +123,7 @@
     <ClCompile Include="..\..\src\kernel\filesystem\utils\rounder.cpp">
       <Filter>Source Files\fs\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.cpp">
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\handler_table.cpp">
       <Filter>Source Files\fs\vfs</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\Thread_Control_Block.cpp">
@@ -170,6 +176,27 @@
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs.cpp">
       <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\path_handlers.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\open_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\create_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\delete_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\action_functions.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_attrs_actions.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_cwd_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -239,7 +266,7 @@
     <ClInclude Include="..\..\src\kernel\filesystem\utils\bit_utils.h">
       <Filter>Header Files\fs\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.h">
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\handler_table.h">
       <Filter>Header Files\fs\vfs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\constants.h">
@@ -298,6 +325,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs.h">
       <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\path_handlers.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\actions\actions.h">
+      <Filter>Header Files\fs\actions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

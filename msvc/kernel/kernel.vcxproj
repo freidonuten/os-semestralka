@@ -20,6 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\api\api.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\action_functions.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\create_action.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\delete_action.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\open_action.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_attrs_actions.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_cwd_action.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\cwd.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\cwd_opener.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\dummy_cwd_holder.cpp" />
@@ -45,7 +51,8 @@
     <ClCompile Include="..\..\src\kernel\filesystem\utils\endian_converter.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\utils\global_structs.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\utils\rounder.cpp" />
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\handler_table.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\path_handlers.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.cpp" />
@@ -62,6 +69,7 @@
     <ClInclude Include="..\..\src\api\api.h" />
     <ClInclude Include="..\..\src\api\hal.h" />
     <ClInclude Include="..\..\src\kernel\constants.h" />
+    <ClInclude Include="..\..\src\kernel\filesystem\actions\actions.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\cwd\cwd.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\cwd\cwd_opener.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\cwd\dummy_cwd_holder.h" />
@@ -87,7 +95,8 @@
     <ClInclude Include="..\..\src\kernel\filesystem\utils\global_constants.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\utils\global_structs.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\utils\rounder.h" />
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.h" />
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\handler_table.h" />
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\path_handlers.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.h" />
     <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.h" />

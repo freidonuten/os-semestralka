@@ -4,10 +4,6 @@ Path_Handlers::Path_Handlers(std::shared_ptr<Handler_Table> handler_table) {
 	this->handler_table = handler_table;
 }
 
-std::tuple<std::uint16_t, bool> Path_Handlers::Add_Path_Element(std::shared_ptr<VFS_Element> element, std::shared_ptr<Path> path) {
-	return this->Add_Path_Element(element, path, 0, true);
-}
-
 std::tuple<std::uint16_t, bool> Path_Handlers::Add_Path_Element(std::shared_ptr<VFS_Element> element, std::shared_ptr<Path> path, int cwd_count, bool is_open) {
 	if (this->Check_If_Exists(path)) {
 		return { 0, false };
@@ -24,7 +20,7 @@ std::tuple<std::shared_ptr<VFS_Element>, Handle_Close_Result> Path_Handlers::Clo
 
 	if (it_int == this->map_id_path.end()) {
 		//maybe it's only in handler table
-		auto [element, found] = this->handler_table->Remove_Descriptor(id);
+		auto [element, found] = this->handler_table->Remove_Element(id);
 		if (!found) {
 			//it's not
 			return { nullptr, Handle_Close_Result::NOT_EXISTS };
@@ -74,7 +70,7 @@ std::tuple<std::shared_ptr<VFS_Element>, bool> Path_Handlers::Try_Set_CWD(std::s
 
 	it->second->cwd_count++;
 	
-	auto [element, found] = this->handler_table->Get_Descriptor(it->second->id);
+	auto [element, found] = this->handler_table->Get_Element(it->second->id);
 
 	if (!found) {
 		//INCONSISTENT STATE
@@ -100,7 +96,7 @@ void Path_Handlers::Try_Remove(std::shared_ptr<Handle_Info> handle) {
 	if (handle->cwd_count <= 0 && handle->is_open == false) {
 		this->map_path_handle.erase(handle->path->To_String());
 		this->map_id_path.erase(handle->id);
-		this->handler_table->Remove_Descriptor(handle->id);	
+		this->handler_table->Remove_Element(handle->id);	
 	}
 }
 

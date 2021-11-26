@@ -1,11 +1,11 @@
 #include "cwd.h"
 
-CWD::CWD(const char* path) {
+Path::Path(const char* path) {
 	this->Setup_Raw_Elements(path);
 	this->Cleanup();
 }
 
-void CWD::Setup_Raw_Elements(const char* path) {
+void Path::Setup_Raw_Elements(const char* path) {
 	std::stringstream temp(path);
 	std::string token;
 
@@ -18,7 +18,7 @@ void CWD::Setup_Raw_Elements(const char* path) {
 	}
 }
 
-void CWD::Cleanup() {
+void Path::Cleanup() {
 	//we will iterate through old implementation (which includes .. a .)
 	//we will ignore .
 	//for .. we will remove previous element
@@ -46,7 +46,7 @@ void CWD::Cleanup() {
 	this->implementation = new_implementation;
 }
 
-void CWD::Merge(CWD&& other) noexcept {
+void Path::Merge(Path&& other) noexcept {
 	//append strings from other to current's end using std::move
 	this->implementation.insert(
 		this->implementation.end(),
@@ -57,14 +57,14 @@ void CWD::Merge(CWD&& other) noexcept {
 	other.implementation.clear();
 }
 
-void CWD::Append(const char* path) {
-	CWD other("");
+void Path::Append(const char* path) {
+	Path other("");
 	other.Setup_Raw_Elements(path);
 	this->Merge(std::move(other));
 	this->Cleanup(); //perform the cleanup only in merged directory
 }
 
-int CWD::Get_Path_Size() const {
+int Path::Get_Path_Size() const {
 	int result = 0;
 	for (auto element : this->implementation) {
 		result += element.size();
@@ -74,7 +74,7 @@ int CWD::Get_Path_Size() const {
 	return result;
 }
 
-int CWD::Print(char* buffer, int buffer_size) const{
+int Path::Print(char* buffer, int buffer_size) const{
 	int required_size = Get_Path_Size();
 
 	if (buffer_size < required_size) {
@@ -95,3 +95,15 @@ int CWD::Print(char* buffer, int buffer_size) const{
 
 	return required_size;
 }
+
+std::string Path::To_String() const {
+	std::string result = "";
+
+	for (auto path_element : this->implementation) {
+		result += "/";
+		result += path_element;
+	}
+
+	return result;
+}
+
