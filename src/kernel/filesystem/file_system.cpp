@@ -73,15 +73,9 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
 	const auto open_file_constants = static_cast<kiv_os::NOpen_File>(regs.rcx.r);
 	const auto file_attributes = regs.rdi.r;
-
-	std::uint16_t handler_id;
-	Open_Result result;
-	if (open_file_constants == kiv_os::NOpen_File::fmOpen_Always) {
-		std::tie(handler_id, result) = actions::open_file(vfs, filename);
-	}
-	else {
-		std::tie(handler_id, result) = actions::create_file(vfs, filename, file_attributes);
-	}
+	const auto [handler_id, result] = (open_file_constants == kiv_os::NOpen_File::fmOpen_Always)
+		? actions::open_file(vfs, filename)
+		: actions::create_file(vfs, filename, file_attributes);
 
 	switch (result) {
 	case Open_Result::OK:
