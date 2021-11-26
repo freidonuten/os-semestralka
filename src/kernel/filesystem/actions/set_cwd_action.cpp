@@ -83,5 +83,5 @@ Set_CWD_Result actions::set_cwd(VFS& vfs, char* path) {
 	}
 
 	vfs.Set_CWD(new_cwd_path, new_cwd_dir);
-	vfs.Get_Path_Handlers()->Unset_CWD(new_cwd_path);
+	vfs.Get_Path_Handlers()->Unset_CWD(old_cwd_path);
 }

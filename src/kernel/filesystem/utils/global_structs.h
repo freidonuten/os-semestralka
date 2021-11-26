@@ -100,7 +100,8 @@ enum class Handle_Open_Result {
 
 enum class Handle_Close_Result {
 	CLOSED,
-	NOT_EXISTS
+	NOT_EXISTS,
+	UNKNOWN_ERROR
 };
 
 enum class Open_Result {

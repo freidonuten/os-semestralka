@@ -44,8 +44,8 @@ std::tuple<std::uint16_t, Open_Result> actions::create_file(VFS& vfs, char* file
 		return { 0, Open_Result::UNKNOWN_ERROR };
 	}
 
-	auto [created_handler_id, already_inserted] = vfs.Get_Path_Handlers()->Add_Path_Element(element, file_path, 0, true);
-	if (already_inserted) {
+	auto [created_handler_id, is_ok] = vfs.Get_Path_Handlers()->Add_Path_Element(element, file_path, 0, true);
+	if (!is_ok) {
 		return { 0, Open_Result::UNKNOWN_ERROR };
 	}
 

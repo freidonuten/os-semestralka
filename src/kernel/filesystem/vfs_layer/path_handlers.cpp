@@ -36,7 +36,12 @@ std::tuple<std::shared_ptr<VFS_Element>, Handle_Close_Result> Path_Handlers::Clo
 
 	std::shared_ptr<Handle_Info> handle = it_path->second;
 	handle->is_open = false;
-	Try_Remove(handle);
+	auto [element, is_consistent] = Try_Remove(handle);
+	if (!is_consistent) {
+		return { nullptr, Handle_Close_Result::UNKNOWN_ERROR };
+	}
+
+	return { element, Handle_Close_Result::CLOSED };
 
 }
 
@@ -92,11 +97,14 @@ void Path_Handlers::Unset_CWD(std::shared_ptr<Path> path) {
 }
 
 
-void Path_Handlers::Try_Remove(std::shared_ptr<Handle_Info> handle) {
+std::tuple<std::shared_ptr<VFS_Element>, bool> Path_Handlers::Try_Remove(std::shared_ptr<Handle_Info> handle) {
 	if (handle->cwd_count <= 0 && handle->is_open == false) {
 		this->map_path_handle.erase(handle->path->To_String());
 		this->map_id_path.erase(handle->id);
-		this->handler_table->Remove_Element(handle->id);	
+		return this->handler_table->Remove_Element(handle->id);	
+	}
+	else {
+		return this->handler_table->Get_Element(handle->id);
 	}
 }
 
