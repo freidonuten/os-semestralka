@@ -7,7 +7,7 @@ void Char_Utils::Copy_Array(char* destination, const char* source, int count) {
 }
 
 bool utils::Is_Valid_Filename(const char* filename) {
-	std::string string(filename);
+	const auto string = std::string_view(filename);
 
 	if (string.size() == 0) {
 		return false;
