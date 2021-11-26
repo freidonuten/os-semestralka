@@ -7,25 +7,13 @@ void Char_Utils::Copy_Array(char* destination, const char* source, int count) {
 }
 
 bool utils::Is_Valid_Filename(const char* filename) {
-	std::string string(filename);
+	const auto string = std::string_view(filename);
 
-	if (string.size() == 0) {
-		return false;
-	}
-
-	if (string.find("/") != std::string::npos) {
-		return false;
-	}
-
-	if (string.compare(".") == 0) {
-		return false;
-	}
-
-	if (string.compare("..") == 0) {
-		return false;
-	}
-
-	return true;
+	// has non-zero size, doesn't contain slash and isn't dot or double dot
+	return string.size()
+		&& string.find("/") == std::string_view::npos
+		&& string.compare(".")
+		&& string.compare("..");
 }
 
 Path_Type utils::Get_Path_Type(const char* path) {
