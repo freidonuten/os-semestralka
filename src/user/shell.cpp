@@ -1,49 +1,78 @@
 #include "shell.h"
 #include "rtl.h"
 #include "command.h"
+#include "command_executor.h"
+#include "global.h"
 #include <string>
 #include <vector>
 
-size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
+bool is_echo_on = true;
 
+size_t Print_Newline_Prompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
+	std::string currentDir = "";
+	size_t currentDirSize = currentDir.size();
+	size_t counter = 0;
+	kiv_os_rtl::Get_Working_Dir(currentDir, currentDirSize, counter);
+
+	// Zapis do konzole C:\>
+	if (is_echo_on) {
+		kiv_os_rtl::Write_File(stdout_handle, prompt.data(), prompt.size(), counter);
+		kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
+		kiv_os_rtl::Write_File(stdout_handle, currentDir.data(), currentDir.size(), counter);
+	}
+	return counter;
+}
+
+size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 	const kiv_os::THandle std_in = static_cast<kiv_os::THandle>(regs.rax.x);
 	const kiv_os::THandle std_out = static_cast<kiv_os::THandle>(regs.rbx.x);
-
 	const size_t buffer_size = 256;
 	char buffer[buffer_size];
 	size_t counter;
-	
-	// Write welcome line to console
-	const char* intro = "Vitejte v kostre semestralni prace z KIV/OS.\n" \
-						"Shell zobrazuje echo zadaneho retezce. Prikaz exit ukonci shell.\n";
-	kiv_os_rtl::Write_File(std_out, intro, strlen(intro), counter);
-	
-	const char* prompt = "C:\\>";
-	const char* new_line = "\n";
+
+	kiv_os_rtl::Write_File(std_out, welcome_text.data(), welcome_text.size(), counter);
 	std::vector<Command> commands;
+	CommandExecutor command_executor;
 
 	// Console loop
-	do {
-		kiv_os_rtl::Write_File(std_out, prompt, strlen(prompt), counter);
+	while(1) {
+		Print_Newline_Prompt(std_in, std_out);
 
 		if (kiv_os_rtl::Read_File(std_in, buffer, buffer_size, counter)) {
-			if ((counter > 0) && (counter == buffer_size)) counter--;
+			if ((counter > 0) && (counter == buffer_size)) {
+				counter--;
+			}
 			buffer[counter] = 0;	//udelame z precteneho vstup null-terminated retezec
-
-			
 			std::string input_command(buffer);
-			commands = Command::parseInput(input_command);
+			commands = Command::Parse_Input(input_command);
+			
+			if (commands.front().command_name == "@echo") {
+				if (commands.front().Get_Parameters() == "off") {
+					is_echo_on = false;
+				} else if (commands.front().Get_Parameters() == "on") {
+					is_echo_on = true;
+				}
+			}
+
+			// Kontrola zda byl zadan nejaky prikaz
+			if (!commands.size()) {
+				kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
+				continue;
+			}
+			command_executor.Execute_Command(commands, std_in, std_out);
+			
+			if (strcmp(buffer, "exit") == 0) {
+				break;
+			}
+			/*
 			// vypise soucasny command
 			kiv_os_rtl::Write_File(std_out, new_line, strlen(new_line), counter);
 			kiv_os_rtl::Write_File(std_out, buffer, strlen(buffer), counter);	//a vypiseme ho
 			kiv_os_rtl::Write_File(std_out, new_line, strlen(new_line), counter);
-			
+			*/
 		}
-		else
-			break;	//EOF
-	} while (strcmp(buffer, "exit") != 0);
-
-	
-	
+		kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
+		commands.clear();
+	}
 	return 0;	
 }

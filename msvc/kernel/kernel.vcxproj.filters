@@ -13,6 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\fs">
+      <UniqueIdentifier>{3390f931-64b6-416f-997a-2b118c2e0f51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs">
+      <UniqueIdentifier>{ff8d47ad-7eab-4d97-ac0f-d52c80bbbaea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\fat">
+      <UniqueIdentifier>{dfd50062-f527-4a78-a1c9-a4bfe77838ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs\fat">
+      <UniqueIdentifier>{471dda8e-d4ae-4772-84cf-5ecd55a23315}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\utils">
+      <UniqueIdentifier>{b3db9b5b-4bf6-4114-b537-5dd277de704d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs\utils">
+      <UniqueIdentifier>{76f88e4d-df38-4ee1-8478-87347ac8d1fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\vfs">
+      <UniqueIdentifier>{d38e416e-a3db-4df5-98aa-9cde13029799}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs\vfs">
+      <UniqueIdentifier>{43563b26-f580-4481-83ae-962d3e8892cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\processes">
+      <UniqueIdentifier>{f0c94322-25e9-4448-8f77-83203ff0dedd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Processes">
+      <UniqueIdentifier>{13f8b4aa-a489-49c0-8939-2e268197bada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs\sysfs">
+      <UniqueIdentifier>{2041dd05-9d67-478c-9866-b0edf8d261c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\sysfs">
+      <UniqueIdentifier>{2066430d-2205-4c4a-b111-5f46fd2db628}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\kernel\kernel.cpp">
@@ -25,6 +61,96 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\api\api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\test-old.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\test.cpp">
+      <Filter>Source Files\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\cluster_io.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\disk.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\disk_io.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\fat.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\fat_directory.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\fat_file.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\fat_io.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\fat_table.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\filesystem_info.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\sector_io.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\bit_utils.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\bitmap.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\char_utils.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\endian_converter.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\global_structs.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\rounder.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\path.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\Thread_Control_Block.cpp">
+      <Filter>Source Files\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\Task_Manager.cpp">
+      <Filter>Source Files\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\Process_Control_Block.cpp">
+      <Filter>Source Files\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\file_system.cpp">
+      <Filter>Source Files\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.cpp">
+      <Filter>Source Files\fs\sysfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -43,6 +169,105 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\io.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\test.h">
+      <Filter>Header Files\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\sector_io.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\filesystem_info.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\fat_table.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\fat_io.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\fat_file.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\fat_directory.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\fat.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\disk_io.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\disk.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\fat_layer\cluster_io.h">
+      <Filter>Header Files\fs\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\rounder.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\global_structs.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\global_constants.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\endian_converter.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\char_utils.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\bitmap.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\bit_utils.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\path.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\constants.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Kernel_Utils.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Process_Control_Block.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\State.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Task_Manager.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\Thread_Control_Block.h">
+      <Filter>Header Files\processes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\file_system.h">
+      <Filter>Header Files\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.h">
+      <Filter>Header Files\fs\sysfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\stream.h">
+      <Filter>Header Files\fs\sysfs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

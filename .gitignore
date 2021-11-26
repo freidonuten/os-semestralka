@@ -1,1 +1,8 @@
-compiled
+compiled/kernel*
+compiled/user*
+compiled/boot.exe
+compiled/boot.pdb
+*.log
+.vs
+msvc/*/x64/
+msvc/*/obj/x64
