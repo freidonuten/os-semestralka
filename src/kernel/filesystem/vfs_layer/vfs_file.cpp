@@ -80,6 +80,5 @@ Fat_Dir_Entry VFS_File::Generate_Dir_Entry() {
 }
 
 std::uint64_t VFS_ROFile::Write(size_t how_many_bytes, void* buffer) {
-	//TODO ERROR CANT WRITE TO DIRECTORY - permission denied pres bool
 	return 0;
 }

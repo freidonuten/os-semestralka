@@ -33,7 +33,6 @@ bool VFS_Directory::Remove() {
 }
 
 std::uint64_t VFS_Directory::Write(size_t how_many_bytes, void* buffer) {
-	//TODO ERROR CANT WRITE TO DIRECTORY - permission denied pres bool
 	return 0;
 }
 
@@ -112,6 +111,5 @@ std::shared_ptr<Fat_Directory> VFS_Directory::Get_Fat_Directory() {
 }
 
 bool VFS_Root_Directory::Remove() {
-	//TODO PERMISSION DENIED
 	return false;
 }

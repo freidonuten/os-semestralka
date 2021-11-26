@@ -4,6 +4,7 @@
 #include "actions/actions.h"
 
 #include <map>
+#include "../kernel.h"
 
 
 void file_system::Dispatcher::operator()(kiv_hal::TRegisters& regs) {
@@ -40,11 +41,13 @@ void file_system::close_handle(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	if (result == Handle_Close_Result::CLOSED) {
 		element->Close();
-		//OK
+		Set_Error(kiv_os::NOS_Error::Success, regs);
 	}
-	else {
-		//TODO ERROR not found
+	else if(result == Handle_Close_Result::NOT_EXISTS) {
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
 	}
+
+	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
 
 void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -56,6 +59,8 @@ void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
 	// output is write end and read end of the pipe
 	ptr[0] = desc_table->Create_Descriptor(write_end);
 	ptr[1] = desc_table->Create_Descriptor(read_end);
+
+	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
 void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -64,9 +69,18 @@ void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	Delete_Result result = actions::delete_file(vfs, filename);
 	switch (result) {
 	case Delete_Result::OK:
+		Set_Error(kiv_os::NOS_Error::Success, regs);
 		return;
-		//TODO process errors
+	case Delete_Result::FILE_OPENED:
+	case Delete_Result::CANT_REMOVE:
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
+	case Delete_Result::FILE_NOT_EXISTING:
+		Set_Error(kiv_os::NOS_Error::File_Not_Found, regs);
+		return;
 	}
+	
+	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
 
 void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -80,9 +94,24 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	switch (result) {
 	case Open_Result::OK:
 		regs.rax.x = handler_id;
+		Set_Error(kiv_os::NOS_Error::Success, regs);
 		return;
-		//TODO process errors
+	case Open_Result::ALREADY_OPENED:
+	case Open_Result::CANT_REMOVE_PREVIOUS:
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
+	case Open_Result::INVALID_FILENAME:
+		Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
+		return;
+	case Open_Result::FILE_NOT_FOUND:
+		Set_Error(kiv_os::NOS_Error::File_Not_Found, regs);
+		return;
+	case Open_Result::NO_MEMORY:
+		Set_Error(kiv_os::NOS_Error::Out_Of_Memory, regs);
+		return;
 	}
+
+	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
 
 
@@ -94,12 +123,13 @@ void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	auto [element, found] = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!found) {
-		//TODO INVALID HANDLER
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
 		return;
 	}
 	const auto written_bytes = element->Write(count, buffer);
 
 	regs.rax.r = written_bytes;
+	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
 void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -109,12 +139,13 @@ void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	auto [element, found] = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!found) {
-		//TODO INVALID HANDLER
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
 		return;
 	}
 	const auto read_bytes = element->Read(count, buffer);
 
 	regs.rax.r = read_bytes;
+	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
 void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -125,7 +156,7 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	auto [element, found] = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!found) {
-		//TODO INVALID HANDLER
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
 		return;
 	}
 
@@ -138,14 +169,14 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 			regs.rax.r = position;
 			break;
 		case Seek_Result::ERROR_INVALID_PARAMETERS:
-			//TODO INVALID PARAMETERS
-			break;
+			Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
+			return;
 		case Seek_Result::ERROR_SETTING_SIZE:
-			//TODO IO ERROR
-			break;
+			Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+			return;
 	}
 
-	
+	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
 void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -155,11 +186,12 @@ void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
 
 	if (!found) {
-		//TODO error not found
+		Set_Error(kiv_os::NOS_Error::File_Not_Found, regs);
 		return;
 	}
 
 	regs.rdi.r = dir_entry.file_attributes;
+	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
 void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -168,6 +200,7 @@ void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	auto [cwd, directory] = vfs.Get_CWD();
 	regs.rdi.r = cwd->Print(buffer, buffer_size);
+	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
 void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -175,29 +208,21 @@ void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto file_attributes = regs.rdi.r; // FIXME tady byl narrowing cast 64->16, takhle je to správně?
 	//dokonce bude 64->8, narrowing castu je vsude plno, nastesti je vypise prekladac
 	
-	auto [cwd, dir] = vfs.Get_CWD();
-	auto [dir_entry, found] = dir->Read_Entry_By_Name(filename);
-
-	if (!found) {
-		//TODO error not found
+	auto result = actions::set_file_attrs(vfs, filename, file_attributes);
+	switch (result) {
+	case Set_File_Attrs_Result::OK:
+		Set_Error(kiv_os::NOS_Error::Success, regs);
+		return;
+	case Set_File_Attrs_Result::FILE_OPENED:
+	case Set_File_Attrs_Result::CANT_CHANGE:
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
+	case Set_File_Attrs_Result::FILE_NOT_EXISTING:
+		Set_Error(kiv_os::NOS_Error::File_Not_Found, regs);
 		return;
 	}
 
-	auto element = vfs.Make_File(dir->Get_Fat_Directory(), dir_entry.file_name, dir_entry.file_attributes);
-	element->Open(dir_entry.file_start, dir_entry.file_size);
-	bool changed = element->Set_File_Attributes(file_attributes);
-	if (!changed) {
-		//TODO nemuzu zmenit soubor na slozku nebo naopak, nevim, jaky error se na to nejvic hodi
-		return;
-	}
-
-	auto new_dir_entry = dir->Generate_Dir_Entry();
-	bool entry_changed = dir->Change_Entry(filename, new_dir_entry);
-	if (!entry_changed) {
-		//TODO unknown error
-		return;
-	}
-
+	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
 
 void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -206,9 +231,18 @@ void file_system::set_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 	auto result = actions::set_cwd(vfs, path);
 	switch (result) {
 	case Set_CWD_Result::OK:
-		//OK
+		Set_Error(kiv_os::NOS_Error::Success, regs);
+		return;
+	case Set_CWD_Result::INVALID_PATH:
+		Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
+		return;
+	case Set_CWD_Result::NOT_A_DIRECTORY:
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
+	case Set_CWD_Result::PATH_NOT_FOUND:
+		Set_Error(kiv_os::NOS_Error::File_Not_Found, regs);
 		return;
 	}
 
-	//TODO ERRORS
+	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
