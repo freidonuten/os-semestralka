@@ -15,8 +15,13 @@ bool VFS_File::Is_Convertable(std::uint16_t required_file_attributes) {
 	return !api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory);
 }
 
-void VFS_File::Create() {
-	this->fat_file = this->fat_file_factory->Create_New_File();
+bool VFS_File::Create() {
+	auto [element, created] = this->fat_file_factory->Create_New_File();
+	if (created) {
+		this->fat_file = element;
+		return true;
+	}
+	return false;
 }
 
 void VFS_File::Open(std::uint16_t file_start, std::uint16_t file_size) {
@@ -29,11 +34,10 @@ bool VFS_File::Remove() {
 }
 
 std::uint64_t VFS_File::Write(size_t how_many_bytes, void* buffer) {
-	this->fat_file->Write_To_File(this->file_position, how_many_bytes, buffer);
+	auto written = this->fat_file->Write_To_File(this->file_position, how_many_bytes, buffer);
 	this->parent_fat_directory->Change_Entry(this->file_name, this->Generate_Dir_Entry());
-	//TODO kolik jsem jich zapsal
-	this->file_position += how_many_bytes;
-	return how_many_bytes;
+	this->file_position += written;
+	return written;
 }
 
 std::uint64_t VFS_File::Read(size_t how_many_bytes, void* buffer) {

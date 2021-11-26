@@ -6,9 +6,14 @@ Fat_Directory_Factory::Fat_Directory_Factory(std::shared_ptr<Fat_File_Factory> f
 	this->file_factory = file_factory;
 }
 
-std::shared_ptr<Fat_Directory> Fat_Directory_Factory::Create_New_Directory() {
-	std::shared_ptr<Fat_File> file = this->file_factory->Create_New_File();
-	return std::make_shared<Fat_Directory>(file);
+std::tuple<std::shared_ptr<Fat_Directory>, bool> Fat_Directory_Factory::Create_New_Directory() {
+	auto [file, created] = this->file_factory->Create_New_File();
+	if (created) {
+		auto directory = std::make_shared<Fat_Directory>(file);
+		return{ directory, true };
+	}
+	return { nullptr, false };
+	
 }
 
 std::shared_ptr<Fat_Directory> Fat_Directory_Factory::Get_Existing_Directory(std::uint16_t file_start, std::uint64_t file_size) {
@@ -28,16 +33,21 @@ std::uint64_t Fat_Directory::Get_File_Size() {
 	return this->file->Get_File_Size();
 }
 
-bool Fat_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
+Create_New_Entry_Result Fat_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
 	auto entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, entry.file_name);
 	if (index == -1) {
 		entries.push_back(entry);
-		Write_Entries(entries);
-		return true;
+		bool written = Write_Entries(entries);
+		if (written) {
+			return Create_New_Entry_Result::OK;
+		}
+		else {
+			return Create_New_Entry_Result::NO_MEMORY;
+		}
 	}
 	else {
-		return false;
+		return Create_New_Entry_Result::ALREADY_EXISTS;
 	}
 	
 }
@@ -112,12 +122,17 @@ bool Fat_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry ne
 	}
 }
 
-void Fat_Directory::Write_Entries(std::vector<Fat_Dir_Entry> entries) {
-	std::uint64_t file_size = entries.size() * sizeof(Fat_Dir_Entry);
+bool Fat_Directory::Write_Entries(std::vector<Fat_Dir_Entry> entries) {
+	std::uint64_t desired_file_size = entries.size() * sizeof(Fat_Dir_Entry);
 	void* buffer = static_cast<void*>(&entries[0]);
 
-	file->Change_File_Size(file_size);
-	file->Write_To_File(0, file_size, buffer);
+	std::uint64_t actual_file_size = file->Change_File_Size(desired_file_size);
+	if (actual_file_size == desired_file_size) {
+		file->Write_To_File(0, actual_file_size, buffer);
+		return true;
+	}
+	return false;
+	
 }
 
 bool Fat_Directory::Filenames_Equal(char name1[8 + 3 + 1], char name2[8 + 3 + 1]) {

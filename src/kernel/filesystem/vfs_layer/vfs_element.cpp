@@ -6,7 +6,7 @@ void VFS_Element::Open(std::uint16_t file_start, std::uint16_t file_size) {
 	throw std::runtime_error("Unsupported operation OPEN.");
 }
 
-void VFS_Element::Create() {
+bool VFS_Element::Create() {
 	throw std::runtime_error("Unsupported operation CREATE.");
 }
 

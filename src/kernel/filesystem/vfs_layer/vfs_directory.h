@@ -16,7 +16,7 @@ public:
 
 	//VFS ELEMENT METHODS
 	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
-	virtual void Create();
+	virtual bool Create();
 	virtual bool Remove();
 	virtual std::uint64_t Write(size_t how_many_bytes, void* buffer);
 	virtual std::uint64_t Read(size_t how_many_bytes, void* buffer);
@@ -24,7 +24,7 @@ public:
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
 	//DIRECTORY METHODS (wrappers)
-	bool Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
 	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]);
 	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
 	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found

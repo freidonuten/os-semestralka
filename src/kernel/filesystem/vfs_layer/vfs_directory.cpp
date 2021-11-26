@@ -15,8 +15,13 @@ bool VFS_Directory::Is_Convertable(std::uint16_t required_file_attributes) {
 		api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Read_Only);
 }
 
-void VFS_Directory::Create() {
-	this->self_fat_directory = this->fat_directory_factory->Create_New_Directory();
+bool VFS_Directory::Create() {
+	auto [element, created] = this->fat_directory_factory->Create_New_Directory();
+	if (created) {
+		this->self_fat_directory = element;
+		return true;
+	}
+	return false;
 }
 
 void VFS_Directory::Open(std::uint16_t file_start, std::uint16_t file_size) {
@@ -86,7 +91,7 @@ Fat_Dir_Entry VFS_Directory::Generate_Dir_Entry() {
 		this->self_fat_directory->Get_File_Start(), this->self_fat_directory->Get_File_Size());
 }
 
-bool VFS_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
+Create_New_Entry_Result VFS_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
 	return this->self_fat_directory->Create_New_Entry(entry);
 }
 

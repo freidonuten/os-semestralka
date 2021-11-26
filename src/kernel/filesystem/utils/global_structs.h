@@ -110,6 +110,7 @@ enum class Open_Result {
 	FILE_NOT_FOUND,
 	ALREADY_OPENED,
 	CANT_REMOVE_PREVIOUS,
+	NO_MEMORY,
 	UNKNOWN_ERROR
 };
 
@@ -140,5 +141,11 @@ enum class Get_CWD_From_Handle_Result {
 	VALID_DIRECTORY,
 	NOT_A_DIRECTORY,
 	NOT_FOUND
+};
+
+enum class Create_New_Entry_Result {
+	OK,
+	NO_MEMORY,
+	ALREADY_EXISTS
 };
 

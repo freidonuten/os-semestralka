@@ -24,23 +24,39 @@ std::uint64_t Fat12::Get_Cluster_Count() {
 	return data_clusters_size / one_cluster_size;
 }
 
-std::uint16_t Fat12::Allocate_New_File() {
-	std::uint16_t new_cluster = Allocate_One_Cluster();
-	this->fat_io->Set_Entry_Value(new_cluster, FAT_EOF);
-	this->fat_io->Save_Changes();
-	return new_cluster;
+std::tuple<std::uint16_t, bool> Fat12::Allocate_New_File() {
+	auto [new_cluster, allocated] = Allocate_One_Cluster();
+	if (allocated) {
+		this->fat_io->Set_Entry_Value(new_cluster, FAT_EOF);
+		this->fat_io->Save_Changes();
+		return { new_cluster, true };
+	}
+	else {
+		return { 0, false };
+	}
 }
 
 
-void Fat12::Allocate_Clusters_For_Existing_File(std::uint16_t file_start, std::uint32_t how_many) {
+std::uint32_t Fat12::Allocate_Clusters_For_Existing_File(std::uint16_t file_start, std::uint32_t how_many) {
+	std::uint32_t result = 0;
+
 	std::uint16_t current_last = Get_Last_Cluster(file_start);
 	for (int i = 0; i < how_many; i++) {
-		std::uint16_t new_cluster = Allocate_One_Cluster();
-		this->fat_io->Set_Entry_Value(current_last, new_cluster);
-		current_last = new_cluster;
+		auto [new_cluster, found] = Allocate_One_Cluster();
+		if (found) {
+			result++;
+			this->fat_io->Set_Entry_Value(current_last, new_cluster);
+			current_last = new_cluster;
+			continue;
+		}
+		else {
+			break;
+		}
+		
 	}
 	
 	this->fat_io->Save_Changes();
+	return result;
 }
 
 void Fat12::Deallocate_Last_N_Clusters(std::uint16_t file_start, std::uint32_t how_many) {
@@ -92,9 +108,7 @@ std::vector<std::uint16_t> Fat12::Get_File_Clusters(std::uint16_t file_start) {
 }
 
 
-
-
-std::uint16_t Fat12::Allocate_One_Cluster() {
+std::tuple<std::uint16_t, bool> Fat12::Allocate_One_Cluster() {
 	std::uint64_t cluster_count = Get_Cluster_Count();
 
 	for (int i = 0; i < cluster_count; i++) {
@@ -104,12 +118,10 @@ std::uint16_t Fat12::Allocate_One_Cluster() {
 		if (val == FAT_FREE) {
 			this->fat_io->Set_Entry_Value(position, FAT_EOF);
 			last_allocated = position;
-			return position;
+			return { position, true };
 		}
 	}
 
-	//TODO don't found any free
-	std::cout << "Can't find any free clusters" << std::endl;
-	return 0xFFFF;
+	return { 0, false };
 }
 
