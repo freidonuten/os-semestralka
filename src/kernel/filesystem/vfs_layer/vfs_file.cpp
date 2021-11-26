@@ -41,10 +41,9 @@ std::uint64_t VFS_File::Write(size_t how_many_bytes, void* buffer) {
 }
 
 std::uint64_t VFS_File::Read(size_t how_many_bytes, void* buffer) {
-	this->fat_file->Read_From_File(this->file_position, how_many_bytes, buffer);
-	//TODO kolik jsem jich precetl
-	this->file_position += how_many_bytes;
-	return how_many_bytes;
+	std::uint64_t read = this->fat_file->Read_From_File(this->file_position, how_many_bytes, buffer);
+	this->file_position += read;
+	return read;
 }
 
 std::tuple<uint64_t, Seek_Result> VFS_File::Seek(std::uint64_t seek_offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation) {

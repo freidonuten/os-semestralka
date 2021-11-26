@@ -36,11 +36,9 @@ public:
 
 	bool Create_New_File();
 	std::uint64_t Write_To_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
-	void Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
+	std::uint64_t Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
 	std::uint64_t Change_File_Size(std::uint64_t desired_size);
 	void Remove_File();
-
-
 };
 
 class Fat_File_Factory {

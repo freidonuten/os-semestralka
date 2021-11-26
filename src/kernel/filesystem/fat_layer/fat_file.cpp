@@ -77,12 +77,16 @@ std::uint64_t Fat_File::Write_To_File(std::uint64_t starting_byte, size_t how_ma
 	return how_many_bytes;
 }
 
-void Fat_File::Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
+std::uint64_t Fat_File::Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
+	std::uint64_t to_read = std::min(this->file_size - starting_byte, how_many_bytes);
+
 	auto file_clusters = this->fat_table->Get_File_Clusters(file_start);
 	auto data_blocks = Cast_To_UInt64_Vector(file_clusters);
 
-	auto task = IO_Task_Factory::Make_Task(data_blocks, starting_byte, how_many_bytes, buffer, Task_Type::READ);
+	auto task = IO_Task_Factory::Make_Task(data_blocks, starting_byte, to_read, buffer, Task_Type::READ);
 	this->cluster_io->Proceed_Task(task);
+
+	return to_read;
 }
 
 std::uint64_t Fat_File::Change_File_Size(std::uint64_t desired_size) {
