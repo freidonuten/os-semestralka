@@ -1,55 +1,39 @@
 #pragma once
 
-#include "vfs_element.h"
+#include "vfs_fat_element.h"
 #include "../fat_layer/fat_directory.h"
-#include "../utils/char_utils.h"
-#include "../utils/global_structs.h"
 
-class VFS_Directory : public VFS_Element {
+class VFS_Directory : public VFS_Fat_Element {	
 protected:
 	std::shared_ptr<Fat_Directory_Factory> fat_directory_factory;
 	std::shared_ptr<Fat_Directory> self_fat_directory;
 
-	VFS_Element_Factory* element_factory;
-	
-	void Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, TDir_Entry* buffer, size_t max_bytes);
-	virtual void Add_Child(Fat_Dir_Entry entry);
+	std::uint64_t Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, void* buffer, size_t how_many_bytes);
 
+	virtual bool Is_Convertable(std::uint16_t file_attributes);
 public:
-	VFS_Directory(VFS_Element_Factory* element_factory, std::shared_ptr<Fat_Directory_Factory> factory, std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint16_t file_attributes);
+	VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes);
 
-	virtual void Create();
+	//VFS ELEMENT METHODS
 	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
+	virtual void Create();
 	virtual bool Remove();
-
-
-	virtual int Write(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
-	virtual int Read(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
-	
-	virtual void Change_Size(std::uint32_t desired_size);
-
-	virtual std::shared_ptr<VFS_Element> Create_Child(char file_name[12], std::uint16_t file_attributes);
-	virtual std::shared_ptr<VFS_Element> Open_Child(char file_name[12]);
-	virtual bool Contains_Child(char file_name[12]);
-	virtual void Remove_Child(char file_name[12]);
-
-	virtual std::shared_ptr<Fat_Dir_Entry> Get_ChildO(char file_name[12]);
-	virtual void Update_ChildO(char old_file_name[12], Fat_Dir_Entry entry);
-
+	virtual std::uint64_t Write(size_t how_many_bytes, void* buffer);
+	virtual std::uint64_t Read(size_t how_many_bytes, void* buffer);
+	virtual std::tuple<uint64_t, Seek_Result> Seek(std::uint64_t offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation);
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
-
+	//DIRECTORY METHODS (wrappers)
+	bool Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]);
+	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
+	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
+	std::shared_ptr<Fat_Directory> Get_Fat_Directory();
 };
 
-class Root_Directory : public VFS_Directory {
-protected:
-	virtual void Add_Child(Fat_Dir_Entry entry);
+class VFS_Root_Directory : public VFS_Directory {
 public:
 	using VFS_Directory::VFS_Directory;
 
-	virtual void Create(std::shared_ptr<VFS_Directory> parent_vfs_directory);
-	virtual void Remove(std::shared_ptr<VFS_Directory> parent_vfs_directory);
-
-	
-	virtual void Remove_Child(char file_name[12]);
+	virtual bool Remove();
 };

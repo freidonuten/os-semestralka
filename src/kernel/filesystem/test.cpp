@@ -180,17 +180,20 @@ void descriptor_perftest() {
 
 void filesystem_test() {
 	kiv_hal::TRegisters registers;
-
+	char filename[12];
+	sprintf_s(filename, "directory");
+	auto dir_handler = create_dir(filename);
+	set_working_dir(filename);
+	
 	for (int i = 0; i < 15; i++) {
-		char dir_name[12];
-		sprintf_s(dir_name, "dir%d", i);
-		create_dir(dir_name);
+		sprintf_s(filename, "dir%d", i);
+		auto temp = create_dir(filename);
+		close_handle(temp);
 	}
 
 	kiv_os::TDir_Entry entries[15];
-	char root_name[12] = "";
-	int root_handle = open_file(root_name);
-	read_file(root_handle, static_cast<void*>(entries), 15 * sizeof(kiv_os::TDir_Entry));
+
+	read_file(dir_handler, static_cast<void*>(entries), 15 * sizeof(kiv_os::TDir_Entry));
 
 	for (int i = 0; i < 15; i++) {
 		std::cout << entries[i].file_name << std::endl;
@@ -203,30 +206,6 @@ void filesystem_test() {
 	temp = create_dir(path);
 	close_handle(temp);
 
-	sprintf_s(path, "dir0/dir1");
-	temp = create_dir(path);
-	close_handle(temp);
-
-	sprintf_s(path, "dir0/dir1/dir2");
-	temp = create_dir(path);
-	set_working_dir(path);
-	close_handle(temp);
-
-	sprintf_s(path, "dir3");
-	temp = create_dir(path);
-	close_handle(temp);
-
-	sprintf_s(path, "dir3/dir4");
-	temp = create_dir(path);
-	close_handle(temp);
-
-	sprintf_s(path, "/");
-	set_working_dir(path);
-
-	sprintf_s(path, "dir0/dir1/dir2/dir3/dir4/dir5");
-	temp = create_dir(path);
-	set_working_dir(path);
-	close_handle(temp);
 
 	sprintf_s(path, "file");
 	int file_handle = create_file(path);

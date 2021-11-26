@@ -4,10 +4,30 @@
 #include <memory>
 #include <vector>
 
+#include "../cwd/cwd.h"
+
+enum class Path_Type : std::uint8_t {
+	ABSOLUTE_PATH,
+	RELATIVE_PATH,
+	INVALID
+};
 
 enum class Task_Type : std::uint8_t {
 	READ,
 	WRITE
+};
+
+enum class VFS_Fat_Element_Type : std::uint8_t {
+	DIRECTORY,
+	FILE,
+	ROFILE,
+	INVALID
+};
+
+enum class Open_Directory_Error : std::uint8_t {
+	OK,
+	PATH_NOT_EXISTING,
+	NOT_A_DIRECTORY
 };
 
 struct IO_Task {
@@ -25,8 +45,6 @@ public:
 		std::vector<std::uint64_t> data_blocks, std::uint64_t starting_byte,
 		size_t how_many_bytes_to_operate, void* buffer, Task_Type type);
 };
-
-
 
 struct Fat_Dir_Entry {
 	std::uint16_t file_attributes;
@@ -56,9 +74,71 @@ struct TDir_Entry {
 	char file_name[8 + 1 + 3];	//8.3 FAT
 };
 
-class VFS_Element; //forward declaration
-
-struct Descriptor_Entry {
-	std::shared_ptr<VFS_Element> element;
-	std::uint64_t position;
+namespace global_structs {
+	Fat_Dir_Entry Create_Empty_Fat_Dir_Entry();
 };
+
+enum class Seek_Result : std::uint8_t {
+	NO_ERROR_POSITION_RETURNED,
+	NO_ERROR_POSITION_NOT_RETURNED,
+	ERROR_SETTING_SIZE,
+	ERROR_INVALID_PARAMETERS
+};
+
+struct Handle_Info {
+	int cwd_count;
+	bool is_open;
+	std::uint16_t id;
+	std::shared_ptr<Path> path;
+};
+
+enum class Handle_Open_Result {
+	RETURNED,
+	NOT_EXISTS,
+	ALREADY_OPENED
+};
+
+enum class Handle_Close_Result {
+	CLOSED,
+	NOT_EXISTS,
+	UNKNOWN_ERROR
+};
+
+enum class Open_Result {
+	OK,
+	INVALID_FILENAME,
+	FILE_NOT_FOUND,
+	ALREADY_OPENED,
+	CANT_REMOVE_PREVIOUS,
+	UNKNOWN_ERROR
+};
+
+enum class Delete_Result {
+	OK,
+	FILE_OPENED,
+	FILE_NOT_EXISTING,
+	CANT_REMOVE,
+	UNKNOWN_ERROR
+};
+
+enum class Set_File_Attrs_Result {
+	OK,
+	FILE_OPENED,
+	FILE_NOT_EXISTING,
+	CANT_CHANGE
+};
+
+enum class Set_CWD_Result {
+	OK,
+	INVALID_PATH,
+	PATH_NOT_FOUND,
+	NOT_A_DIRECTORY,
+	UNKNOWN_ERROR
+};
+
+enum class Get_CWD_From_Handle_Result {
+	VALID_DIRECTORY,
+	NOT_A_DIRECTORY,
+	NOT_FOUND
+};
+

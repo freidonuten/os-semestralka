@@ -1,5 +1,7 @@
 #include "fat_directory.h"
 
+#include <string>
+
 Fat_Directory_Factory::Fat_Directory_Factory(std::shared_ptr<Fat_File_Factory> file_factory) {
 	this->file_factory = file_factory;
 }
@@ -26,10 +28,18 @@ std::uint64_t Fat_Directory::Get_File_Size() {
 	return this->file->Get_File_Size();
 }
 
-void Fat_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
+bool Fat_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
 	auto entries = Read_All_Entries();
-	entries.push_back(entry);
-	Write_Entries(entries);
+	int index = Get_Index_Of_Searched(entries, entry.file_name);
+	if (index == -1) {
+		entries.push_back(entry);
+		Write_Entries(entries);
+		return true;
+	}
+	else {
+		return false;
+	}
+	
 }
 
 std::vector<Fat_Dir_Entry> Fat_Directory::Read_All_Entries() {
@@ -52,56 +62,54 @@ std::vector<Fat_Dir_Entry> Fat_Directory::Read_All_Entries() {
 	return entry_vector;
 }
 
-Fat_Dir_Entry Fat_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3]) {
+std::tuple<Fat_Dir_Entry, bool> Fat_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3]) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, file_name);
 	if (index != -1) {
-		return entries[index];
+		return { entries[index], true };
 	}
 	else {
-		//TODO ERROR
+		Fat_Dir_Entry empty = global_structs::Create_Empty_Fat_Dir_Entry();
+		return { empty, false };
 	}
 	
 }
 
-bool Fat_Directory::Contains_Entry(char file_name[8 + 1 + 3]) {
-	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
-	int index = Get_Index_Of_Searched(entries, file_name);
-	if (index == -1) {
-		return false;
-	}
-	else {
-		return true;
-	}
-}
-
-void Fat_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
+bool Fat_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, file_name);
 	if (index != -1) {
 		Set_Last_Element_To_Index(entries, index);
+		return true;
 	}
 	else {
-		//TODO ERROR
+		return false;
 	}
 	
 }
 
-void Fat_Directory::Remove_Directory() {
+bool Fat_Directory::Remove_Directory() {
 	if (this->Is_Empty()) {
 		this->file->Remove_File();
 		this->file = nullptr;
+		return true;
 	}
 	else {
-		//TODO ERROR HANDLER NOT EMPTY
+		return false;
 	}
 }
 
-void Fat_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry) {
+bool Fat_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	int index = Get_Index_Of_Searched(entries, old_file_name);
-	entries[index]= new_entry;
-	Write_Entries(entries);
+	if (index != -1) {
+		entries[index] = new_entry;
+		Write_Entries(entries);
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 void Fat_Directory::Write_Entries(std::vector<Fat_Dir_Entry> entries) {
@@ -113,12 +121,10 @@ void Fat_Directory::Write_Entries(std::vector<Fat_Dir_Entry> entries) {
 }
 
 bool Fat_Directory::Filenames_Equal(char name1[8 + 3 + 1], char name2[8 + 3 + 1]) {
-	for (int i = 0; i < 8 + 3 + 1; i++) {
-		if (name1[i] != name2[i]) {
-			return false;
-		}
-	}
-	return true;
+	std::string string1(name1);
+	std::string string2(name2);
+	
+	return string1.compare(string2) == 0;
 }
 
 int Fat_Directory::Get_Index_Of_Searched(std::vector<Fat_Dir_Entry> entries, char file_name[8 + 1 + 3]) {
@@ -129,7 +135,6 @@ int Fat_Directory::Get_Index_Of_Searched(std::vector<Fat_Dir_Entry> entries, cha
 		}
 	}
 	return -1;
-	//TODO Error Handler nenalezeno
 }
 
 std::vector<Fat_Dir_Entry> Fat_Directory::Set_Last_Element_To_Index(std::vector<Fat_Dir_Entry> source, int index) {

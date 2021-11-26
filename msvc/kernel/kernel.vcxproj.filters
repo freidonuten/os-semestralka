@@ -49,6 +49,18 @@
     <Filter Include="Source Files\fs\sysfs">
       <UniqueIdentifier>{2066430d-2205-4c4a-b111-5f46fd2db628}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\fs\cwd">
+      <UniqueIdentifier>{02561140-600e-40dc-bb2c-94634de9805b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\cwd">
+      <UniqueIdentifier>{984293cc-8009-45ae-afef-48947d1f3cff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fs\actions">
+      <UniqueIdentifier>{60bd0a42-1ce1-4cca-a76e-7bca865c69dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fs\actions">
+      <UniqueIdentifier>{3c7c68fa-8c92-4361-a15d-e7500bd35c1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\kernel\kernel.cpp">
@@ -57,13 +69,7 @@
     <ClCompile Include="..\..\src\kernel\handles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\io.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\api\api.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\test-old.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\test.cpp">
@@ -117,19 +123,7 @@
     <ClCompile Include="..\..\src\kernel\filesystem\utils\rounder.cpp">
       <Filter>Source Files\fs\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.cpp">
-      <Filter>Source Files\fs\vfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\path.cpp">
-      <Filter>Source Files\fs\vfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.cpp">
-      <Filter>Source Files\fs\vfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.cpp">
-      <Filter>Source Files\fs\vfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.cpp">
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\handler_table.cpp">
       <Filter>Source Files\fs\vfs</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\Thread_Control_Block.cpp">
@@ -141,9 +135,6 @@
     <ClCompile Include="..\..\src\kernel\Process_Control_Block.cpp">
       <Filter>Source Files\Processes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\vfs.cpp">
-      <Filter>Source Files\fs\vfs</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\file_system.cpp">
       <Filter>Source Files\fs</Filter>
     </ClCompile>
@@ -152,6 +143,60 @@
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\utils\api_utils.cpp">
+      <Filter>Source Files\fs\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\cwd\cwd.cpp">
+      <Filter>Source Files\fs\cwd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\cwd\cwd_opener.cpp">
+      <Filter>Source Files\fs\cwd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\cwd\dummy_cwd_holder.cpp">
+      <Filter>Source Files\fs\cwd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\cwd\test_cwd.cpp">
+      <Filter>Source Files\fs\cwd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_fat_element_factory.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_fat_element.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\path_handlers.cpp">
+      <Filter>Source Files\fs\vfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\open_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\create_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\delete_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\action_functions.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_attrs_actions.cpp">
+      <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\actions\set_cwd_action.cpp">
+      <Filter>Source Files\fs\actions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +210,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\handles.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\io.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\test.h">
@@ -224,19 +266,7 @@
     <ClInclude Include="..\..\src\kernel\filesystem\utils\bit_utils.h">
       <Filter>Header Files\fs\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\file_descriptor.h">
-      <Filter>Header Files\fs\vfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\path.h">
-      <Filter>Header Files\fs\vfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.h">
-      <Filter>Header Files\fs\vfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.h">
-      <Filter>Header Files\fs\vfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.h">
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\handler_table.h">
       <Filter>Header Files\fs\vfs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\constants.h">
@@ -257,9 +287,6 @@
     <ClInclude Include="..\..\src\kernel\Thread_Control_Block.h">
       <Filter>Header Files\processes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\kernel\filesystem\vfs.h">
-      <Filter>Header Files\fs\vfs</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\file_system.h">
       <Filter>Header Files\fs</Filter>
     </ClInclude>
@@ -268,6 +295,42 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\stream.h">
       <Filter>Header Files\fs\sysfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\utils\api_utils.h">
+      <Filter>Header Files\fs\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\cwd\cwd.h">
+      <Filter>Header Files\fs\cwd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\cwd\cwd_opener.h">
+      <Filter>Header Files\fs\cwd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\cwd\dummy_cwd_holder.h">
+      <Filter>Header Files\fs\cwd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_directory.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_element.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_fat_element.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_fat_element_factory.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\vfs.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\vfs_layer\path_handlers.h">
+      <Filter>Header Files\fs\vfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\actions\actions.h">
+      <Filter>Header Files\fs\actions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -24,13 +24,13 @@ public:
 	std::uint16_t Get_File_Start();
 	std::uint64_t Get_File_Size();
 
-	void Create_New_Entry(Fat_Dir_Entry entry);
 	std::vector<Fat_Dir_Entry> Read_All_Entries();
-	Fat_Dir_Entry Read_Entry_By_Name(char file_name[8 + 1 + 3]);
-	bool Contains_Entry(char file_name[8 + 1 + 3]);
-	void Remove_Entry(char file_name[8 + 1 + 3]);
-	void Remove_Directory();
-	void Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry);
+	bool Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]); //bool out = > true = ok, false = not_found
+	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
+	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
+
+	bool Remove_Directory(); //out => true = ok, false = not_empty
 
 
 };

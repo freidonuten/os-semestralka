@@ -28,3 +28,13 @@ Fat_Dir_Entry Fat_Dir_Entry_Factory::Create( std::uint16_t file_attributes, char
 
 	return result;
 }
+
+Fat_Dir_Entry global_structs::Create_Empty_Fat_Dir_Entry() {
+	Fat_Dir_Entry result;
+	result.file_attributes = 0;
+	result.file_name;
+	result.file_size = 0;
+	result.file_start = 0;
+
+	return result;
+}

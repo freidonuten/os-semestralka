@@ -1,13 +1,18 @@
 #include "vfs_directory.h"
+#include "../utils/char_utils.h"
+#include "../utils/api_utils.h"
 
-VFS_Directory::VFS_Directory(VFS_Element_Factory* element_factory, std::shared_ptr<Fat_Directory_Factory> factory,
-	std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint16_t file_attributes) {
-
-	this->element_factory = element_factory;
+VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes) {
 	this->fat_directory_factory = factory;
-	this->parent_fat_directory = parent_directory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
 	this->file_attributes = file_attributes;
+	this->file_position = 0;
+}
+
+bool VFS_Directory::Is_Convertable(std::uint16_t required_file_attributes) {
+	//must be read only directory
+	return api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory) &&
+		api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Read_Only);
 }
 
 void VFS_Directory::Create() {
@@ -19,112 +24,89 @@ void VFS_Directory::Open(std::uint16_t file_start, std::uint16_t file_size) {
 }
 
 bool VFS_Directory::Remove() {
-	if (this->self_fat_directory->Get_File_Size() != 0) {
-		//TODO ERROR NOT EMPTY
-		return false;
-	}
-
-	this->self_fat_directory->Remove_Directory();
-	return true;
+	return this->self_fat_directory->Remove_Directory();
 }
 
-int VFS_Directory::Write(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
-	//TODO ERROR CANT WRITE TO DIRECTORY
+std::uint64_t VFS_Directory::Write(size_t how_many_bytes, void* buffer) {
+	//TODO ERROR CANT WRITE TO DIRECTORY - permission denied pres bool
 	return 0;
 }
 
-int VFS_Directory::Read(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
+std::uint64_t VFS_Directory::Read(size_t how_many_bytes, void* buffer) {
 	auto vector = this->self_fat_directory->Read_All_Entries();
-	Copy_To_TDir_Entry_Format(vector, static_cast<TDir_Entry*>(buffer), how_many_bytes);
-	return how_many_bytes;
+	std::uint64_t bytes_read = Copy_To_TDir_Entry_Format(vector, buffer, how_many_bytes);
+	return bytes_read;
 }
 
-
-
-void VFS_Directory::Change_Size(std::uint32_t desired_size) {
-	//TODO ERROR CANT CHANGE SIZE OF DIRECTORY
-}
-
-std::shared_ptr<Fat_Dir_Entry> VFS_Directory::Get_ChildO(char file_name[12]) {
-	auto result = this->self_fat_directory->Read_Entry_By_Name(file_name);
-	return std::make_shared<Fat_Dir_Entry>(result);
-}
-
-std::shared_ptr<VFS_Element> VFS_Directory::Create_Child(char file_name[12], std::uint16_t file_attributes) {
-	auto result = this->element_factory->Create(this->self_fat_directory, file_name, file_attributes);
-	result->Create();
-	Fat_Dir_Entry entry = result->Generate_Dir_Entry();
-	Add_Child(entry);
-	return result;
-}
-
-std::shared_ptr<VFS_Element> VFS_Directory::Open_Child(char file_name[12]) {
-	Fat_Dir_Entry entry = this->self_fat_directory->Read_Entry_By_Name(file_name);
-	auto result = this->element_factory->Create(this->self_fat_directory, entry.file_name, entry.file_attributes);
-	result->Open(entry.file_start, entry.file_size);
-	return result;
-}
-
-bool VFS_Directory::Contains_Child(char file_name[12]) {
-	return this->self_fat_directory->Contains_Entry(file_name);
-}
-
-void VFS_Directory::Remove_Child(char file_name[12]) {
-	auto file = this->Open_Child(file_name);
-	if (file->Remove()) {
-		this->self_fat_directory->Remove_Entry(file_name);
-		Fat_Dir_Entry entry = this->Generate_Dir_Entry();
-		this->parent_fat_directory->Change_Entry(this->file_name, entry);
+std::tuple<uint64_t, Seek_Result> VFS_Directory::Seek(std::uint64_t seek_offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation) {
+	switch (start_position) {
+	case kiv_os::NFile_Seek::Beginning:
+		this->file_position = seek_offset;
+		break;
+	case kiv_os::NFile_Seek::Current:
+		this->file_position += seek_offset;
+		break;
+	case kiv_os::NFile_Seek::End:
+		this->file_position = this->self_fat_directory->Get_File_Size();
+		break;
+	default:
+		return { 0, Seek_Result::ERROR_INVALID_PARAMETERS };
 	}
+
+	switch (seek_operation) {
+	case kiv_os::NFile_Seek::Get_Position:
+		return { this->file_position, Seek_Result::NO_ERROR_POSITION_RETURNED };
+	case kiv_os::NFile_Seek::Set_Size:
+		return { 0, Seek_Result::ERROR_SETTING_SIZE };
+	case kiv_os::NFile_Seek::Set_Position:
+		return { 0, Seek_Result::NO_ERROR_POSITION_NOT_RETURNED };
+	}
+
+	return { 0, Seek_Result::ERROR_INVALID_PARAMETERS };
 }
 
+std::uint64_t VFS_Directory::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, void* buffer, size_t max_bytes) {
+	std::vector<TDir_Entry> temp_vector;
+	for (auto entry : entries) {
+		TDir_Entry temp_entry;
+		temp_entry.file_attributes = entry.file_attributes;
+		Char_Utils::Copy_Array(temp_entry.file_name, entry.file_name, 12);
+		temp_vector.push_back(temp_entry);
+	}
 
-void VFS_Directory::Update_ChildO(char old_file_name[12], Fat_Dir_Entry entry) {
-	this->self_fat_directory->Change_Entry(old_file_name, entry);
+	std::uint64_t size = temp_vector.size() * sizeof(TDir_Entry);
+	std::uint64_t to_copy = std::min(max_bytes, size - this->file_position);
+
+	memcpy(buffer, &temp_vector[0], to_copy);
+	return to_copy;
 }
-
 
 Fat_Dir_Entry VFS_Directory::Generate_Dir_Entry() {
 	return Fat_Dir_Entry_Factory::Create(this->file_attributes, this->file_name,
 		this->self_fat_directory->Get_File_Start(), this->self_fat_directory->Get_File_Size());
 }
 
-
-void VFS_Directory::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, TDir_Entry* buffer, size_t max_bytes) {
-	int entries_size = entries.size();
-	int buffer_size = max_bytes / sizeof(TDir_Entry);
-	int count = std::min(entries_size, buffer_size);
-
-	for (int i = 0; i < count; i++) {
-		Char_Utils::Copy_Array(buffer[i].file_name, entries[i].file_name, 12);
-		buffer[i].file_attributes = entries[i].file_attributes;
-	}
+bool VFS_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
+	return this->self_fat_directory->Create_New_Entry(entry);
 }
 
-void VFS_Directory::Add_Child(Fat_Dir_Entry entry) {
-	this->self_fat_directory->Create_New_Entry(entry);
-	Fat_Dir_Entry self_entry = this->Generate_Dir_Entry();
-	this->parent_fat_directory->Change_Entry(this->file_name, self_entry);
+std::tuple<Fat_Dir_Entry, bool> VFS_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3]) {
+	return this->self_fat_directory->Read_Entry_By_Name(file_name);
 }
 
-
-void Root_Directory::Create(std::shared_ptr<VFS_Directory> parent_vfs_directory) {
-	this->self_fat_directory = this->fat_directory_factory->Create_New_Directory();
+bool VFS_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
+	return this->self_fat_directory->Remove_Entry(file_name);
 }
 
-void Root_Directory::Remove(std::shared_ptr<VFS_Directory> parent_vfs_directory) {
-	if (this->self_fat_directory->Get_File_Size() != 0) {
-		//TODO ERROR NOT EMPTY
-		return;
-	}
-
-	this->self_fat_directory->Remove_Directory();
+bool VFS_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry) {
+	return this->self_fat_directory->Change_Entry(old_file_name, new_entry);
 }
 
-void Root_Directory::Add_Child(Fat_Dir_Entry entry) {
-	this->self_fat_directory->Create_New_Entry(entry);
+std::shared_ptr<Fat_Directory> VFS_Directory::Get_Fat_Directory() {
+	return this->self_fat_directory;
 }
 
-void Root_Directory::Remove_Child(char file_name[12]) {
-	this->self_fat_directory->Remove_Entry(file_name);
+bool VFS_Root_Directory::Remove() {
+	//TODO PERMISSION DENIED
+	return false;
 }

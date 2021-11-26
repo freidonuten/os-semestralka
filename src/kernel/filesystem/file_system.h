@@ -4,8 +4,7 @@
 #include "../../api/api.h"
 
 #include "utils/global_constants.h"
-#include "vfs_layer/path.h"
-#include "vfs.h"
+#include "vfs_layer/vfs.h"
 
 
 #include <memory>
