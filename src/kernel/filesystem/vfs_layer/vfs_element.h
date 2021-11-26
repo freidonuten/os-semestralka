@@ -7,7 +7,7 @@
 class VFS_Element {
 public:
 	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
-	virtual void Create();
+	virtual bool Create();
 	virtual bool Remove();
 	virtual void Close();
 	virtual bool VFS_Element::Set_File_Attributes(std::uint16_t file_attributes);
