@@ -43,11 +43,10 @@ std::vector<Command> Command::Parse_Commands(std::vector<std::string>& commands)
         }
     }
 
-    
-
     for (auto& command : commands) {
         if (command.empty()) {
             continue;
+        }
         Command new_command = Parse_Command(command);
         if (new_command.command_name.empty())
             continue;
