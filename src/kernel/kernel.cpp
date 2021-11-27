@@ -41,11 +41,13 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	//v ramci ukazky jeste vypiseme dostupne disky
 
 	char* shell = "shell";
+	char* args = "";
 
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::Process);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_Process::Clone);
 	regs.rcx.l = static_cast<uint8_t>(kiv_os::NClone::Create_Process);
 	regs.rdx.r = reinterpret_cast<uint64_t>(shell);
+	regs.rdi.r = reinterpret_cast<uint64_t>(args);
 	regs.rbx.e = 1;
 
 	Sys_Call(regs); // Clone shell
