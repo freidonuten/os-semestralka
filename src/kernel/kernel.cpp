@@ -10,9 +10,10 @@
 #include "filesystem/vfs_layer/vfs.h"
 #include "filesystem/file_system.h"
 
+
 HMODULE User_Programs;
 auto task_manager = Task_Manager();
-auto fs_dispatch = file_system::Dispatcher();
+std::unique_ptr<file_system::Dispatcher> fs_dispatch;
 
 
 void Initialize_Kernel() {
@@ -26,7 +27,7 @@ void Shutdown_Kernel() {
 void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 	switch (static_cast<kiv_os::NOS_Service_Major>(regs.rax.h)) {
 		case kiv_os::NOS_Service_Major::File_System:		
-			return fs_dispatch(regs);
+			return (*fs_dispatch)(regs);
 		case kiv_os::NOS_Service_Major::Process:
 			return task_manager.syscall_dispatch(regs);
 	}
@@ -35,13 +36,8 @@ void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
 void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	Initialize_Kernel();
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
-	filesystem_test();
-	//return;
 	kiv_hal::TRegisters regs;
 
-	//v ramci ukazky jeste vypiseme dostupne disky
-	
-	
 	
 	for (regs.rdx.l = 0; ; regs.rdx.l++) {
 		kiv_hal::TDrive_Parameters params;		
@@ -50,29 +46,18 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 		kiv_hal::Call_Interrupt_Handler(kiv_hal::NInterrupt::Disk_IO, regs);
 			
 		if (!regs.flags.carry) {
-			auto print_str = [](const char* str) {
-				kiv_hal::TRegisters regs;
-				regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Write_File);
-				regs.rdi.r = reinterpret_cast<decltype(regs.rdi.r)>(str);
-				regs.rcx.r = strlen(str);
-				//Handle_IO(regs);
-			};
+				uint16_t sector_size = params.bytes_per_sector;
+				uint64_t sector_count = params.absolute_number_of_sectors;
+				int drive_id = regs.rdx.l;
 
-			const char dec_2_hex[16] = { L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9', L'A', L'B', L'C', L'D', L'E', L'F' };
-			char hexa[3];
-			hexa[0] = dec_2_hex[regs.rdx.l >> 4];
-			hexa[1] = dec_2_hex[regs.rdx.l & 0xf];
-			hexa[2] = 0;
-
-			print_str("Nalezen disk: 0x");
-			print_str(hexa);
-			print_str("\n");
-
+				fs_dispatch = std::make_unique<file_system::Dispatcher>(sector_size, sector_count, drive_id);
+				break;
 		}
 
 		if (regs.rdx.l == 255) break;
 	}
-
+	
+	filesystem_test();
 	char* shell = "shell";
 
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::Process);

@@ -13,10 +13,10 @@
 namespace file_system {
 	class Dispatcher {
 	private:
-		VFS vfs = VFS();
+		VFS vfs;
 
 	public:
-		Dispatcher() = default;
+		Dispatcher(uint16_t sector_size, uint64_t sector_count, int drive_id);
 
 		void operator()(kiv_hal::TRegisters& regs);
 	};

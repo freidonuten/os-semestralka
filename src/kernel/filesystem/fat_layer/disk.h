@@ -45,3 +45,16 @@ public:
 	Dummy_Disk_Reader(std::shared_ptr<std::vector<unsigned char>> data);
 	virtual void Operate(std::uint64_t position_to_operate, unsigned char* sectors_buffer_element);
 };
+
+
+class Hal_Disk : public IDisk {
+private:
+	int drive_id;
+
+	
+public:
+	Hal_Disk(int drive_id);
+
+	virtual void Write(std::uint64_t sector_count, void* sectors_buffer, std::uint64_t lba_index);
+	virtual void Read(std::uint64_t sector_count, void* sectors_buffer, std::uint64_t lba_index);
+};

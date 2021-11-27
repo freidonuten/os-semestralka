@@ -198,6 +198,9 @@
     <ClCompile Include="..\..\src\kernel\filesystem\actions\set_cwd_action.cpp">
       <Filter>Source Files\fs\actions</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\hal_disk.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\kernel\kernel.h">

@@ -182,7 +182,10 @@ void filesystem_test() {
 	kiv_hal::TRegisters registers;
 	char filename[12];
 	sprintf_s(filename, "directory");
+
 	auto dir_handler = create_dir(filename);
+
+	
 	set_working_dir(filename);
 	
 	for (int i = 0; i < 15; i++) {
@@ -190,6 +193,8 @@ void filesystem_test() {
 		auto temp = create_dir(filename);
 		close_handle(temp);
 	}
+
+	
 
 	kiv_os::TDir_Entry entries[15];
 
@@ -222,4 +227,6 @@ void filesystem_test() {
 	for (int i = 0; i < 250; i++) {
 		std::cout << numbers[i] << " = " << numbers[i + 250] << std::endl;
 	}
+
+	exit(0);
 }

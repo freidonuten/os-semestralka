@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\cwd_opener.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\dummy_cwd_holder.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\test_cwd.cpp" />
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\hal_disk.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\file_system.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\cluster_io.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\disk.cpp" />

@@ -15,7 +15,7 @@
 
 
 
-class VFS final {
+class VFS {
 private:
 	std::shared_ptr<Handler_Table> handler_table;
 	std::shared_ptr<Path_Handlers> path_handlers;
@@ -26,7 +26,7 @@ private:
 	std::unique_ptr<Path_Dir_Opener> cwd_opener;
 	
 public:
-	VFS();
+	VFS(uint16_t sector_size, uint64_t sector_count, int drive_id);
 
 	std::shared_ptr<Handler_Table> Get_Handler_Table();
 	std::shared_ptr<Path_Handlers> Get_Path_Handlers();

@@ -6,6 +6,8 @@
 #include <map>
 #include "../kernel.h"
 
+file_system::Dispatcher::Dispatcher(uint16_t sector_size, uint64_t sector_count, int drive_id) : vfs(sector_size, sector_count, drive_id){
+}
 
 void file_system::Dispatcher::operator()(kiv_hal::TRegisters& regs) {
 	using kiv_os::NOS_File_System;
