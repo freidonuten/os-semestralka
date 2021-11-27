@@ -14,7 +14,7 @@ public:
 
 	virtual std::uint64_t Write(size_t how_many_bytes, void* buffer);
 	virtual std::uint64_t Read(size_t how_many_bytes, void* buffer);
-	virtual virtual std::tuple<uint64_t, Seek_Result> Seek(std::uint64_t offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation);
+	virtual std::tuple<uint64_t, Seek_Result> Seek(std::uint64_t offset, kiv_os::NFile_Seek start_position, kiv_os::NFile_Seek seek_operation);
 
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
