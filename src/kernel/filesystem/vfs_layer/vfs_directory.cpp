@@ -24,7 +24,7 @@ bool VFS_Directory::Create() {
 	return false;
 }
 
-void VFS_Directory::Open(std::uint16_t file_start, std::uint16_t file_size) {
+void VFS_Directory::Open(std::uint16_t file_start, std::uint64_t file_size) {
 	this->self_fat_directory = this->fat_directory_factory->Get_Existing_Directory(file_start, file_size);
 }
 

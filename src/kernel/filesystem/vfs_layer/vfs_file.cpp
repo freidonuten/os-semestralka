@@ -24,7 +24,7 @@ bool VFS_File::Create() {
 	return false;
 }
 
-void VFS_File::Open(std::uint16_t file_start, std::uint16_t file_size) {
+void VFS_File::Open(std::uint16_t file_start, std::uint64_t file_size) {
 	this->fat_file = this->fat_file_factory->Get_Existing_File(file_start, file_size);
 }
 

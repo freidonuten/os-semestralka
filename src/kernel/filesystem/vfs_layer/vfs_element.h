@@ -6,7 +6,7 @@
 
 class VFS_Element {
 public:
-	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
+	virtual void Open(std::uint16_t file_start, std::uint64_t file_size);
 	virtual bool Create();
 	virtual bool Remove(); //TODO rozlisit permission a empty
 	virtual void Close();

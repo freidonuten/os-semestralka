@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 
-void VFS_Element::Open(std::uint16_t file_start, std::uint16_t file_size) {
+void VFS_Element::Open(std::uint16_t file_start, std::uint64_t file_size) {
 	throw std::runtime_error("Unsupported operation OPEN.");
 }
 
