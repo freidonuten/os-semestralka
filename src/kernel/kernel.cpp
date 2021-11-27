@@ -37,7 +37,7 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
 	kiv_hal::TRegisters regs;
 	
-	for (regs.rdx.l = 0; ; regs.rdx.l++) {
+	/*for (regs.rdx.l = 0; ; regs.rdx.l++) {
 		kiv_hal::TDrive_Parameters params;		
 		regs.rax.h = static_cast<uint8_t>(kiv_hal::NDisk_IO::Drive_Parameters);;
 		regs.rdi.r = reinterpret_cast<decltype(regs.rdi.r)>(&params);
@@ -53,7 +53,9 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 		}
 
 		if (regs.rdx.l == 255) break;
-	}
+	}*/
+	fs_dispatch = std::make_unique<file_system::Dispatcher>(512, 2048, 0);
+	filesystem_test();
 	
 	char* shell = "shell";
 	char* args = "";

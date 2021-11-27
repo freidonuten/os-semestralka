@@ -3,7 +3,8 @@
 
 VFS::VFS(uint16_t sector_size, uint64_t sector_count, int drive_id) {
 	std::uint64_t disk_size = sector_size * sector_count;
-	std::shared_ptr<IDisk> disk = std::make_shared<Hal_Disk>(drive_id);
+	//std::shared_ptr<IDisk> disk = std::make_shared<Hal_Disk>(drive_id);
+	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(disk_size, sector_size);
 	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(disk_size, 1, sector_size, 12);
 	this->handler_table = std::make_shared<Handler_Table>();
 	this->path_handlers = std::make_shared<Path_Handlers>(handler_table);

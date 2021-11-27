@@ -81,7 +81,9 @@ std::uint64_t VFS_Directory::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry
 	std::uint64_t size = temp_vector.size() * sizeof(TDir_Entry);
 	std::uint64_t to_copy = std::min(max_bytes, size - this->file_position);
 
-	memcpy(buffer, &temp_vector[0], to_copy);
+	if (to_copy > 0) {
+		memcpy(buffer, &temp_vector[0], to_copy);
+	}
 	return to_copy;
 }
 

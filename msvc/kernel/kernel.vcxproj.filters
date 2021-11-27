@@ -198,6 +198,9 @@
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\proc_file.cpp">
       <Filter>Source Files\fs\sysfs</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\disk.cpp">
+      <Filter>Source Files\fs\fat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\kernel\kernel.h">
