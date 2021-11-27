@@ -47,7 +47,7 @@ public:
 };
 
 struct Fat_Dir_Entry {
-	std::uint16_t file_attributes;
+	std::uint8_t file_attributes;
 	char file_name[12];
 	std::uint16_t file_start;
 	std::uint64_t file_size;
@@ -55,7 +55,7 @@ struct Fat_Dir_Entry {
 
 class Fat_Dir_Entry_Factory {
 public:
-	static Fat_Dir_Entry Create( std::uint16_t file_attributes, char file_name[12],
+	static Fat_Dir_Entry Create( std::uint8_t file_attributes, char file_name[12],
 		std::uint16_t file_start, std::uint64_t file_size);
 };
 

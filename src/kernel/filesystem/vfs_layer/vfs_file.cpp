@@ -2,7 +2,7 @@
 #include "../utils/char_utils.h"
 #include "../utils/api_utils.h"
 
-VFS_File::VFS_File(std::shared_ptr<Fat_File_Factory> fat_file_factory, std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint16_t file_attributes) {
+VFS_File::VFS_File(std::shared_ptr<Fat_File_Factory> fat_file_factory, std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes) {
 	this->fat_file_factory = fat_file_factory;
 	this->parent_fat_directory = parent_directory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
@@ -10,7 +10,7 @@ VFS_File::VFS_File(std::shared_ptr<Fat_File_Factory> fat_file_factory, std::shar
 	this->file_position = 0;
 }
 
-bool VFS_File::Is_Convertable(std::uint16_t required_file_attributes) {
+bool VFS_File::Is_Convertable(std::uint8_t required_file_attributes) {
 	//Can't be directory, can be ro file
 	return !api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory);
 }

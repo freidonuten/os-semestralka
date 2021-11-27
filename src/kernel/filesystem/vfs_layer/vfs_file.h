@@ -11,9 +11,9 @@ protected:
 	std::shared_ptr<Fat_File_Factory> fat_file_factory;
 	std::shared_ptr<Fat_File> fat_file;
 
-	virtual bool Is_Convertable(std::uint16_t file_attributes);
+	virtual bool Is_Convertable(std::uint8_t file_attributes);
 public:
-	VFS_File(std::shared_ptr<Fat_File_Factory> fat_file_factory, std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint16_t file_attributes);
+	VFS_File(std::shared_ptr<Fat_File_Factory> fat_file_factory, std::shared_ptr<Fat_Directory> parent_directory, char file_name[12], std::uint8_t file_attributes);
 
 	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);
 	virtual bool Create();

@@ -10,9 +10,9 @@ protected:
 
 	std::uint64_t Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, void* buffer, size_t how_many_bytes);
 
-	virtual bool Is_Convertable(std::uint16_t file_attributes);
+	virtual bool Is_Convertable(std::uint8_t file_attributes);
 public:
-	VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes);
+	VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint8_t file_attributes);
 
 	//VFS ELEMENT METHODS
 	virtual void Open(std::uint16_t file_start, std::uint16_t file_size);

@@ -16,7 +16,7 @@ std::shared_ptr<IO_Task> IO_Task_Factory::Make_Task(
 	return result;
 }
 
-Fat_Dir_Entry Fat_Dir_Entry_Factory::Create( std::uint16_t file_attributes, char file_name[12],
+Fat_Dir_Entry Fat_Dir_Entry_Factory::Create( std::uint8_t file_attributes, char file_name[12],
 	std::uint16_t file_start, std::uint64_t file_size) {
 
 	Fat_Dir_Entry result;

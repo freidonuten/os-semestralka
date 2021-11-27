@@ -2,14 +2,14 @@
 #include "../utils/char_utils.h"
 #include "../utils/api_utils.h"
 
-VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes) {
+VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint8_t file_attributes) {
 	this->fat_directory_factory = factory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
 	this->file_attributes = file_attributes;
 	this->file_position = 0;
 }
 
-bool VFS_Directory::Is_Convertable(std::uint16_t required_file_attributes) {
+bool VFS_Directory::Is_Convertable(std::uint8_t required_file_attributes) {
 	//must be read only directory
 	return api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory) &&
 		api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Read_Only);
