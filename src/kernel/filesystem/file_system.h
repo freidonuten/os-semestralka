@@ -11,7 +11,7 @@
 
 
 namespace file_system {
-	class Dispatcher {
+	class Dispatcher final {
 	private:
 		VFS vfs;
 

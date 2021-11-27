@@ -20,8 +20,8 @@ std::tuple<std::shared_ptr<VFS_Element>, Handle_Close_Result> Path_Handlers::Clo
 
 	if (it_int == this->map_id_path.end()) {
 		//maybe it's only in handler table
-		auto [element, found] = this->handler_table->Remove_Element(id);
-		if (!found) {
+		const auto element = this->handler_table->Remove_Element(id);
+		if (!element) {
 			//it's not
 			return { nullptr, Handle_Close_Result::NOT_EXISTS };
 		}
@@ -36,8 +36,8 @@ std::tuple<std::shared_ptr<VFS_Element>, Handle_Close_Result> Path_Handlers::Clo
 
 	std::shared_ptr<Handle_Info> handle = it_path->second;
 	handle->is_open = false;
-	auto [element, is_consistent] = Try_Remove(handle);
-	if (!is_consistent) {
+	const auto element = Try_Remove(handle);
+	if (!element) {
 		return { nullptr, Handle_Close_Result::UNKNOWN_ERROR };
 	}
 
@@ -75,9 +75,9 @@ std::tuple<std::shared_ptr<VFS_Element>, bool> Path_Handlers::Try_Set_CWD(std::s
 
 	it->second->cwd_count++;
 	
-	auto [element, found] = this->handler_table->Get_Element(it->second->id);
+	const auto element = this->handler_table->Get_Element(it->second->id);
 
-	if (!found) {
+	if (!element) {
 		//INCONSISTENT STATE
 		return { nullptr, false };
 	}
@@ -97,28 +97,23 @@ void Path_Handlers::Unset_CWD(std::shared_ptr<Path> path) {
 }
 
 
-std::tuple<std::shared_ptr<VFS_Element>, bool> Path_Handlers::Try_Remove(std::shared_ptr<Handle_Info> handle) {
-	if (handle->cwd_count <= 0 && handle->is_open == false) {
+std::shared_ptr<VFS_Element> Path_Handlers::Try_Remove(std::shared_ptr<Handle_Info> handle) {
+	if (handle->cwd_count <= 0 && !handle->is_open) {
 		this->map_path_handle.erase(handle->path->To_String());
 		this->map_id_path.erase(handle->id);
 		return this->handler_table->Remove_Element(handle->id);	
-	}
-	else {
+	} else {
 		return this->handler_table->Get_Element(handle->id);
 	}
 }
 
 std::uint16_t Path_Handlers::Add_Handle(std::shared_ptr<VFS_Element> element, std::shared_ptr<Path> path, int cwd_count, bool is_open) {
-	std::shared_ptr<Handle_Info> new_handle = std::make_shared<Handle_Info>();
-	new_handle->cwd_count = cwd_count;
-	new_handle->is_open = is_open;
-	new_handle->id = this->handler_table->Create_Descriptor(element);
-	new_handle->path = path;
-
-	std::string string_path = path->To_String();
+	const auto new_id = handler_table->Create_Descriptor(element);
+	const auto new_handle = std::make_shared<Handle_Info>(Handle_Info{ cwd_count, is_open, new_id, path });
+	const auto string_path = path->To_String();
 	
-	this->map_path_handle.insert({string_path, new_handle});
-	this->map_id_path.insert({ new_handle->id, string_path });
+	this->map_path_handle.insert({ string_path, new_handle });
+	this->map_id_path.insert({ new_id, string_path });
 
-	return new_handle->id;
+	return new_id;
 }

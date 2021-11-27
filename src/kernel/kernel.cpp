@@ -2,7 +2,6 @@
 
 #include "kernel.h"
 #include "filesystem/test.h"
-#include "Task_Manager.h"
 #include <Windows.h>
 #include "filesystem/cwd/cwd.h"
 
@@ -12,7 +11,7 @@
 
 
 HMODULE User_Programs;
-auto task_manager = Task_Manager();
+Task_Manager task_manager{};
 std::unique_ptr<file_system::Dispatcher> fs_dispatch;
 
 
@@ -37,7 +36,6 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	Initialize_Kernel();
 	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
 	kiv_hal::TRegisters regs;
-
 	
 	for (regs.rdx.l = 0; ; regs.rdx.l++) {
 		kiv_hal::TDrive_Parameters params;		
@@ -57,13 +55,14 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 		if (regs.rdx.l == 255) break;
 	}
 	
-	filesystem_test();
 	char* shell = "shell";
+	char* args = "";
 
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::Process);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_Process::Clone);
 	regs.rcx.l = static_cast<uint8_t>(kiv_os::NClone::Create_Process);
 	regs.rdx.r = reinterpret_cast<uint64_t>(shell);
+	regs.rdi.r = reinterpret_cast<uint64_t>(args);
 	regs.rbx.e = 1;
 
 	Sys_Call(regs); // Clone shell

@@ -17,8 +17,6 @@ private:
 
 public:
 	std::uint16_t Create_Descriptor(std::shared_ptr<VFS_Element> element);
-	std::tuple<std::shared_ptr<VFS_Element>, bool> Get_Element(std::uint16_t id);
-	std::tuple<std::shared_ptr<VFS_Element>, bool> Remove_Element(std::uint16_t id);
-
-
+	std::shared_ptr<VFS_Element> Get_Element(std::uint16_t id);
+	std::shared_ptr<VFS_Element> Remove_Element(std::uint16_t id);
 };

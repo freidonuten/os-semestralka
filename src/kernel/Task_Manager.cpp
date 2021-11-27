@@ -17,7 +17,13 @@ Task_Manager::Task_Manager()
 	: process_table{ }
 	, thread_table{ }
 {
-	std::generate(process_table.begin(), process_table.end(), [i = 0]() mutable { return i++; });
+	// initialize kernel process and insert placeholder thread
+	const auto current_tid = Thread_Control_Block::current_tid();
+	process_table[0] = Process_Control_Block{ 0, current_tid };
+	thread_table[current_tid] = 0;
+
+	// initialize the rest
+	std::generate(process_table.begin() + 1, process_table.end(), [i = 1]() mutable { return i++; });
 }
 
 Thread_Control_Block& Task_Manager::get_current_thread() {
@@ -36,6 +42,10 @@ Thread_Control_Block& Task_Manager::get_thread(const kiv_os::THandle handle) {
 
 Process_Control_Block& Task_Manager::get_current_process() {
 	return get_process(get_current_thread().get_ppid());
+}
+
+void Task_Manager::inject_cwd_holder(Dummy_CWD_Holder* cwd_holder) {
+	this->cwd_holder = cwd_holder;
 }
 
 Process_Control_Block& Task_Manager::get_process(const kiv_os::THandle handle) {
@@ -63,6 +73,7 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 	const auto entry = kiv_os::TThread_Proc(GetProcAddress(User_Programs, reinterpret_cast<char*>(regs.rdx.r)));
 
 	if (!entry) {
+		// zničit proces
 		return kiv_os::NOS_Error::File_Not_Found;
 	}
 
@@ -83,16 +94,20 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 	auto &process = alloc_first_free();
 	auto child_regs = kiv_hal::TRegisters{ regs };
 
-	child_regs.rax.x =  static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
-	child_regs.rbx.x =  static_cast<kiv_os::THandle>(regs.rbx.x);
+	process.set_args(reinterpret_cast<char*>(regs.rdi.r));
+	process.set_name(reinterpret_cast<char*>(regs.rdx.r));
 
-	create_thread<false>(child_regs, process, regs.rax.x);
+	child_regs.rax.x = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
+	child_regs.rbx.x = static_cast<kiv_os::THandle>(regs.rbx.x);
+	child_regs.rdi.r = reinterpret_cast<uint64_t>(process.get_args());
 
-	return kiv_os::NOS_Error::Success;
+	cwd_holder->Inherit(get_current_process().get_pid(), process.get_pid());
+
+	return create_thread<false>(child_regs, process, regs.rax.x);
 }
 
 const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
-	static const auto exit = [&regs](auto& object) {
+	const auto exit = [regs](auto& object) {
 		object.exit(regs.rcx.x);
 	};
 
@@ -166,6 +181,10 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 	thread_table.erase(thread.get_tid());
 
 	return kiv_os::NOS_Error::Success;
+}
+
+const Task_Manager::Process_Table& Task_Manager::get_processes() const {
+	return process_table;
 }
 
 void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
