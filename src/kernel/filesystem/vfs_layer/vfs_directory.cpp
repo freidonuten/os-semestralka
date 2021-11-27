@@ -2,24 +2,29 @@
 #include "../utils/char_utils.h"
 #include "../utils/api_utils.h"
 
-VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint16_t file_attributes) {
+VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint8_t file_attributes) {
 	this->fat_directory_factory = factory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
 	this->file_attributes = file_attributes;
 	this->file_position = 0;
 }
 
-bool VFS_Directory::Is_Convertable(std::uint16_t required_file_attributes) {
+bool VFS_Directory::Is_Convertable(std::uint8_t required_file_attributes) {
 	//must be read only directory
 	return api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Directory) &&
 		api_utils::Check_File_Attributes(required_file_attributes, kiv_os::NFile_Attributes::Read_Only);
 }
 
-void VFS_Directory::Create() {
-	this->self_fat_directory = this->fat_directory_factory->Create_New_Directory();
+bool VFS_Directory::Create() {
+	auto [element, created] = this->fat_directory_factory->Create_New_Directory();
+	if (created) {
+		this->self_fat_directory = element;
+		return true;
+	}
+	return false;
 }
 
-void VFS_Directory::Open(std::uint16_t file_start, std::uint16_t file_size) {
+void VFS_Directory::Open(std::uint16_t file_start, std::uint64_t file_size) {
 	this->self_fat_directory = this->fat_directory_factory->Get_Existing_Directory(file_start, file_size);
 }
 
@@ -28,7 +33,6 @@ bool VFS_Directory::Remove() {
 }
 
 std::uint64_t VFS_Directory::Write(size_t how_many_bytes, void* buffer) {
-	//TODO ERROR CANT WRITE TO DIRECTORY - permission denied pres bool
 	return 0;
 }
 
@@ -86,7 +90,7 @@ Fat_Dir_Entry VFS_Directory::Generate_Dir_Entry() {
 		this->self_fat_directory->Get_File_Start(), this->self_fat_directory->Get_File_Size());
 }
 
-bool VFS_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
+Create_New_Entry_Result VFS_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
 	return this->self_fat_directory->Create_New_Entry(entry);
 }
 
@@ -107,6 +111,5 @@ std::shared_ptr<Fat_Directory> VFS_Directory::Get_Fat_Directory() {
 }
 
 bool VFS_Root_Directory::Remove() {
-	//TODO PERMISSION DENIED
 	return false;
 }

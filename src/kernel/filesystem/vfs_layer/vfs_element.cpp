@@ -2,11 +2,11 @@
 #include <stdexcept>
 
 
-void VFS_Element::Open(std::uint16_t file_start, std::uint16_t file_size) {
+void VFS_Element::Open(std::uint16_t file_start, std::uint64_t file_size) {
 	throw std::runtime_error("Unsupported operation OPEN.");
 }
 
-void VFS_Element::Create() {
+bool VFS_Element::Create() {
 	throw std::runtime_error("Unsupported operation CREATE.");
 }
 
@@ -18,7 +18,7 @@ void VFS_Element::Close() {
 	throw std::runtime_error("Unsupported operation CLOSE.");
 }
 
-bool VFS_Element::Set_File_Attributes(std::uint16_t file_attributes) {
+bool VFS_Element::Set_File_Attributes(std::uint8_t file_attributes) {
 	throw std::runtime_error("Unsupported operation SET FILE ATTRIBUTES.");
 }
 

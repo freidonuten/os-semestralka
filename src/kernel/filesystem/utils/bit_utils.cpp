@@ -1,4 +1,5 @@
 #include "bit_utils.h"
+#include <limits>
 
 void Bit_Utils::Set_Individual_Bit(void* data, std::uint64_t bit, std::uint8_t value) {
 	std::uint64_t byte_of_data = bit / 8;
@@ -55,4 +56,11 @@ bool Bit_Utils::Check_Individual_Bit(std::uint8_t to_check, std::uint8_t mask) {
 		return true;
 	}
 
+}
+
+std::tuple<std::uint8_t, bool> utils::toUInt8(std::uint64_t value) {
+	if (value <= std::numeric_limits<std::uint8_t>::max()) {
+		return { static_cast<std::uint8_t>(value), true };
+	}
+	return { 0, false };
 }

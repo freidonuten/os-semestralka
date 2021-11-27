@@ -7,10 +7,15 @@ Fat_File_Factory::Fat_File_Factory(std::shared_ptr<IDisk> disk, std::shared_ptr<
 
 }
 
-std::shared_ptr<Fat_File> Fat_File_Factory::Create_New_File() {
+std::tuple<std::shared_ptr<Fat_File>, bool> Fat_File_Factory::Create_New_File() {
 	std::shared_ptr<Fat_File> result = std::make_shared<Fat_File>(this->fat_table, this->cluster_io, this->info);
-	result->Create_New_File();
-	return result;
+	bool created = result->Create_New_File();
+	if (created) {
+		return { result, true };
+	}
+	else {
+		return { nullptr, false };
+	}
 }
 
 std::shared_ptr<Fat_File> Fat_File_Factory::Get_Existing_File(std::uint16_t file_start, std::uint64_t file_size) {
@@ -47,37 +52,53 @@ std::uint64_t Fat_File::Get_File_Size() {
 }
 
 
-void Fat_File::Create_New_File() {
-	this->file_start = this->fat_table->Allocate_New_File();
-	this->file_size = 0;
-	this->allocated_clusters = 1;
+bool Fat_File::Create_New_File() {
+	auto[file_start, created] = this->fat_table->Allocate_New_File();
+	if (created) {
+		this->file_start = file_start;
+		this->file_size = 0;
+		this->allocated_clusters = 1;
+		return true;
+	}
+	return false;	
 }
 
-void Fat_File::Write_To_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
+std::uint64_t Fat_File::Write_To_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
 	Expand_File(starting_byte + how_many_bytes);
+
+	if (starting_byte + how_many_bytes < this->file_size) {
+		how_many_bytes = this->file_size - starting_byte;
+	}
+
 	auto file_clusters = this->fat_table->Get_File_Clusters(file_start);
 	auto data_blocks = Cast_To_UInt64_Vector(file_clusters);
 	auto task = IO_Task_Factory::Make_Task(data_blocks, starting_byte, how_many_bytes, buffer, Task_Type::WRITE);
 	this->cluster_io->Proceed_Task(task);
-
+	return how_many_bytes;
 }
 
-void Fat_File::Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
+std::uint64_t Fat_File::Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer) {
+	std::uint64_t to_read = std::min(this->file_size - starting_byte, how_many_bytes);
+
 	auto file_clusters = this->fat_table->Get_File_Clusters(file_start);
 	auto data_blocks = Cast_To_UInt64_Vector(file_clusters);
 
-	auto task = IO_Task_Factory::Make_Task(data_blocks, starting_byte, how_many_bytes, buffer, Task_Type::READ);
+	auto task = IO_Task_Factory::Make_Task(data_blocks, starting_byte, to_read, buffer, Task_Type::READ);
 	this->cluster_io->Proceed_Task(task);
+
+	return to_read;
 }
 
-void Fat_File::Change_File_Size(std::uint32_t desired_size) {
+std::uint64_t Fat_File::Change_File_Size(std::uint64_t desired_size) {
 	Change_Cluster_Size(desired_size);
-	this->file_size = desired_size;
+	std::uint64_t capacity = this->allocated_clusters * this->info->Bytes_Per(Data_Block::CLUSTER);
+	this->file_size = std::min(capacity, desired_size);
+	return this->file_size;
 }
 
 void Fat_File::Remove_File() {
 	this->fat_table->Deallocate_File(file_start);
-	this->file_start = static_cast<std::uint64_t>(-1);
+	this->file_start = static_cast<std::uint16_t>(-1);
 	this->file_size = static_cast<std::uint64_t>(-1);
 }
 
@@ -86,12 +107,13 @@ void Fat_File::Expand_File(std::uint64_t bytes_needed) {
 	int clusters_to_allocate = Calculate_Cluster_Difference(bytes_needed);
 
 	if (clusters_to_allocate > 0) {
-		this->fat_table->Allocate_Clusters_For_Existing_File(file_start, clusters_to_allocate);
-		this->allocated_clusters += clusters_to_allocate;
+		auto allocated = this->fat_table->Allocate_Clusters_For_Existing_File(file_start, clusters_to_allocate);
+		this->allocated_clusters += allocated;
 	}
 
 	if (this->file_size < bytes_needed) {
-		this->file_size = bytes_needed;
+		std::uint64_t capacity = this->allocated_clusters * this->info->Bytes_Per(Data_Block::CLUSTER);
+		this->file_size = std::min(capacity, bytes_needed);
 	}
 }
 
@@ -99,13 +121,13 @@ void Fat_File::Change_Cluster_Size(std::uint64_t bytes_needed) {
 	int cluster_difference = Calculate_Cluster_Difference(bytes_needed);
 
 	if (cluster_difference > 0) {
-		this->fat_table->Allocate_Clusters_For_Existing_File(file_start, cluster_difference);
+		auto allocated = this->fat_table->Allocate_Clusters_For_Existing_File(file_start, cluster_difference);
+		this->allocated_clusters += allocated;
 	}
 	else if (cluster_difference < 0) {
 		this->fat_table->Deallocate_Last_N_Clusters(file_start, -1 * cluster_difference);
+		this->allocated_clusters += cluster_difference;
 	}
-
-	this->allocated_clusters += cluster_difference;
 }
 
 int Fat_File::Calculate_Cluster_Difference(std::uint64_t desired_size) {
@@ -128,11 +150,6 @@ int Fat_File::Calculate_Cluster_Need(std::uint64_t size_in_bytes) {
 
 std::vector<std::uint64_t> Fat_File::Cast_To_UInt64_Vector(std::vector<std::uint16_t> source) {
 	std::vector<std::uint64_t> result;
-	/*std::transform(source.begin(), source.end(), result.begin(),
-		[](std::uint16_t old) {
-			return static_cast<std::uint64_t>(old);
-		});*/
-
 	for (std::uint16_t source_value : source) {
 		result.push_back(static_cast<std::uint64_t>(source_value));
 	}

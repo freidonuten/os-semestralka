@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <tuple>
 
 class Bit_Utils {
 private:
@@ -16,3 +17,7 @@ public:
 
 	static bool Check_Individual_Bit(std::uint8_t to_check, std::uint8_t mask);
 };
+
+namespace utils {
+	std::tuple<std::uint8_t, bool> toUInt8(std::uint64_t value);
+}

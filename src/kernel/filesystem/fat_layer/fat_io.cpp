@@ -27,7 +27,7 @@ std::uint64_t Fat_IO::Get_Size_Of_Fat_Table() {
 	return this->info->Bytes_Per(Data_Block::FAT_TABLE);
 }
 
-void Fat_IO::Set_Entry_Value(std::uint64_t position, std::uint64_t value) {
+void Fat_IO::Set_Entry_Value(std::uint16_t position, std::uint16_t value) {
 	std::uint64_t first_bit_of_entry = Get_First_Bit_Of_Fat_Entry(position);
 	Set_Sectors_In_Bitmap(first_bit_of_entry);
 	Copy_Bits_To_Fat(first_bit_of_entry, value);
@@ -49,7 +49,7 @@ void Fat_IO::Set_Sectors_In_Bitmap(std::uint64_t fat_starting_bit) {
 	std::uint64_t fat_starting_sector = Get_Sector_From_Bit(fat_starting_bit);
 	std::uint64_t fat_ending_sector = Get_Sector_From_Bit(fat_ending_bit);
 
-	for (int i = fat_starting_sector; i <= fat_ending_sector; i++) {
+	for (std::uint64_t i = fat_starting_sector; i <= fat_ending_sector; i++) {
 		this->bitmap_for_saving->Set_Element(i);
 	}
 }
@@ -68,9 +68,10 @@ void Fat_IO::Copy_Bits_To_Fat(std::uint64_t fat_starting_bit, std::uint64_t valu
 }
 
 
-std::uint64_t Fat_IO::Get_Entry_Value(std::uint64_t position) {
+std::uint16_t Fat_IO::Get_Entry_Value(std::uint16_t position) {
 	std::uint64_t entry_first_bit = Get_First_Bit_Of_Fat_Entry(position);
-	return Copy_Bits_From_Fat(entry_first_bit);
+	std::uint64_t bits_raw = Copy_Bits_From_Fat(entry_first_bit);
+	return static_cast<std::uint16_t>(bits_raw); //it will be 12 bits max
 }
 
 std::uint64_t Fat_IO::Copy_Bits_From_Fat(std::uint64_t fat_starting_bit) {

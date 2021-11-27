@@ -34,13 +34,11 @@ public:
 	std::uint16_t Get_File_Start();
 	std::uint64_t Get_File_Size();
 
-	void Create_New_File();
-	void Write_To_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
-	void Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
-	void Change_File_Size(std::uint32_t desired_size);
+	bool Create_New_File();
+	std::uint64_t Write_To_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
+	std::uint64_t Read_From_File(std::uint64_t starting_byte, size_t how_many_bytes, void* buffer);
+	std::uint64_t Change_File_Size(std::uint64_t desired_size);
 	void Remove_File();
-
-
 };
 
 class Fat_File_Factory {
@@ -51,7 +49,7 @@ private:
 public:
 	Fat_File_Factory(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);
 
-	std::shared_ptr<Fat_File> Create_New_File();
+	std::tuple<std::shared_ptr<Fat_File>, bool> Create_New_File();
 	std::shared_ptr<Fat_File> Get_Existing_File(std::uint16_t file_start, std::uint64_t file_size);
 };
 

@@ -13,8 +13,8 @@ void Sector_IO::Proceed_Task(std::shared_ptr<IO_Task> task) {
 	auto buffer = task->buffer;
 	size_t remaining = task->how_many_bytes_to_operate;
 
-	int index = 0;
-	int count = sectors.size();
+	std::uint64_t index = 0;
+	std::uint64_t count = sectors.size();
 	
 
 	while (index < count) {
@@ -33,11 +33,11 @@ void Sector_IO::Proceed_Task(std::shared_ptr<IO_Task> task) {
 }
 
 
-std::vector<std::uint64_t> Sector_IO::Get_Consecutive_Sectors(std::vector<std::uint64_t> source, int start_index) {
+std::vector<std::uint64_t> Sector_IO::Get_Consecutive_Sectors(std::vector<std::uint64_t> source, std::uint64_t start_index) {
 	std::vector<std::uint64_t> result;
-	int count = source.size();
+	std::uint64_t count = source.size();
 
-	for (int i = start_index; i < count; i++) {
+	for (std::uint64_t i = start_index; i < count; i++) {
 		//either it's the first element
 		//or the current element is one bigger than the last
 		if (i == start_index || source[i] == source[i - 1] + 1) {
@@ -51,7 +51,7 @@ std::vector<std::uint64_t> Sector_IO::Get_Consecutive_Sectors(std::vector<std::u
 	return result;
 }
 
-std::uint64_t Sector_IO::Calculate_Position(std::uint64_t start, int index) {
+std::uint64_t Sector_IO::Calculate_Position(std::uint64_t start, std::uint64_t index) {
 	if (index == 0) {
 		return start;
 	}
@@ -60,8 +60,8 @@ std::uint64_t Sector_IO::Calculate_Position(std::uint64_t start, int index) {
 	}
 }
 
-size_t Sector_IO::Calculate_How_Many(std::uint64_t current_start, std::vector<std::uint64_t> current_sectors, size_t remaining) {
-	int count = current_sectors.size();
+std::uint64_t Sector_IO::Calculate_How_Many(std::uint64_t current_start, std::vector<std::uint64_t> current_sectors, std::uint64_t remaining) {
+	std::uint64_t count = current_sectors.size();
 
 	std::uint64_t bytes_in_sectors = count * this->info->Bytes_Per(Data_Block::SECTOR);
 	std::uint64_t bytes_to_write = bytes_in_sectors - current_start;

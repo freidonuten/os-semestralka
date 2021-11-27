@@ -32,7 +32,7 @@ public:
 	Fat_IO(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);
 	~Fat_IO();
 
-	void Set_Entry_Value(std::uint64_t position, std::uint64_t value);
-	std::uint64_t Get_Entry_Value(std::uint64_t position);
+	void Set_Entry_Value(std::uint16_t position, std::uint16_t value);
+	std::uint16_t Get_Entry_Value(std::uint16_t position);
 	void Save_Changes();
 };

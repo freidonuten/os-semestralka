@@ -1,6 +1,5 @@
 #include "disk.h"
 
-
 Dummy_Disk::Dummy_Disk(std::uint64_t Disk_size, std::uint64_t sector_size) {
 	std::vector<unsigned char> temp_vector(Disk_size);
 	this->data = std::make_shared<std::vector<unsigned char>>(temp_vector);
@@ -44,3 +43,6 @@ void Dummy_Disk_Writer::Operate(std::uint64_t position_to_operate, unsigned char
 void Dummy_Disk_Reader::Operate(std::uint64_t position_to_operate, unsigned char* sectors_buffer_element) {
 	*sectors_buffer_element = (*this->data)[position_to_operate];
 }
+
+
+

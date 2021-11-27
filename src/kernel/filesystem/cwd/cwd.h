@@ -13,14 +13,14 @@ private:
 	void Merge(Path&& other) noexcept;
 	void Setup_Raw_Elements(const char* path);
 	void Cleanup();
-	int Get_Path_Size() const;
+	size_t Get_Path_Size() const;
 
 
 public:
 	Path(const char* path);
 
 	void Append(const char* path);
-	int Print(char* buffer, int buffer_size) const;
+	size_t Print(char* buffer, size_t buffer_size) const;
 	std::string To_String() const;
 
 
@@ -55,7 +55,3 @@ public:
 		return Iterator(implementation.data() + this->implementation.size());
 	}
 };
-
-
-
-void test_cwd();

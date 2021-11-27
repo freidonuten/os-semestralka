@@ -29,19 +29,23 @@ std::tuple<std::uint16_t, Open_Result> actions::create_file(VFS& vfs, char* file
 
 	auto [cwd_path, file_path, cwd_dir] = actions::get_paths_and_directory(vfs, filename);
 	auto element = vfs.Make_File(cwd_dir->Get_Fat_Directory(), filename, file_attrs);
-	element->Create();
-	auto dir_entry = element->Generate_Dir_Entry();
-	auto exists = !(cwd_dir->Create_New_Entry(dir_entry));
 
-	if (exists) {
+	bool created = element->Create();
+	if (!created) {
+		return { 0, Open_Result::NO_MEMORY };
+	}
+	auto dir_entry = element->Generate_Dir_Entry();
+	auto create_entry_result = (cwd_dir->Create_New_Entry(dir_entry));
+
+	if (create_entry_result == Create_New_Entry_Result::ALREADY_EXISTS) {
 		//strange error, we have removed the file on line 1 this function
-		bool removed = element->Remove();
-		if (removed) {
-			//even stranger error, this should be file or empty folder
-			//now we are in inconsistent state
-			return {0, Open_Result::UNKNOWN_ERROR };
-		}
+		element->Remove();
 		return { 0, Open_Result::UNKNOWN_ERROR };
+	}
+
+	if (create_entry_result == Create_New_Entry_Result::NO_MEMORY) {
+		element->Remove();
+		return { 0, Open_Result::NO_MEMORY };
 	}
 
 	auto [created_handler_id, is_ok] = vfs.Get_Path_Handlers()->Add_Path_Element(element, file_path, 0, true);

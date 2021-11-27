@@ -47,7 +47,7 @@ public:
 };
 
 struct Fat_Dir_Entry {
-	std::uint16_t file_attributes;
+	std::uint8_t file_attributes;
 	char file_name[12];
 	std::uint16_t file_start;
 	std::uint64_t file_size;
@@ -55,7 +55,7 @@ struct Fat_Dir_Entry {
 
 class Fat_Dir_Entry_Factory {
 public:
-	static Fat_Dir_Entry Create( std::uint16_t file_attributes, char file_name[12],
+	static Fat_Dir_Entry Create( std::uint8_t file_attributes, char file_name[12],
 		std::uint16_t file_start, std::uint64_t file_size);
 };
 
@@ -110,6 +110,7 @@ enum class Open_Result {
 	FILE_NOT_FOUND,
 	ALREADY_OPENED,
 	CANT_REMOVE_PREVIOUS,
+	NO_MEMORY,
 	UNKNOWN_ERROR
 };
 
@@ -140,5 +141,11 @@ enum class Get_CWD_From_Handle_Result {
 	VALID_DIRECTORY,
 	NOT_A_DIRECTORY,
 	NOT_FOUND
+};
+
+enum class Create_New_Entry_Result {
+	OK,
+	NO_MEMORY,
+	ALREADY_EXISTS
 };
 
