@@ -107,7 +107,7 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 }
 
 const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
-	static const auto exit = [&regs](auto& object) {
+	const auto exit = [regs](auto& object) {
 		object.exit(regs.rcx.x);
 	};
 
