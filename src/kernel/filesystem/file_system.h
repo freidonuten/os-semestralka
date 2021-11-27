@@ -11,12 +11,12 @@
 
 
 namespace file_system {
-	class Dispatcher {
+	class Dispatcher final {
 	private:
 		VFS vfs = VFS();
 
 	public:
-		Dispatcher() = default;
+		explicit Dispatcher() = default;
 
 		void operator()(kiv_hal::TRegisters& regs);
 	};
