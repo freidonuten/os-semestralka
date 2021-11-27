@@ -12,9 +12,9 @@ private:
 	std::unique_ptr<Disk_IO> disk_io;
 	std::shared_ptr<Filesystem_Info> info;
 
-	std::vector<std::uint64_t> Get_Consecutive_Sectors(std::vector<std::uint64_t> source, int start_index);
-	std::uint64_t Calculate_Position(std::uint64_t start, int index);
-	size_t Calculate_How_Many(std::uint64_t current_start, std::vector<std::uint64_t> current_sectors, size_t remaining);
+	std::vector<std::uint64_t> Get_Consecutive_Sectors(std::vector<std::uint64_t> source, std::uint64_t start_index);
+	std::uint64_t Calculate_Position(std::uint64_t start, std::uint64_t index);
+	std::uint64_t Calculate_How_Many(std::uint64_t current_start, std::vector<std::uint64_t> current_sectors, std::uint64_t remaining);
 	void* Add_To_Pointer(void* ptr, std::uint64_t how_many);
  public:
 	Sector_IO(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);

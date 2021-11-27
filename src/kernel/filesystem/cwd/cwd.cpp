@@ -64,8 +64,8 @@ void Path::Append(const char* path) {
 	this->Cleanup(); //perform the cleanup only in merged directory
 }
 
-int Path::Get_Path_Size() const {
-	int result = 0;
+size_t Path::Get_Path_Size() const {
+	size_t result = 0;
 	for (auto element : this->implementation) {
 		result += element.size();
 		result++; // '/' in path
@@ -74,8 +74,8 @@ int Path::Get_Path_Size() const {
 	return result;
 }
 
-int Path::Print(char* buffer, int buffer_size) const{
-	int required_size = Get_Path_Size();
+size_t Path::Print(char* buffer, size_t buffer_size) const{
+	size_t required_size = Get_Path_Size();
 
 	if (buffer_size < required_size) {
 		return 0;

@@ -88,7 +88,13 @@ void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
 	const auto open_file_constants = static_cast<kiv_os::NOpen_File>(regs.rcx.r);
-	const auto file_attributes = regs.rdi.r;
+
+	auto[ file_attributes, is_ok] = utils::toUInt8(regs.rdi.r);
+	if (!is_ok) {
+		Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
+		return;
+	}
+
 	const auto [handler_id, result] = (open_file_constants == kiv_os::NOpen_File::fmOpen_Always)
 		? actions::open_file(vfs, filename)
 		: actions::create_file(vfs, filename, file_attributes);
@@ -207,8 +213,11 @@ void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 void file_system::set_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto filename = reinterpret_cast<char*>(regs.rdx.r);
-	const auto file_attributes = regs.rdi.r; // FIXME tady byl narrowing cast 64->16, takhle je to správně?
-	//dokonce bude 64->8, narrowing castu je vsude plno, nastesti je vypise prekladac
+	auto [file_attributes, is_ok] = utils::toUInt8(regs.rdi.r);
+	if (!is_ok) {
+		Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
+		return;
+	}
 	
 	auto result = actions::set_file_attrs(vfs, filename, file_attributes);
 	switch (result) {

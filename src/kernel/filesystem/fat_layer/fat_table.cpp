@@ -4,7 +4,7 @@
 Fat12_Table::Fat12_Table(std::shared_ptr<Filesystem_Info> calculator, std::shared_ptr<IDisk> disk) {
 	this->calculator = calculator;
 	this->disk = disk;
-	int cluster_count = Get_Cluster_Count();
+	std::uint64_t cluster_count = Get_Cluster_Count();
 	this->data = std::vector<Fat12_Entry>(cluster_count);
 	this->sectors_to_update = std::vector<std::uint64_t>();
 	

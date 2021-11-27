@@ -9,7 +9,7 @@ Rounder::Rounder(std::uint8_t size_of_int) {
 		this->limit = std::numeric_limits<std::uint64_t>::max();
 	}
 	else {
-		this->limit = std::pow(2, size_of_int) - 1;
+		this->limit = static_cast<std::uint64_t>(std::pow(2, size_of_int)) - 1;
 	}
 }
 

@@ -78,9 +78,6 @@
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\cluster_io.cpp">
       <Filter>Source Files\fs\fat</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\disk.cpp">
-      <Filter>Source Files\fs\fat</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\disk_io.cpp">
       <Filter>Source Files\fs\fat</Filter>
     </ClCompile>
@@ -154,9 +151,6 @@
       <Filter>Source Files\fs\cwd</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\cwd\dummy_cwd_holder.cpp">
-      <Filter>Source Files\fs\cwd</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\cwd\test_cwd.cpp">
       <Filter>Source Files\fs\cwd</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\vfs_layer\vfs_file.cpp">

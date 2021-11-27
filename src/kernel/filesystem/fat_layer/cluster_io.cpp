@@ -50,7 +50,7 @@ std::vector<std::uint64_t> Cluster_IO::Get_Affected_Sectors_From_Sectors(std::ve
 
 	std::vector<std::uint64_t> result;
 
-	for (int i = start_index; i <= end_index; i++) {
+	for (std::uint64_t i = start_index; i <= end_index; i++) {
 		result.push_back(sectors_of_file[i]);
 	}
 

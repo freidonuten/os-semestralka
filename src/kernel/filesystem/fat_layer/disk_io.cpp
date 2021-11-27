@@ -23,7 +23,7 @@ bool Disk_IO::Are_Old_Sectors_Needed(std::vector<std::uint64_t> sectors, std::ui
 		return true;
 	}
 
-	int sectors_count = sectors.size();
+	size_t sectors_count = sectors.size();
 	std::uint64_t sector_size = this->info->Bytes_Per(Data_Block::SECTOR);
 	std::uint64_t total_size = sector_size * sectors_count;
 

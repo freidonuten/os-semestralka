@@ -14,8 +14,8 @@ private:
 
 	bool Write_Entries(std::vector<Fat_Dir_Entry> entries);
 	bool Filenames_Equal(char name1[8 + 3 + 1], char name2[8 + 3 + 1]);
-	int Get_Index_Of_Searched(std::vector<Fat_Dir_Entry> entries, char file_name[8 + 1 + 3]);
-	std::vector<Fat_Dir_Entry> Set_Last_Element_To_Index(std::vector<Fat_Dir_Entry> source, int index);
+	std::tuple<std::uint64_t, bool> Get_Index_Of_Searched(std::vector<Fat_Dir_Entry> entries, char file_name[8 + 1 + 3]);
+	std::vector<Fat_Dir_Entry> Set_Last_Element_To_Index(std::vector<Fat_Dir_Entry> source, std::uint64_t index);
 	bool Is_Empty();
 
 public:

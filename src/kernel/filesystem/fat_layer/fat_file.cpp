@@ -98,7 +98,7 @@ std::uint64_t Fat_File::Change_File_Size(std::uint64_t desired_size) {
 
 void Fat_File::Remove_File() {
 	this->fat_table->Deallocate_File(file_start);
-	this->file_start = static_cast<std::uint64_t>(-1);
+	this->file_start = static_cast<std::uint16_t>(-1);
 	this->file_size = static_cast<std::uint64_t>(-1);
 }
 

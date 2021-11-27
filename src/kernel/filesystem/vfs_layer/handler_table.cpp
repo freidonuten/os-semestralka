@@ -1,7 +1,7 @@
 #include "handler_table.h"
 
 std::uint16_t Handler_Table::Create_Descriptor(std::shared_ptr<VFS_Element> element) {
-	int count = this->descriptors.size();
+	std::uint16_t count = static_cast<std::uint16_t>(this->descriptors.size());
 	for (std::uint16_t i = 0; i < count; i++) {
 		if (this->descriptors[i] == nullptr) {
 			this->descriptors[i] = element;
@@ -31,7 +31,7 @@ std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Remove_Element(std
 }
 
 bool Handler_Table::Is_Valid(std::uint16_t id) {
-	int count = this->descriptors.size();
+	std::uint16_t count = static_cast<std::uint16_t>(this->descriptors.size());
 	if (id >= count) {
 		return false;
 	}
