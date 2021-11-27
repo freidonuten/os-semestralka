@@ -66,12 +66,12 @@ void Path::Append(const char* path) {
 
 int Path::Get_Path_Size() const {
 	int result = 0;
+
 	for (auto element : this->implementation) {
-		result += element.size();
-		result++; // '/' in path
+		result += element.size() + 1; // '/' in path
 	}
-	result++; //null termination
-	return result;
+
+	return result + 1; //null termination
 }
 
 int Path::Print(char* buffer, int buffer_size) const{

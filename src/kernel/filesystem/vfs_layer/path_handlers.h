@@ -18,7 +18,7 @@ private:
 	std::map<std::uint16_t, std::string> map_id_path;
 	std::map<std::string, std::shared_ptr<Handle_Info>> map_path_handle;
 	
-	std::tuple<std::shared_ptr<VFS_Element>, bool> Try_Remove(std::shared_ptr<Handle_Info> handle);
+	std::shared_ptr<VFS_Element> Try_Remove(std::shared_ptr<Handle_Info> handle);
 	std::uint16_t Add_Handle(std::shared_ptr<VFS_Element> element, std::shared_ptr<Path> path, int cwd_count, bool is_open);
 
 public:

@@ -10,35 +10,26 @@ std::uint16_t Handler_Table::Create_Descriptor(std::shared_ptr<VFS_Element> elem
 	}
 
 	this->descriptors.push_back(element);
+
 	return count;
 }
 
-std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Get_Element(std::uint16_t id) {
-	if (Is_Valid(id)) {
-		return { this->descriptors[id], true };
-	}
-
-	return { nullptr, false };
+std::shared_ptr<VFS_Element> Handler_Table::Get_Element(std::uint16_t id) {
+	return Is_Valid(id)
+		? this->descriptors[id]
+		: nullptr;
 }
 
-std::tuple<std::shared_ptr<VFS_Element>, bool> Handler_Table::Remove_Element(std::uint16_t id) {
+std::shared_ptr<VFS_Element> Handler_Table::Remove_Element(std::uint16_t id) {
 	if (Is_Valid(id)) {
 		auto result = this->descriptors[id];
 		this->descriptors[id] = nullptr;
-		return { result, true };
+		return result;
 	}
-	return  { nullptr, false };
+
+	return  nullptr;
 }
 
 bool Handler_Table::Is_Valid(std::uint16_t id) {
-	int count = this->descriptors.size();
-	if (id >= count) {
-		return false;
-	}
-
-	if (this->descriptors[id] == nullptr) {
-		return false;
-	}
-
-	return true;
+	return id < descriptors.size() && descriptors[id];
 }

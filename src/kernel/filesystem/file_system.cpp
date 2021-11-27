@@ -92,8 +92,8 @@ void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto buffer = reinterpret_cast<char*>(regs.rdi.r);
 	const auto count = regs.rcx.r;
 
-	auto [element, found] = vfs.Get_Handler_Table()->Get_Element(descriptor);
-	if (!found) {
+	auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
+	if (!element) {
 		//TODO INVALID HANDLER
 		return;
 	}
@@ -107,8 +107,8 @@ void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto buffer = reinterpret_cast<char*>(regs.rdi.r);
 	const auto count = regs.rcx.r;
 
-	auto [element, found] = vfs.Get_Handler_Table()->Get_Element(descriptor);
-	if (!found) {
+	const auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
+	if (!element) {
 		//TODO INVALID HANDLER
 		return;
 	}
@@ -123,8 +123,8 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto seek_start = static_cast<kiv_os::NFile_Seek>(regs.rcx.l);
 	const auto seek_operation = static_cast<kiv_os::NFile_Seek>(regs.rcx.h);
 
-	auto [element, found] = vfs.Get_Handler_Table()->Get_Element(descriptor);
-	if (!found) {
+	auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
+	if (!element) {
 		//TODO INVALID HANDLER
 		return;
 	}
