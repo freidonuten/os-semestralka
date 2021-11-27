@@ -11,14 +11,14 @@
 class Process_Control_Block;
 class Thread_Control_Block final {
 private:
-	const HANDLE native_handle;
+	HANDLE native_handle;
 	union {
 		DWORD native_id;
 		kiv_os::THandle tid;
 	};
-	Process_Control_Block &parent;
+	kiv_os::THandle ppid;
 	kiv_os::TThread_Proc signal_handler;
-	char** args; // null terminated strings?
+	char** args = nullptr; // null terminated strings?
 	
 
 public:
@@ -31,7 +31,8 @@ public:
 	bool is_current() const;
 
 	explicit Thread_Control_Block() = delete;
-	explicit Thread_Control_Block(Process_Control_Block& parent, const kiv_os::TThread_Proc entry, const kiv_hal::TRegisters& state);
+	explicit Thread_Control_Block(kiv_os::THandle ppid);
+	explicit Thread_Control_Block(kiv_os::THandle ppid, const kiv_os::TThread_Proc entry, const kiv_hal::TRegisters& state);
 
 	void register_signal_handle(const kiv_os::TThread_Proc handler = nullptr);
 	void signal(const kiv_os::NSignal_Id signal);

@@ -17,13 +17,25 @@ DWORD WINAPI procedure_wrapper(LPVOID ptr) {
 	return 0;
 }
 
+Thread_Control_Block::Thread_Control_Block(kiv_os::THandle ppid)
+: ppid(ppid), native_handle(NULL) 
+{ }
+
 Thread_Control_Block::Thread_Control_Block(
-	Process_Control_Block& parent,
+	kiv_os::THandle ppid,
 	const kiv_os::TThread_Proc entry,
 	const kiv_hal::TRegisters& state
-)	: parent(parent)
-	, native_handle(CreateThread(NULL, NULL, procedure_wrapper, new procedure_args{ entry, state }, NULL, &native_id))
-{ }
+)	: ppid(ppid)
+{
+	native_handle = CreateThread(
+		NULL,
+		NULL,
+		procedure_wrapper,
+		new procedure_args{ entry, state },
+		NULL,
+		&native_id
+	);
+}
 
 
 kiv_os::THandle Thread_Control_Block::current_tid() {
@@ -35,7 +47,7 @@ kiv_os::THandle Thread_Control_Block::get_tid() const {
 }
 
 kiv_os::THandle Thread_Control_Block::get_ppid() const {
-	return parent.get_pid();
+	return ppid;
 }
 
 void* Thread_Control_Block::get_native_handle() const {
@@ -65,7 +77,7 @@ void Thread_Control_Block::exit(const uint16_t exit_code) {
 uint16_t Thread_Control_Block::read_exit_code() {
 	const auto exit_code = static_cast<uint16_t>(WaitForSingleObject(native_handle, INFINITE));
 
-	parent.thread_remove(get_tid());
+	//parent->thread_remove(get_tid());
 
 	return exit_code;
 }

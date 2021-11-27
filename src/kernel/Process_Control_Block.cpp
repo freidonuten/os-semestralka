@@ -6,27 +6,29 @@ Process_Control_Block::Process_Control_Block(const kiv_os::THandle pid)
 	: pid(pid)
 { }
 
-const kiv_os::THandle Process_Control_Block::get_pid() const {
+Process_Control_Block::Process_Control_Block(const kiv_os::THandle pid, const kiv_os::THandle tid)
+	: pid(pid), tid(tid), state(Execution_State::RUNNING)
+{
+	thread_list.emplace(tid, pid);
+}
+
+kiv_os::THandle Process_Control_Block::get_pid() const {
 	return pid;
 }
 
-const kiv_os::THandle Process_Control_Block::get_tid() const {
+kiv_os::THandle Process_Control_Block::get_tid() const {
 	return tid;
 }
 
-const Execution_State Process_Control_Block::get_state() const {
+Execution_State Process_Control_Block::get_state() const {
 	return state;
-}
-
-const char* Process_Control_Block::get_cwd() const {
-	return cwd;
 }
 
 const char* Process_Control_Block::get_name() const {
 	return name;
 }
 
-const bool Process_Control_Block::is_main_thread(const kiv_os::THandle tid) const {
+bool Process_Control_Block::is_main_thread(const kiv_os::THandle tid) const {
 	return this->tid == tid;
 }
 
@@ -41,7 +43,7 @@ kiv_os::THandle Process_Control_Block::thread_insert(
 	thread_list.emplace(
 		std::piecewise_construct,
 		std::forward_as_tuple(0),
-		std::forward_as_tuple(*this, entry_point, context)
+		std::forward_as_tuple(pid, entry_point, context)
 	);
 
 	// extract the internal node handle and change the key
@@ -78,19 +80,6 @@ void Process_Control_Block::thread_remove(const kiv_os::THandle tid) {
 
 	// otherwise just remove the thread
 	thread_list.erase(tid);
-}
-
-void Process_Control_Block::fd_insert(const kiv_os::THandle fd)
-{
-}
-
-
-void Process_Control_Block::fd_remove(const kiv_os::THandle fd)
-{
-}
-
-void Process_Control_Block::set_cwd(const char* buffer)
-{
 }
 
 void Process_Control_Block::allocate() {

@@ -18,7 +18,7 @@ std::uint64_t proc::File::Read(size_t how_many_bytes, void* buffer) {
 	auto ss = std::stringstream();
 
 	ss  << pcb.get_name() << "\t"
-		<< pcb.get_cwd() << "\t"
+		//<< pcb.get_cwd() << "\t"
 		<< pcb.get_pid() << "\n";
 
 	const auto& result = ss.str();
