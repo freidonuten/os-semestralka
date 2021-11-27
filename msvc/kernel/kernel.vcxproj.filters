@@ -141,9 +141,6 @@
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.cpp">
       <Filter>Source Files\fs\sysfs</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\utils\api_utils.cpp">
       <Filter>Source Files\fs\utils</Filter>
     </ClCompile>
@@ -197,6 +194,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\actions\set_cwd_action.cpp">
       <Filter>Source Files\fs\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp">
+      <Filter>Source Files\fs\sysfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\proc_file.cpp">
+      <Filter>Source Files\fs\sysfs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\kernel\filesystem\actions\actions.h">
       <Filter>Header Files\fs\actions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\kernel\filesystem\sysfs_layer\proc_file.h">
+      <Filter>Header Files\fs\sysfs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

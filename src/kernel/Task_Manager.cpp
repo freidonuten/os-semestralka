@@ -168,6 +168,10 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 	return kiv_os::NOS_Error::Success;
 }
 
+const Task_Manager::Process_Table& Task_Manager::get_processes() const {
+	return process_table;
+}
+
 void Task_Manager::syscall_dispatch(kiv_hal::TRegisters& regs) {
 	const auto return_code = [&regs, this]() {
 		switch (static_cast<kiv_os::NOS_Process>(regs.rax.l)) {

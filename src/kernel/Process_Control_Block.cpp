@@ -22,6 +22,10 @@ const char* Process_Control_Block::get_cwd() const {
 	return cwd;
 }
 
+const char* Process_Control_Block::get_name() const {
+	return name;
+}
+
 const bool Process_Control_Block::is_main_thread(const kiv_os::THandle tid) const {
 	return this->tid == tid;
 }

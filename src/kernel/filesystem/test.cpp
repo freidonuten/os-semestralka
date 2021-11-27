@@ -178,6 +178,14 @@ void descriptor_perftest() {
 	while (1);
 }
 
+void proc_file_test() {
+	set_working_dir("/");
+	auto handle = open_file("proc");
+
+	read_file(handle, buffer1, 1000);
+	write_file(1, buffer1, 1000);
+}
+
 void filesystem_test() {
 	kiv_hal::TRegisters registers;
 	char filename[12];

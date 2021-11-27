@@ -10,10 +10,11 @@
 
 
 class Task_Manager final {
-	private:
+	public:
 		using Process_Table = std::array<Process_Control_Block, constants::process_limit>;
 		using Thread_Table = std::unordered_map<kiv_os::THandle, kiv_os::THandle>;
 
+	private:
 		Process_Table process_table;
 		Thread_Table thread_table;
 
@@ -39,5 +40,6 @@ class Task_Manager final {
 	public:
 		explicit Task_Manager();
 
+		const Process_Table& get_processes() const;
 		void syscall_dispatch(kiv_hal::TRegisters& regs);
 };

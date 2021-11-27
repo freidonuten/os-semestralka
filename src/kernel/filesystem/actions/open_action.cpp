@@ -1,4 +1,5 @@
 #include "actions.h"
+#include "../sysfs_layer/proc_file.h"
 
 std::tuple<std::uint16_t, Open_Result, bool> try_open_handler(VFS& vfs, std::shared_ptr<Path> file_path) {
 	auto [returned_handler_id, try_open_result] = vfs.Get_Path_Handlers()->Try_Open_Element(file_path);
@@ -22,8 +23,17 @@ std::tuple<std::uint16_t, Open_Result> actions::open_file(VFS& vfs, char* filena
 
 	auto [cwd_path, file_path, cwd_dir] = get_paths_and_directory(vfs, filename);
 
+	if (file_path->To_String() == "/proc") {
+		auto desc_table = vfs.Get_Handler_Table();
+		auto proc_file = proc::Factory();
+
+		const auto descriptor = desc_table->Create_Descriptor(proc_file);
+
+		return { descriptor, Open_Result::OK };
+	}
+
 	auto [returned_handler_id, try_open_result, to_continue] = try_open_handler(vfs, file_path);
-	if (to_continue == false) {
+	if (!to_continue) {
 		return { returned_handler_id, try_open_result };
 	}
 

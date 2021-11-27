@@ -2,7 +2,6 @@
 
 #include "kernel.h"
 #include "filesystem/test.h"
-#include "Task_Manager.h"
 #include <Windows.h>
 #include "filesystem/cwd/cwd.h"
 
@@ -11,7 +10,7 @@
 #include "filesystem/file_system.h"
 
 HMODULE User_Programs;
-auto task_manager = Task_Manager();
+Task_Manager task_manager{};
 auto fs_dispatch = file_system::Dispatcher();
 
 

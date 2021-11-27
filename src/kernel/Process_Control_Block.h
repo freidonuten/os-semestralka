@@ -19,7 +19,7 @@ private:
 	Thread_Pool thread_list;
 	FD_Pool fd_list;
 	Buffer cwd = "/";
-	
+	Buffer name = "placeholder";
 
 public:
 	Process_Control_Block() = default;
@@ -29,6 +29,7 @@ public:
 	const kiv_os::THandle get_tid() const;
 	const Execution_State get_state() const;
 	const char* get_cwd() const;
+	const char* get_name() const;
 	const bool is_main_thread(const kiv_os::THandle tid) const;
 	
 	kiv_os::THandle thread_insert(const kiv_os::TThread_Proc entry_point, const kiv_hal::TRegisters& context);
