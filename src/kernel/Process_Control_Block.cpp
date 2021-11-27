@@ -24,8 +24,12 @@ Execution_State Process_Control_Block::get_state() const {
 	return state;
 }
 
+const char* Process_Control_Block::get_args() const {
+	return args.data();
+}
+
 const char* Process_Control_Block::get_name() const {
-	return name;
+	return name.data();
 }
 
 bool Process_Control_Block::is_main_thread(const kiv_os::THandle tid) const {
@@ -98,4 +102,12 @@ void Process_Control_Block::terminate() {
 
 	// now bring the big hammer
 	thread_remove(tid);
+}
+
+void Process_Control_Block::set_args(const char* args) {
+	this->args = std::string(args);
+}
+
+void Process_Control_Block::set_name(const char* name) {
+	this->name = std::string(name);
 }

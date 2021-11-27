@@ -94,8 +94,12 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 	auto &process = alloc_first_free();
 	auto child_regs = kiv_hal::TRegisters{ regs };
 
+	process.set_args(reinterpret_cast<char*>(regs.rdi.r));
+	process.set_name(reinterpret_cast<char*>(regs.rdx.r));
+
 	child_regs.rax.x = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
 	child_regs.rbx.x = static_cast<kiv_os::THandle>(regs.rbx.x);
+	child_regs.rdi.r = reinterpret_cast<uint64_t>(process.get_args());
 
 	cwd_holder->Inherit(get_current_process().get_pid(), process.get_pid());
 
