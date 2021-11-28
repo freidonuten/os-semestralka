@@ -75,9 +75,5 @@ void Thread_Control_Block::exit(const uint16_t exit_code) {
 }
 
 uint16_t Thread_Control_Block::read_exit_code() {
-	const auto exit_code = static_cast<uint16_t>(WaitForSingleObject(native_handle, INFINITE));
-
-	//parent->thread_remove(get_tid());
-
-	return exit_code;
+	return WaitForSingleObject(native_handle, INFINITE);
 }

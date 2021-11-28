@@ -190,9 +190,11 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 
 const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) {
 	auto& thread = get_thread(static_cast<kiv_os::THandle>(regs.rdx.x));
+	const auto tid = thread.get_tid();
 	
 	regs.rcx.x = thread.read_exit_code();
-	thread_table.erase(thread.get_tid());
+	get_process(tid).thread_remove(tid);
+	thread_table.erase(tid);
 
 	return kiv_os::NOS_Error::Success;
 }
