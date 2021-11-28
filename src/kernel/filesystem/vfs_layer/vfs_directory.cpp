@@ -39,6 +39,7 @@ std::uint64_t VFS_Directory::Write(size_t how_many_bytes, void* buffer) {
 std::uint64_t VFS_Directory::Read(size_t how_many_bytes, void* buffer) {
 	auto vector = this->self_fat_directory->Read_All_Entries();
 	std::uint64_t bytes_read = Copy_To_TDir_Entry_Format(vector, buffer, how_many_bytes);
+	this->file_position += bytes_read;
 	return bytes_read;
 }
 
@@ -79,10 +80,25 @@ std::uint64_t VFS_Directory::Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry
 	}
 
 	std::uint64_t size = temp_vector.size() * sizeof(TDir_Entry);
-	std::uint64_t to_copy = std::min(max_bytes, size - this->file_position);
+	std::uint64_t start;
+	std::uint64_t to_copy;
+
+	if (this->file_position >= size) {
+		start = 0;
+		to_copy = 0;
+	}
+	else {
+		start = this->file_position;
+		if (start + max_bytes < size) {
+			to_copy = max_bytes;
+		}
+		else {
+			to_copy = size - start;
+		}
+	}
 
 	if (to_copy > 0) {
-		memcpy(buffer, &temp_vector[0], to_copy);
+		memcpy(buffer, reinterpret_cast<uint8_t*>(&temp_vector[0]) + start, to_copy);
 	}
 	return to_copy;
 }
