@@ -100,8 +100,8 @@ void Process_Control_Block::terminate() {
 		thread.second.signal(kiv_os::NSignal_Id::Terminate);
 	});
 
-	// now bring the big hammer
-	thread_remove(tid);
+	thread_list.clear();
+	state = Execution_State::FREE;
 }
 
 void Process_Control_Block::set_args(const char* args) {

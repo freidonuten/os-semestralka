@@ -110,7 +110,13 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 
 	cwd_holder->Inherit(get_current_process().get_pid(), process.get_pid());
 
-	return create_thread<false>(child_regs, process, regs.rax.x);
+	const auto result = create_thread<false>(child_regs, process, regs.rax.x);
+
+	if (result != kiv_os::NOS_Error::Success) {
+		process.terminate();
+	}
+
+	return result;
 }
 
 const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {

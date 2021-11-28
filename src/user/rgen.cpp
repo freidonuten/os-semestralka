@@ -10,17 +10,13 @@ size_t Terminated(const kiv_hal::TRegisters& regs) {
 
 size_t Check_EOF(const kiv_hal::TRegisters& regs) {
 	const kiv_os::THandle stdin_handle = regs.rax.x;
-	char buffer[eof_buffer_size];
-	size_t chars_read = 0;
+	uint8_t buffer[eof_buffer_size];
+	size_t chars_read = 1;
 
-	while (true) {
-		kiv_os_rtl::Read_File(stdin_handle, buffer, eof_buffer_size, chars_read);
-		if (buffer[0] == eof ||
-			buffer[0] == eot || 
-			buffer[0] == etx ) {
-			break;
-		}
+	while (chars_read) {
+		kiv_os_rtl::Read_File(stdin_handle, (char*)buffer, eof_buffer_size, chars_read);
 	}
+
 	is_eof = true;
 	kiv_os_rtl::Exit(0);
 	return 0;
