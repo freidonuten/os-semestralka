@@ -55,7 +55,7 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 		if (regs.rdx.l == 255) break;
 	}*/
 	fs_dispatch = std::make_unique<file_system::Dispatcher>(512, 2048, 0);
-	filesystem_test();
+	//filesystem_test();
 	
 	char* shell = "shell";
 	char* args = "";
