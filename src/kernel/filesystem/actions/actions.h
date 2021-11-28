@@ -15,6 +15,8 @@ namespace actions {
 	Delete_Result delete_file(VFS& vfs, char* filename);
 	Set_File_Attrs_Result set_file_attrs(VFS& vfs, char* filename, std::uint8_t file_attrs);
 	Set_CWD_Result set_cwd(VFS& vfs, char* path);
-	std::tuple<std::shared_ptr<Path>, std::shared_ptr<Path>, std::shared_ptr<VFS_Directory>> get_paths_and_directory(VFS& vfs, char* filename);
+	std::tuple<std::shared_ptr<Path>, std::shared_ptr<Path>, std::shared_ptr<VFS_Directory>> get_paths_and_directory_filename(VFS& vfs, char* filename);
+	std::tuple<std::shared_ptr<Path>, std::shared_ptr<Path>, std::shared_ptr<VFS_Directory>, bool> get_paths_and_directory_relative(VFS& vfs, char* relative_path);
+	std::tuple<std::shared_ptr<Path>, std::shared_ptr<Path>, std::shared_ptr<VFS_Directory>, bool> get_paths_and_directory_absolute(VFS& vfs, char* absolute_path);
 };
 

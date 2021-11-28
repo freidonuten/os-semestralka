@@ -93,10 +93,10 @@ Command Command::Parse_Command(std::string command) {
 std::string Command::Get_Parameters() {
     std::string all_parameters;
     for (auto it = parameters.begin(); it != parameters.end(); it++) {
-        all_parameters.append(*it);
-        if (it != parameters.end()) {
+        if (it != parameters.begin()) {
             all_parameters.append(" ");
         }
+        all_parameters.append(*it);
     }
     return all_parameters;
 }

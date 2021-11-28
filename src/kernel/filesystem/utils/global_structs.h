@@ -126,7 +126,8 @@ enum class Set_File_Attrs_Result {
 	OK,
 	FILE_OPENED,
 	FILE_NOT_EXISTING,
-	CANT_CHANGE
+	CANT_CHANGE,
+	UNKNOWN_ERROR
 };
 
 enum class Set_CWD_Result {
@@ -147,5 +148,13 @@ enum class Create_New_Entry_Result {
 	OK,
 	NO_MEMORY,
 	ALREADY_EXISTS
+};
+
+enum class Filename_Type {
+	CURRENT,
+	FILENAME,
+	RELATIVE_PATH,
+	ABSOLUTE_PATH,
+	INVALID
 };
 

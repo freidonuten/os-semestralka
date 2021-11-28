@@ -17,13 +17,38 @@ bool utils::Is_Valid_Filename(const char* filename) {
 }
 
 Path_Type utils::Get_Path_Type(const char* path) {
-	if (path[0] == 0) { //EMPTY ""
-		return Path_Type::INVALID;
-	}
+	Filename_Type filename_type = utils::Get_Filename_Type(path);
 
-	if (path[0] == '/') {
-		return Path_Type::ABSOLUTE_PATH;
+	switch (filename_type) {
+		case Filename_Type::INVALID:			return Path_Type::INVALID;
+		case Filename_Type::ABSOLUTE_PATH:		return Path_Type::ABSOLUTE_PATH;
 	}
 
 	return Path_Type::RELATIVE_PATH;
+}
+
+Filename_Type utils::Get_Filename_Type(const char* filename) {
+	const auto string = std::string_view(filename);
+
+	if (string[0] == 0) {
+		return Filename_Type::INVALID;
+	}
+
+	if (string.compare(".") == 0) {
+		return Filename_Type::CURRENT;
+	}
+
+	if (string.compare("..") == 0) {
+		return Filename_Type::RELATIVE_PATH;
+	}
+
+	if (string.find("/") == std::string_view::npos) {
+		return Filename_Type::FILENAME;
+	}
+
+	if (string[0] == '/') {
+		return Filename_Type::ABSOLUTE_PATH;
+	}
+
+	return Filename_Type::RELATIVE_PATH;
 }
