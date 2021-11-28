@@ -18,7 +18,6 @@ private:
 	};
 	kiv_os::THandle ppid;
 	kiv_os::TThread_Proc signal_handler;
-	char** args = nullptr; // null terminated strings?
 	
 
 public:
