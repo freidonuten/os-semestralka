@@ -17,7 +17,7 @@ class Task_Manager final {
 	private:
 		Process_Table process_table;
 		Thread_Table thread_table;
-		Dummy_CWD_Holder* cwd_holder;
+		Dummy_CWD_Holder* cwd_holder = nullptr;
 
 		// helper methods
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
