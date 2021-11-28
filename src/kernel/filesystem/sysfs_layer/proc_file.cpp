@@ -14,7 +14,7 @@ std::uint64_t proc::File::Read(size_t how_many_bytes, void* buffer) {
 		return i.get_state() != Execution_State::FREE;
 	};
 
-	index = std::find_if_not(index, end, is_running);
+	index = std::find_if(index, end, is_running);
 
 	if (index == end) {
 		return 0;
