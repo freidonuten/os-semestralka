@@ -13,12 +13,12 @@ class Process_Control_Block final {
 private:
 	using Thread_Pool = std::unordered_map<kiv_os::THandle, Thread_Control_Block>;
 
-	kiv_os::THandle pid;
-	kiv_os::THandle tid;
+	kiv_os::THandle pid = 0;
+	kiv_os::THandle tid = 0;
 	Execution_State state = Execution_State::FREE;
-	Thread_Pool thread_list;
-	std::string name;
-	std::string args;
+	Thread_Pool thread_list{};
+	std::string name = "";
+	std::string args = "";
 
 public:
 	Process_Control_Block() = default;
