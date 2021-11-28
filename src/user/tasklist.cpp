@@ -10,7 +10,7 @@ size_t __stdcall tasklist(const kiv_hal::TRegisters& regs) {
 	size_t offset = 0;
 	char buffer[BUFFER_SIZE];
 
-	kiv_os_rtl::Open_File("procs", 0, kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	kiv_os_rtl::Open_File("/proc", 0, kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
 	if (file_handle == invalid_file_handle) {
 		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
