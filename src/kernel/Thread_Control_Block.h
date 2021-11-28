@@ -26,7 +26,6 @@ public:
 
 	kiv_os::THandle get_tid() const;
 	kiv_os::THandle get_ppid() const;
-	Execution_State get_state() const;
 	HANDLE get_native_handle() const;
 	bool is_current() const;
 
