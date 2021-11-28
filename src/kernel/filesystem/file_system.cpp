@@ -159,7 +159,8 @@ void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!element) {
-    Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
 	}
 	const auto written_bytes = element->Write(count, buffer);
 
@@ -175,6 +176,7 @@ void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!element) {
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
 	}
 	const auto read_bytes = element->Read(count, buffer);
 
@@ -191,6 +193,7 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 	auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!element) {
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
 	}
 
 	auto [position, result] = element->Seek(seek_offset, seek_start, seek_operation);
