@@ -17,8 +17,7 @@ private:
 		kiv_os::THandle tid;
 	};
 	kiv_os::THandle ppid;
-	kiv_os::TThread_Proc signal_handler;
-	
+	kiv_os::TThread_Proc signal_handler = nullptr;
 
 public:
 	static kiv_os::THandle current_tid();

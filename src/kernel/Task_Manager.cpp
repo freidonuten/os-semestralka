@@ -68,6 +68,26 @@ std::pair<Process_Control_Block&, kiv_os::NOS_Error> Task_Manager::alloc_first_f
 	return { *process_slot, kiv_os::NOS_Error::Success };
 }
 
+void Task_Manager::clean_up_thread_handle(const kiv_os::THandle handle) {
+	auto& process = get_process(thread_table[handle]);
+	const auto thread = get_thread(handle);
+
+	if (process.get_tid() == handle) {
+		// the dirty way...
+		for (auto itr = thread_table.cbegin(); itr != thread_table.cend(); ) {
+			itr = (itr->second == process.get_pid())
+				? thread_table.erase(itr)
+				: std::next(itr);
+		}
+
+		process.free();
+		return;
+	}
+
+	thread_table.erase(handle);
+	process.thread_remove(handle);
+}
+
 template<bool return_tid, typename result_type>
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, result_type& result) {
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
@@ -126,17 +146,12 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 }
 
 const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
-	const auto exit = [regs](auto& object) {
-		object.exit(regs.rcx.x);
-	};
-
 	auto& process = get_current_process();
 	auto& thread = get_current_thread();
 	const auto exit_process = process.is_main_thread(thread.get_tid());
 
-	exit_process ? exit(process) : exit(thread);
+	thread.exit(regs.rcx.x);
 
-	// FIXME could exit possibly result in a failure?
 	return kiv_os::NOS_Error::Success;
 }
 
@@ -186,11 +201,17 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 	);
 
 	// block until first signal
-	regs.rax.r = WaitForMultipleObjects(static_cast<DWORD>(count), native_handles.data(), false, INFINITE);
+	const auto finished_index = WaitForMultipleObjects(static_cast<DWORD>(count), native_handles.data(), false, INFINITE);
 
-	return (regs.rax.x == INFINITE)
-		? kiv_os::NOS_Error::Unknown_Error
-		: kiv_os::NOS_Error::Success;
+	if (finished_index == INFINITE) {
+		kiv_os::NOS_Error::Unknown_Error;
+	}
+	
+	//clean_up_thread_handle(handles[finished_index]);
+
+	regs.rax.r = finished_index;
+
+	return kiv_os::NOS_Error::Success;
 }
 
 const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) {
@@ -198,8 +219,7 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 	const auto tid = thread.get_tid();
 	
 	regs.rcx.x = thread.read_exit_code();
-	get_process(tid).thread_remove(tid);
-	thread_table.erase(tid);
+	clean_up_thread_handle(tid);
 
 	return kiv_os::NOS_Error::Success;
 }

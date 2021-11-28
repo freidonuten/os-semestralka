@@ -90,8 +90,9 @@ void Process_Control_Block::allocate() {
 	state = Execution_State::READY;
 }
 
-void Process_Control_Block::exit(const uint16_t code)
-{
+void Process_Control_Block::free() {
+	state = Execution_State::FREE;
+	thread_list.clear();
 }
 
 void Process_Control_Block::terminate() {

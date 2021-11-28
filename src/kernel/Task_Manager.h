@@ -28,6 +28,7 @@ class Task_Manager final {
 		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 		Process_Control_Block& get_process(const kiv_os::THandle handle);
 		std::pair<Process_Control_Block&, kiv_os::NOS_Error> alloc_first_free();
+		void clean_up_thread_handle(const kiv_os::THandle handle);
 
 		// syscall impl
 		const kiv_os::NOS_Error clone(kiv_hal::TRegisters& regs);

@@ -61,7 +61,8 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		);
 
 		if (is_running) {
-			kiv_os_rtl::Wait_For(&process_handle, 1, process_handle);
+			uint16_t exit_code;
+			kiv_os_rtl::Read_Exit_Code(process_handle, exit_code);
 		}
 
 		handles.push_back(process_handle);

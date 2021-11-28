@@ -35,7 +35,7 @@ public:
 	kiv_os::THandle thread_insert(const kiv_os::TThread_Proc entry_point, const kiv_hal::TRegisters& context);
 	void thread_remove(const kiv_os::THandle tid);
 	void allocate();
-	void exit(const uint16_t code);
+	void free();
 	void signal(const kiv_os::NSignal_Id signal);
 	void terminate();
 	void set_args(const char* args);
