@@ -6,3 +6,4 @@ compiled/boot.pdb
 .vs
 msvc/*/x64/
 msvc/*/obj/x64
+*.ipch
