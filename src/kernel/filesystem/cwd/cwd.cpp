@@ -97,10 +97,13 @@ size_t Path::Print(char* buffer, size_t buffer_size) const{
 }
 
 std::string Path::To_String() const {
-	std::string result = "";
+	std::string result = "/";
 
+	bool first = true;
 	for (auto path_element : this->implementation) {
-		result += "/";
+		if (!first) {
+			result += "/";
+		}
 		result += path_element;
 	}
 

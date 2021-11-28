@@ -18,10 +18,21 @@ std::tuple<std::uint16_t, Open_Result, bool> try_open_handler(VFS& vfs, std::sha
 
 std::tuple<std::uint16_t, Open_Result> open_current(VFS& vfs) {
 	auto [cwd_path, cwd_dir] = vfs.Get_CWD();
-	auto [id, result, to_continue] = try_open_handler(vfs, cwd_path);
+	auto [id, result] = vfs.Get_Path_Handlers()->Try_Open_Element(cwd_path);
 
-	if (!to_continue) {
-		return { id, result };
+	if (result == Handle_Open_Result::ALREADY_OPENED) {
+		return { 0, Open_Result::ALREADY_OPENED };
+	}
+	else if (result == Handle_Open_Result::RETURNED) {
+		return { id, Open_Result::OK };
+	}
+	else if (result == Handle_Open_Result::NOT_EXISTS) {
+		auto [opened_handler_id, inserted] = vfs.Get_Path_Handlers()->Add_Path_Element(cwd_dir, cwd_path, 1, true);
+		if (!inserted) {
+			return { 0, Open_Result::UNKNOWN_ERROR };
+		}
+
+		return { opened_handler_id, Open_Result::OK };
 	}
 
 	return { 0, Open_Result::UNKNOWN_ERROR };
@@ -35,8 +46,8 @@ std::tuple<std::uint16_t, Open_Result> open_root(VFS& vfs, std::shared_ptr<Path>
 	}
 
 	std::shared_ptr<VFS_Directory> root_dir = vfs.Get_Root();
-	auto [opened_handler_id, already_inserted] = vfs.Get_Path_Handlers()->Add_Path_Element(root_dir, path, 0, true);
-	if (already_inserted) {
+	auto [opened_handler_id, inserted] = vfs.Get_Path_Handlers()->Add_Path_Element(root_dir, path, 0, true);
+	if (!inserted) {
 		return { 0, Open_Result::UNKNOWN_ERROR };
 	}
 	
