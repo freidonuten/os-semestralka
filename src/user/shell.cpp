@@ -45,7 +45,14 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 			buffer[counter] = 0;	//udelame z precteneho vstup null-terminated retezec
 			std::string input_command(buffer);
 			commands = Command::Parse_Input(input_command);
-			
+
+			// Kontrola zda byl zadan nejaky prikaz
+			kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
+
+			if (!commands.size()) {
+				continue;
+			}
+
 			if (commands.front().command_name == "@echo") {
 				if (commands.front().Get_Parameters() == "off") {
 					is_echo_on = false;
@@ -53,12 +60,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 					is_echo_on = true;
 				}
 			}
-
-			// Kontrola zda byl zadan nejaky prikaz
-			if (!commands.size()) {
-				kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
-				continue;
-			}
+			
 			command_executor.Execute_Command(commands, std_in, std_out);
 			
 			if (strcmp(buffer, "exit") == 0) {
