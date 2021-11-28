@@ -6,8 +6,10 @@
 #include <map>
 #include "../kernel.h"
 
-file_system::Dispatcher::Dispatcher(uint16_t sector_size, uint64_t sector_count, int drive_id) : vfs(sector_size, sector_count, drive_id){
-}
+
+file_system::Dispatcher::Dispatcher(uint16_t sector_size, uint64_t sector_count, int drive_id)
+	: vfs(sector_size, sector_count, drive_id)
+{ }
 
 void file_system::Dispatcher::operator()(kiv_hal::TRegisters& regs) {
 	using kiv_os::NOS_File_System;
@@ -50,6 +52,32 @@ void file_system::close_handle(kiv_hal::TRegisters& regs, VFS& vfs) {
 	}
 
 	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
+}
+
+file_system::Dispatcher file_system::factory() {
+	kiv_hal::TRegisters regs;
+
+	for (regs.rdx.l = 0; ; regs.rdx.l++) {
+		kiv_hal::TDrive_Parameters params;		
+		regs.rax.h = static_cast<uint8_t>(kiv_hal::NDisk_IO::Drive_Parameters);;
+		regs.rdi.r = reinterpret_cast<decltype(regs.rdi.r)>(&params);
+		kiv_hal::Call_Interrupt_Handler(kiv_hal::NInterrupt::Disk_IO, regs);
+			
+		if (!regs.flags.carry) {
+				uint16_t sector_size = params.bytes_per_sector;
+				uint64_t sector_count = params.absolute_number_of_sectors;
+				int drive_id = regs.rdx.l;
+
+				return Dispatcher(sector_size, sector_count, drive_id);
+		}
+
+		if (regs.rdx.l == 255) {
+			break;
+		}
+	}
+
+	// no disk found, use virtual fs
+	return Dispatcher();
 }
 
 void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
@@ -131,7 +159,8 @@ void file_system::write_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 
 	auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!element) {
-    Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
 	}
 	const auto written_bytes = element->Write(count, buffer);
 
@@ -147,6 +176,7 @@ void file_system::read_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!element) {
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
 	}
 	const auto read_bytes = element->Read(count, buffer);
 
@@ -163,6 +193,7 @@ void file_system::seek(kiv_hal::TRegisters& regs, VFS& vfs) {
 	auto element = vfs.Get_Handler_Table()->Get_Element(descriptor);
 	if (!element) {
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+		return;
 	}
 
 	auto [position, result] = element->Seek(seek_offset, seek_start, seek_operation);

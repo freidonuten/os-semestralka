@@ -12,58 +12,34 @@
 
 HMODULE User_Programs;
 Task_Manager task_manager{};
-std::unique_ptr<file_system::Dispatcher> fs_dispatch;
+file_system::Dispatcher fs_dispatch;
 
+
+void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
+	switch (static_cast<kiv_os::NOS_Service_Major>(regs.rax.h)) {
+		case kiv_os::NOS_Service_Major::File_System:		
+			return fs_dispatch(regs);
+		case kiv_os::NOS_Service_Major::Process:
+			return task_manager.syscall_dispatch(regs);
+	}
+}
 
 void Initialize_Kernel() {
 	User_Programs = LoadLibraryW(L"user.dll");
+	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
 }
 
 void Shutdown_Kernel() {
 	FreeLibrary(User_Programs);
 }
 
-void __stdcall Sys_Call(kiv_hal::TRegisters &regs) {
-	switch (static_cast<kiv_os::NOS_Service_Major>(regs.rax.h)) {
-		case kiv_os::NOS_Service_Major::File_System:		
-			return (*fs_dispatch)(regs);
-		case kiv_os::NOS_Service_Major::Process:
-			return task_manager.syscall_dispatch(regs);
-	}
-}
-
-void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
-	Initialize_Kernel();
-	kiv_hal::Set_Interrupt_Handler(kiv_os::System_Int_Number, Sys_Call);
+void Fork_And_Wait(const char* program, const char* args) {
 	kiv_hal::TRegisters regs;
-	
-	/*for (regs.rdx.l = 0; ; regs.rdx.l++) {
-		kiv_hal::TDrive_Parameters params;		
-		regs.rax.h = static_cast<uint8_t>(kiv_hal::NDisk_IO::Drive_Parameters);;
-		regs.rdi.r = reinterpret_cast<decltype(regs.rdi.r)>(&params);
-		kiv_hal::Call_Interrupt_Handler(kiv_hal::NInterrupt::Disk_IO, regs);
-			
-		if (!regs.flags.carry) {
-				uint16_t sector_size = params.bytes_per_sector;
-				uint64_t sector_count = params.absolute_number_of_sectors;
-				int drive_id = regs.rdx.l;
-
-				fs_dispatch = std::make_unique<file_system::Dispatcher>(sector_size, sector_count, drive_id);
-				break;
-		}
-
-		if (regs.rdx.l == 255) break;
-	}*/
-	fs_dispatch = std::make_unique<file_system::Dispatcher>(512, 2048, 0);
-	//filesystem_test();
-	
-	char* shell = "shell";
-	char* args = "";
 
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::Process);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_Process::Clone);
 	regs.rcx.l = static_cast<uint8_t>(kiv_os::NClone::Create_Process);
-	regs.rdx.r = reinterpret_cast<uint64_t>(shell);
+	regs.rdx.r = reinterpret_cast<uint64_t>(program);
 	regs.rdi.r = reinterpret_cast<uint64_t>(args);
 	regs.rbx.e = 1;
 
@@ -77,6 +53,13 @@ void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
 	regs.rdx.r = reinterpret_cast<uint64_t>(&pid);
 
 	Sys_Call(regs); // Wait for shell
+}
+
+void __stdcall Bootstrap_Loader(kiv_hal::TRegisters &context) {
+	Initialize_Kernel();
+
+	fs_dispatch = file_system::factory();
+	Fork_And_Wait("shell", "");
 
 	Shutdown_Kernel();
 }

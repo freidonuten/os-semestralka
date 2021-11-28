@@ -25,7 +25,9 @@ private:
 	std::shared_ptr<VFS_Directory> root;
 	std::unique_ptr<Path_Dir_Opener> cwd_opener;
 	
+	void init(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info);
 public:
+	VFS();
 	VFS(uint16_t sector_size, uint64_t sector_count, int drive_id);
 
 	std::shared_ptr<Handler_Table> Get_Handler_Table();

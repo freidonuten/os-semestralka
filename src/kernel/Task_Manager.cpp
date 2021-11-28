@@ -70,10 +70,12 @@ Process_Control_Block& Task_Manager::alloc_first_free() {
 template<bool return_tid, typename result_type>
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, result_type& result) {
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
-	const auto entry = kiv_os::TThread_Proc(GetProcAddress(User_Programs, reinterpret_cast<char*>(regs.rdx.r)));
+	const auto entry = return_tid 
+		? kiv_os::TThread_Proc(regs.rdx.r)
+		: kiv_os::TThread_Proc(GetProcAddress(User_Programs, reinterpret_cast<char*>(regs.rdx.r)));
 
 	if (!entry) {
-		// zničit proces
+		// TODO: zničit proces
 		return kiv_os::NOS_Error::File_Not_Found;
 	}
 
@@ -87,7 +89,12 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, P
 }
 
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
-	return create_thread<true>(regs, get_current_process(), regs.rax.r);
+	auto child_regs = kiv_hal::TRegisters{ regs };
+
+	child_regs.rax.x = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
+	child_regs.rbx.x = static_cast<kiv_os::THandle>(regs.rbx.x);
+
+	return create_thread<true>(child_regs, get_current_process(), regs.rax.r);
 }
 
 const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
