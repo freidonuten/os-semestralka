@@ -7,11 +7,26 @@
 #include <thread>
 #include <random>
 
-void set_working_dir(char* path) {
+void set_file_attrs(const char* path, std::uint8_t file_attrs) {
+	char local[256];
+	memcpy(local, path, 256);
+
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Set_File_Attribute);
+	regs.rdx.r = reinterpret_cast<uint64_t>(local);
+	regs.rdi.r = file_attrs;
+	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
+}
+
+void set_working_dir(const char* path) {
+	kiv_hal::TRegisters regs;
+	char local[256];
+	memcpy(local, path, 256);
+
+	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Set_Working_Dir);
-	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rdx.r = reinterpret_cast<uint64_t>(local);
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 }
 
@@ -39,32 +54,41 @@ size_t read_file(int handle, void *buffer, int how_many_bytes) {
 	return regs.rax.r;
 }
 
-int open_file(char* path) {
+int open_file(const char* path) {
+	char local[256];
+	memcpy(local, path, 256);
+
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File);
-	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rdx.r = reinterpret_cast<uint64_t>(local);
 	regs.rcx.r = 1;
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 	return regs.rax.x;
 }
 
-int create_dir(char* path) {
+int create_dir(const char* path) {
+	char local[256];
+	memcpy(local, path, 256);
+
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File);
-	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rdx.r = reinterpret_cast<uint64_t>(local);
 	regs.rcx.r = 0;
 	regs.rdi.r = 0x11; //directory + readonly
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
 	return regs.rax.x;
 }
 
-int create_file(char* path) {
+int create_file(const char* path) {
+	char local[256];
+	memcpy(local, path, 256);
+
 	kiv_hal::TRegisters regs;
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::File_System);
 	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File);
-	regs.rdx.r = reinterpret_cast<uint64_t>(path);
+	regs.rdx.r = reinterpret_cast<uint64_t>(local);
 	regs.rcx.r = 0;
 	regs.rdi.r = 0x0;
 	kiv_hal::Call_Interrupt_Handler(kiv_os::System_Int_Number, regs);
@@ -187,21 +211,23 @@ void proc_file_test() {
 }
 
 void filesystem_test() {
-	kiv_hal::TRegisters registers;
 	char filename[12];
-	sprintf_s(filename, "directory");
+	kiv_hal::TRegisters registers;
 
-	auto dir_handler = create_dir(filename);
+	auto dir_handler = create_dir("directory");
+	close_handle(dir_handler);
 
 	
-	set_working_dir(filename);
+	set_working_dir("directory");
 	
 	for (int i = 0; i < 15; i++) {
+
 		sprintf_s(filename, "dir%d", i);
 		auto temp = create_dir(filename);
 		close_handle(temp);
 	}
 
+	dir_handler = open_file(".");
 	
 
 	kiv_os::TDir_Entry entries[15];
@@ -235,6 +261,9 @@ void filesystem_test() {
 	for (int i = 0; i < 250; i++) {
 		std::cout << numbers[i] << " = " << numbers[i + 250] << std::endl;
 	}
+
+	auto file_handler2 = create_file("/file");
+	set_file_attrs("/file", 0x03);
 
 	exit(0);
 }

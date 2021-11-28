@@ -22,6 +22,7 @@ public:
 	void Append(const char* path);
 	size_t Print(char* buffer, size_t buffer_size) const;
 	std::string To_String() const;
+	void Get_Filename(char* buffer) const;
 
 
 
