@@ -125,9 +125,13 @@ bool Fat_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry ne
 
 bool Fat_Directory::Write_Entries(std::vector<Fat_Dir_Entry> entries) {
 	std::uint64_t desired_file_size = entries.size() * sizeof(Fat_Dir_Entry);
-	void* buffer = static_cast<void*>(&entries[0]);
-
 	std::uint64_t actual_file_size = file->Change_File_Size(desired_file_size);
+
+	if (actual_file_size == 0) {
+		return true;
+	}
+
+	void* buffer = static_cast<void*>(&entries[0]);
 	if (actual_file_size == desired_file_size) {
 		file->Write_To_File(0, actual_file_size, buffer);
 		return true;

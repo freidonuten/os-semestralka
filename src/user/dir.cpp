@@ -29,7 +29,6 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 		return 2;
 	}
 
-	kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
 	while (true) {
 		memset(buffer, 0, dir_size);
 		

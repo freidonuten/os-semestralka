@@ -65,7 +65,7 @@ Delete_Result delete_filename(VFS& vfs, char* filename) {
 }
 
 Delete_Result actions::delete_file(VFS& vfs, char* filename) {
-	Filename_Type type = utils::Get_Filename_Type(filename);
+ 	Filename_Type type = utils::Get_Filename_Type(filename);
 	switch (type) {
 	case Filename_Type::CURRENT:
 		return Delete_Result::CANT_REMOVE;

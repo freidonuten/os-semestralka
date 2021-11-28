@@ -32,7 +32,7 @@ std::tuple<std::uint16_t, Open_Result> create_file_using_parent(VFS& vfs, std::s
 		return { 0, Open_Result::NO_MEMORY };
 	}
 	auto dir_entry = element->Generate_Dir_Entry();
-	auto create_entry_result = (parent_dir->Create_New_Entry(dir_entry));
+	auto create_entry_result = parent_dir->Create_New_Entry(dir_entry);
 
 	if (create_entry_result == Create_New_Entry_Result::ALREADY_EXISTS) {
 		//strange error, we have already removed the file

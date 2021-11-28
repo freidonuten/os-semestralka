@@ -1,7 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\msvc",
+    "\\msvc\\boot",
+    "\\msvc\\kernel",
+    "\\msvc\\user"
   ],
-  "SelectedNode": "\\boot.sln",
+  "SelectedNode": "\\msvc\\boot\\boot.sln",
   "PreviewInSolutionExplorer": false
 }
