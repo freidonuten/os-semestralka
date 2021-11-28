@@ -9,11 +9,11 @@ Dummy_CWD_Holder::Dummy_CWD_Holder(std::shared_ptr<Path> cwd, std::shared_ptr<VF
 }
 
 void Dummy_CWD_Holder::Inherit(kiv_os::THandle ppid, kiv_os::THandle cpid) {
-	cwd_mapping.emplace(cpid, cwd_mapping.at(ppid));
+	cwd_mapping.insert_or_assign(cpid, cwd_mapping.at(ppid));
 }
 
 void Dummy_CWD_Holder::Set_Value(std::shared_ptr<Path> cwd, std::shared_ptr<VFS_Directory> directory) {
-	cwd_mapping.emplace(task_manager.get_current_process().get_pid(), CWD_pair{ cwd, directory });
+	cwd_mapping.insert_or_assign(task_manager.get_current_process().get_pid(), CWD_pair{ cwd, directory });
 }
 
 
