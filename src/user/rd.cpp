@@ -2,7 +2,7 @@
 
 size_t __stdcall rd(const kiv_hal::TRegisters& regs) {
 	const kiv_os::THandle stdout_handle = regs.rbx.x;
-	char* p_filename = reinterpret_cast<char *>(regs.rdx.r);
+	char* p_filename = reinterpret_cast<char *>(regs.rdi.r);
 	size_t chars_written = 0;
 
 	if (strlen(p_filename) == 0) {

@@ -137,7 +137,6 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
 		return;
 	case Open_Result::INVALID_FILENAME:
-	case Open_Result::INVALID_FILE_TYPE:
 		Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
 		return;
 	case Open_Result::FILE_NOT_FOUND:

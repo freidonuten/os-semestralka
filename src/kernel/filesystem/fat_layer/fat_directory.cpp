@@ -89,7 +89,8 @@ bool Fat_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
 	std::vector<Fat_Dir_Entry> entries = Read_All_Entries();
 	auto [index, found] = Get_Index_Of_Searched(entries, file_name);
 	if (found) {
-		Set_Last_Element_To_Index(entries, index);
+		entries = Set_Last_Element_To_Index(entries, index);
+		Write_Entries(entries);
 		return true;
 	}
 	else {

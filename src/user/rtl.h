@@ -24,7 +24,7 @@ namespace kiv_os_rtl {
 	/*
 		File system
 	*/ 
-	bool Open_File(const std::string& filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle& open);
+	bool Open_File(const std::string& filename, kiv_os::NFile_Attributes attributes, kiv_os::NOpen_File flags, kiv_os::THandle& open);
 	bool Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek from_position, size_t& position);
 	bool Close_Handle(kiv_os::THandle handle);
 	bool Delete_File(const std::string& filename);

@@ -79,7 +79,7 @@ void Fat12::Deallocate_File(std::uint16_t file_start) {
 	std::uint16_t file_cluster_count = static_cast<std::uint16_t>(clusters.size());
 
 	for (std::uint16_t i = 0; i < file_cluster_count; i++) {
-		this->fat_io->Set_Entry_Value(i, FAT_FREE);
+		this->fat_io->Set_Entry_Value(clusters[i], FAT_FREE);
 	}
 
 	this->fat_io->Save_Changes();
