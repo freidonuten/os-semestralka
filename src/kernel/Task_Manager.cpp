@@ -20,6 +20,7 @@ Task_Manager::Task_Manager()
 	// initialize kernel process and insert placeholder thread
 	const auto current_tid = Thread_Control_Block::current_tid();
 	process_table[0] = Process_Control_Block{ 0, current_tid };
+	process_table[0].set_name("kernel");
 	thread_table[current_tid] = 0;
 
 	// initialize the rest
