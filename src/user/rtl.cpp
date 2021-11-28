@@ -132,6 +132,7 @@ bool kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handle_st
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Thread);
 	regs.rdx.r = reinterpret_cast<uint64_t>(name);
 	regs.rdi.r = reinterpret_cast<uint64_t>(data);
+	regs.rbx.e = 1; // FIXME this is hack
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	new_process = static_cast<kiv_os::THandle>(regs.rax.r);
 	return exit_code;
