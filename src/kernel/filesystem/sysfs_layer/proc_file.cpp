@@ -20,7 +20,7 @@ std::uint64_t proc::File::Read(size_t how_many_bytes, void* buffer) {
 		return 0;
 	}
 
-	const auto& pcb = *index;
+	const auto& pcb = *index++;
 	auto ss = std::stringstream();
 
 	ss  //<< pcb.get_cwd() << "\t"
