@@ -61,11 +61,9 @@ bool kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Seek));
 	regs.rdx.x = handle;
 	regs.rdi.r = position;
-	regs.rcx.l = static_cast<uint8_t>(operation);
+	regs.rcx.h = static_cast<uint8_t>(operation);
+	regs.rcx.l = static_cast<uint8_t>(from_position);
 
-	if (operation == kiv_os::NFile_Seek::Set_Position || operation == kiv_os::NFile_Seek::Set_Size) {
-		regs.rcx.x = static_cast<uint16_t>(from_position);
-	}
 	
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	

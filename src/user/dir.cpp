@@ -29,9 +29,10 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 		return 2;
 	}
 
+	kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
 	while (true) {
 		memset(buffer, 0, dir_size);
-		//kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
+		
 		kiv_os_rtl::Read_File(file_handle, buffer, dir_size, chars_read);
 		if (chars_read == 0) {
 			break;
@@ -57,6 +58,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	}
 
 	kiv_os_rtl::Write_File(stdout_handle, dir_content.str().data(), dir_content.str().size(), chars_written);
+	kiv_os_rtl::Close_Handle(file_handle);
 	kiv_os_rtl::Exit(0);
 	return 0;
 }
