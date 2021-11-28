@@ -47,7 +47,7 @@ bool kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, const char *buffe
 	return result;
 }
 
-bool kiv_os_rtl::Open_File(const std::string& filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle &open) {
+bool kiv_os_rtl::Open_File(const std::string& filename, kiv_os::NFile_Attributes attributes, kiv_os::NOpen_File flags, kiv_os::THandle &open) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File));
 	regs.rdx.r = reinterpret_cast<uint64_t>(filename.data());
 	regs.rcx.r = static_cast<uint64_t>(flags);
