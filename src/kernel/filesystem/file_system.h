@@ -16,10 +16,13 @@ namespace file_system {
 		VFS vfs;
 
 	public:
+		Dispatcher() = default;
 		Dispatcher(uint16_t sector_size, uint64_t sector_count, int drive_id);
 
 		void operator()(kiv_hal::TRegisters& regs);
 	};
+
+	Dispatcher factory();
 
 	void close_handle(kiv_hal::TRegisters& regs, VFS& vfs);
 	void create_pipe(kiv_hal::TRegisters& regs, VFS& vfs);

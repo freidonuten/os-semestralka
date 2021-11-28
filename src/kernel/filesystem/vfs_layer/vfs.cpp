@@ -1,11 +1,7 @@
 #include "vfs.h"
 #include "../sysfs_layer/stream.h"
 
-VFS::VFS(uint16_t sector_size, uint64_t sector_count, int drive_id) {
-	std::uint64_t disk_size = sector_size * sector_count;
-	//std::shared_ptr<IDisk> disk = std::make_shared<Hal_Disk>(drive_id);
-	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(disk_size, sector_size);
-	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(disk_size, 1, sector_size, 12);
+void VFS::init(std::shared_ptr<IDisk> disk, std::shared_ptr<Filesystem_Info> info) {
 	this->handler_table = std::make_shared<Handler_Table>();
 	this->path_handlers = std::make_shared<Path_Handlers>(handler_table);
 
@@ -24,6 +20,26 @@ VFS::VFS(uint16_t sector_size, uint64_t sector_count, int drive_id) {
 	std::shared_ptr<Path> temp_cwd = std::make_shared<Path>("");
 	this->cwd_holder = std::make_unique<Dummy_CWD_Holder>(temp_cwd, this->root);
 	this->cwd_opener = std::make_unique<Path_Dir_Opener>(this->root, this->element_factory);
+}
+
+VFS::VFS() {
+	constexpr auto sector_size = 512;
+	constexpr auto sector_count = 2048;
+	constexpr auto drive_id = 0;
+
+	std::uint64_t disk_size = sector_size * sector_count;
+	std::shared_ptr<IDisk> disk = std::make_shared<Dummy_Disk>(disk_size, sector_size);
+	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(disk_size, 1, sector_size, 12);
+
+	init(disk, info);
+}
+
+VFS::VFS(uint16_t sector_size, uint64_t sector_count, int drive_id) {
+	std::uint64_t disk_size = sector_size * sector_count;
+	std::shared_ptr<IDisk> disk = std::make_shared<Hal_Disk>(drive_id);
+	std::shared_ptr<Filesystem_Info> info = std::make_shared<Filesystem_Info>(disk_size, 1, sector_size, 12);
+
+	init(disk, info);
 }
 
 std::shared_ptr<Handler_Table> VFS::Get_Handler_Table() {
