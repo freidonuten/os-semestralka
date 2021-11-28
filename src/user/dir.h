@@ -14,6 +14,8 @@
 */
 
 constexpr size_t dir_size = sizeof(kiv_os::TDir_Entry);
+constexpr uint16_t dir_type = static_cast<uint16_t>(kiv_os::NFile_Attributes::Directory);
+constexpr uint16_t file_type = static_cast<uint16_t>(kiv_os::NFile_Attributes::System_File);
 
 
 extern "C" size_t __stdcall dir(const kiv_hal::TRegisters & regs);

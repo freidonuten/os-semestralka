@@ -17,7 +17,7 @@ class Task_Manager final {
 	private:
 		Process_Table process_table;
 		Thread_Table thread_table;
-		Dummy_CWD_Holder* cwd_holder;
+		Dummy_CWD_Holder* cwd_holder = nullptr;
 
 		// helper methods
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
@@ -27,7 +27,7 @@ class Task_Manager final {
 		Thread_Control_Block& get_current_thread();
 		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
 		Process_Control_Block& get_process(const kiv_os::THandle handle);
-		Process_Control_Block& alloc_first_free();
+		std::pair<Process_Control_Block&, kiv_os::NOS_Error> alloc_first_free();
 
 		// syscall impl
 		const kiv_os::NOS_Error clone(kiv_hal::TRegisters& regs);

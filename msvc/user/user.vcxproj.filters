@@ -69,9 +69,6 @@
     <ClInclude Include="..\..\src\user\command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\user\utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\user\rtl.cpp">
@@ -120,9 +117,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\user\type.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\user\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -37,7 +37,6 @@
     <ClInclude Include="..\..\src\user\sort.h" />
     <ClInclude Include="..\..\src\user\tasklist.h" />
     <ClInclude Include="..\..\src\user\type.h" />
-    <ClInclude Include="..\..\src\user\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\api\api.cpp" />
@@ -56,7 +55,6 @@
     <ClCompile Include="..\..\src\user\sort.cpp" />
     <ClCompile Include="..\..\src\user\tasklist.cpp" />
     <ClCompile Include="..\..\src\user\type.cpp" />
-    <ClCompile Include="..\..\src\user\utils.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A5F63FF3-DE9A-4B0B-BBF9-AD27200CE81F}</ProjectGuid>

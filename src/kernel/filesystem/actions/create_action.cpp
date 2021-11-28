@@ -23,9 +23,6 @@ std::tuple<std::uint16_t, Open_Result> create_file_using_parent(VFS& vfs, std::s
 	//root filtered out via delete
 
 	auto element = vfs.Make_File(parent_dir->Get_Fat_Directory(), filename, file_attrs);
-	if (!element) {
-		return { 0, Open_Result::INVALID_FILE_TYPE };
-	}
 
 	bool created = element->Create();
 	if (!created) {

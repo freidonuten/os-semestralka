@@ -20,6 +20,7 @@ Task_Manager::Task_Manager()
 	// initialize kernel process and insert placeholder thread
 	const auto current_tid = Thread_Control_Block::current_tid();
 	process_table[0] = Process_Control_Block{ 0, current_tid };
+	process_table[0].set_name("kernel");
 	thread_table[current_tid] = 0;
 
 	// initialize the rest
@@ -52,19 +53,19 @@ Process_Control_Block& Task_Manager::get_process(const kiv_os::THandle handle) {
 	return process_table.at(handle);
 }
 
-Process_Control_Block& Task_Manager::alloc_first_free() {
+std::pair<Process_Control_Block&, kiv_os::NOS_Error> Task_Manager::alloc_first_free() {
 	const auto process_slot = std::find_if(
 		process_table.begin(), process_table.end(), kut::is_free<Process_Control_Block>
 	);
 
 	// this is possibly fatal, we ran out of process slots
 	if (process_slot == process_table.cend()) {
-		throw std::runtime_error("Out of PCB slots");
+		return { process_table[0], kiv_os::NOS_Error::Out_Of_Memory };
 	}
 
 	process_slot->allocate();
 
-	return *process_slot;
+	return { *process_slot, kiv_os::NOS_Error::Success };
 }
 
 template<bool return_tid, typename result_type>
@@ -98,11 +99,16 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
 }
 
 const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) {
-	auto &process = alloc_first_free();
-	auto child_regs = kiv_hal::TRegisters{ regs };
+	auto [process, error] = alloc_first_free();
+
+	if (error != kiv_os::NOS_Error::Success) {
+		return error;
+	}
 
 	process.set_args(reinterpret_cast<char*>(regs.rdi.r));
 	process.set_name(reinterpret_cast<char*>(regs.rdx.r));
+
+	auto child_regs = kiv_hal::TRegisters{ regs };
 
 	child_regs.rax.x = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
 	child_regs.rbx.x = static_cast<kiv_os::THandle>(regs.rbx.x);
@@ -189,9 +195,11 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 
 const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) {
 	auto& thread = get_thread(static_cast<kiv_os::THandle>(regs.rdx.x));
+	const auto tid = thread.get_tid();
 	
 	regs.rcx.x = thread.read_exit_code();
-	thread_table.erase(thread.get_tid());
+	get_process(tid).thread_remove(tid);
+	thread_table.erase(tid);
 
 	return kiv_os::NOS_Error::Success;
 }
