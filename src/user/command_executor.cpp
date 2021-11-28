@@ -56,7 +56,10 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			handle_in = in_pipes[command_counter - 1];
 		}
 
-		const auto is_running = kiv_os_rtl::Create_Process(command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle);
+		const auto is_running = kiv_os_rtl::Create_Process(
+			command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle
+		);
+
 		if (is_running) {
 			kiv_os_rtl::Wait_For(&process_handle, 1, process_handle);
 		}
