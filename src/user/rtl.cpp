@@ -89,11 +89,11 @@ bool kiv_os_rtl::Close_Handle(kiv_os::THandle handle) {
 	return exit_code;
 }
 
-bool kiv_os_rtl::Delete_File(const std::string &filename) {
+kiv_os::NOS_Error kiv_os_rtl::Delete_File(const std::string &filename) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Delete_File));
 	regs.rdx.r = reinterpret_cast<uint64_t>(filename.data());
 	const bool exit_code = kiv_os::Sys_Call(regs);
-	return exit_code;
+	return Read_Error(regs);
 }
 
 bool kiv_os_rtl::Set_Working_Dir(const std::string &path) {
