@@ -1,21 +1,15 @@
 #include "echo.h"
 
 size_t __stdcall echo(const kiv_hal::TRegisters& regs) {
-	kiv_os::THandle stdout_handle = regs.rbx.x;
-	char* parameters = reinterpret_cast<char *>(regs.rdi.r);
-	kiv_os::NOS_Error error;
-	size_t chars_written = 0;
-	const auto buffer = std::string_view(parameters);
+	const auto stdout_handle = kiv_os::THandle(regs.rbx.x);
+	const auto string = std::string_view(reinterpret_cast<char*>(regs.rdi.r));
+	const auto [count, error] = kiv_os_rtl::Write_File(stdout_handle, string);
 
-	error = kiv_os_rtl::Write_File(stdout_handle, buffer.data(), buffer.size(), chars_written);
 	if (error != kiv_os::NOS_Error::Success) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
+		kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		KIV_OS_EXIT(2);
 	}
-	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
 
-	kiv_os_rtl::Exit(0);
-	return 0;
+	kiv_os_rtl::Write_File(stdout_handle, new_line);
+	KIV_OS_EXIT(0);
 }
