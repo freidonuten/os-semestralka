@@ -8,12 +8,17 @@
 #include <regex>
 #include <map>
 
+void exit(Command command, kiv_os::NOS_Error error, kiv_os::THandle stdout_handle, size_t chars_written) {
+
+}
+
 void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
 	std::map<size_t, kiv_os::THandle> in_pipes;
 	std::map<size_t, kiv_os::THandle> out_pipes;
 	std::vector<kiv_os::THandle> handles;
 	size_t command_counter = 0;
 	size_t chars_written = 0;
+	kiv_os::NOS_Error error;
 
 	for (Command command : commands) {
 		kiv_os::THandle process_handle;
@@ -31,18 +36,22 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		}
 
 		if (command.has_input_file) {
-			kiv_os_rtl::Open_File(command.input_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, handle_in);
-			if (handle_in == invalid_file_handle) {
-				kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+			error = kiv_os_rtl::Open_File(command.input_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, handle_in);
+			if (error != kiv_os::NOS_Error::Success) {
+				//TODO zavolat metodu exit a vse poctive zavrit
+				auto message = utils::get_error_message(error);
+				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 				kiv_os_rtl::Exit(2);
 				return;
 			}
 		}
 
 		if (command.has_output_file) {
-			kiv_os_rtl::Open_File(command.output_filename, utils::get_file_attrs(), static_cast<kiv_os::NOpen_File>(0), handle_out);
-			if (handle_in == invalid_file_handle) {
-				kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+			error = kiv_os_rtl::Open_File(command.output_filename, utils::get_file_attrs(), static_cast<kiv_os::NOpen_File>(0), handle_out);
+			if (error != kiv_os::NOS_Error::Success) {
+				//TODO zavolat metodu exit a vse poctive zavrit
+				auto message = utils::get_error_message(error);
+				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 				kiv_os_rtl::Exit(2);
 				return;
 			}

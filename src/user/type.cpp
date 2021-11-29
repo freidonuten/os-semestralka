@@ -9,6 +9,7 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	size_t chars_read = init_value;
 	size_t chars_written = 0;
 	size_t file_offset = 0;
+	kiv_os::NOS_Error error;
 	
 
 	if (strlen(p_filename) == 0) {
@@ -23,11 +24,12 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 
-	kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	error = kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
 	// kontrola zda se podarilo otevrit soubor
-	if (file_handle == invalid_file_handle) {
-		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 		kiv_os_rtl::Exit(2);
 		return 2;
 	}

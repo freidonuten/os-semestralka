@@ -18,6 +18,7 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 	std::string filename;
 	bool print_count_lines = false;
 	bool print_not_contain_lines = false;
+	kiv_os::NOS_Error error;
 
 	if (strlen(parameters) == 0) {
 		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_INVALID_COMMAND_ARGUMENT.data(), ERROR_MSG_INVALID_COMMAND_ARGUMENT.size(), chars_written);
@@ -42,10 +43,11 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 		print_count_lines = true;
 	}
 
-	kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	error = kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 	
-	if (file_handle == invalid_file_handle) {
-		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 		kiv_os_rtl::Exit(2);
 		return 2;
 	}
