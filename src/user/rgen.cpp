@@ -1,4 +1,5 @@
 #include "rgen.h"
+#include <random>
 
 bool is_eof = false;
 bool thread_terminated = false;
@@ -29,7 +30,6 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	std::string float_num = "";
 	size_t chars_written = 0;
 	uint16_t exit_code;		 
-	float random_number;
 
 	is_eof = false;
 
@@ -39,13 +39,14 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	kiv_os_rtl::Register_Signal_Handler(signal, thread_handle);
 
 
-	srand(static_cast<int>(time(0)));
+	std::random_device rd;
+	std::default_random_engine engine(rd());
+	std::uniform_real_distribution<float> dist(0, 1);
 
 	kiv_os_rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle, process_handle);
 
 	while (!is_eof && !thread_terminated) {
-		random_number = static_cast<float>(rand());
-		float_num = std::to_string(random_number);
+		float_num = std::to_string(dist(engine));
 		float_num.append("\n");
 		kiv_os_rtl::Write_File(stdout_handle, float_num.data(), float_num.size(), chars_written);
 		float_num.clear();
