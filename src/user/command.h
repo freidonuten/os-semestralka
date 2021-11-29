@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-constexpr std::string_view INPUT_FOR_COMMAND = "<";
-constexpr std::string_view OUTPUT_FOR_COMMAND = ">";
+const char INPUT_FOR_COMMAND = '<';
+const char OUTPUT_FOR_COMMAND = '>';
 
 class Command
 {
