@@ -14,6 +14,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	size_t dir_counter = 0;
 	char buffer[dir_size];
 	std::string empty_file_name = ".";
+	kiv_os::NOS_Error error;
 	 
 	if (strlen(p_filename) == 0) {
 		p_filename = empty_file_name.c_str();
@@ -21,10 +22,11 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	
 	std::string filename(p_filename);
 	uint8_t file_attrs = utils::get_dir_attrs();
-	kiv_os_rtl::Open_File(filename, file_attrs, kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	error = kiv_os_rtl::Open_File(filename, file_attrs, kiv_os::NOpen_File::fmOpen_Always, file_handle);
 	
-	if (file_handle == invalid_file_handle) {
-		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 		kiv_os_rtl::Exit(2);
 		return 2;
 	}

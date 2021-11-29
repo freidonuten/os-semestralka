@@ -10,6 +10,15 @@ void kiv_os_rtl::Default_Signal_Handler() {
 	return;
 }
 
+kiv_os::NOS_Error Read_Error(kiv_hal::TRegisters& regs) {
+	if (regs.flags.carry) {
+		return static_cast<kiv_os::NOS_Error>(regs.rax.r);
+	}
+	else {
+		return kiv_os::NOS_Error::Success;
+	}
+}
+
 /*
 	Prepare register for system call
 */
@@ -47,14 +56,14 @@ bool kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, const char *buffe
 	return result;
 }
 
-bool kiv_os_rtl::Open_File(const std::string& filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle &open) {
+kiv_os::NOS_Error kiv_os_rtl::Open_File(const std::string& filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle &open) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File));
 	regs.rdx.r = reinterpret_cast<uint64_t>(filename.data());
 	regs.rcx.r = static_cast<uint64_t>(flags);
 	regs.rdi.r = static_cast<uint64_t>(attributes);
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	open = regs.rax.x;
-	return exit_code;
+	return Read_Error(regs);
 }
 
 bool kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek from_position, size_t &position) {
