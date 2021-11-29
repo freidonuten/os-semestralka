@@ -6,7 +6,6 @@
 
 #include <time.h>
 #include <string>
-#include <random>
 
 constexpr int eof_buffer_size = 1;
 

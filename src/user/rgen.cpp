@@ -1,4 +1,5 @@
 #include "rgen.h"
+#include <random>
 
 bool is_eof = false;
 bool thread_terminated = false;
