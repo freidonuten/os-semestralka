@@ -34,7 +34,6 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 	std::vector<Command> commands;
 	CommandExecutor command_executor;
 
-	// Console loop
 	while(1) {
 		Print_Newline_Prompt(std_in, std_out);
 
@@ -42,13 +41,11 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 			if ((counter > 0) && (counter == buffer_size)) {
 				counter--;
 			}
-			buffer[counter] = 0;	//udelame z precteneho vstup null-terminated retezec
+			buffer[counter] = 0;
 			std::string input_command(buffer);
 			commands = Command::Parse_Input(input_command);
 
-			// Kontrola zda byl zadan nejaky prikaz
 			kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
-
 			if (!commands.size()) {
 				continue;
 			}
@@ -59,21 +56,12 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 				} else if (commands.front().Get_Parameters() == "on") {
 					is_echo_on = true;
 				}
+			} else if (commands.front().command_name == "exit") {
+				break;
 			}
 			
 			command_executor.Execute_Command(commands, std_in, std_out);
-			
-			if (strcmp(buffer, "exit") == 0) {
-				break;
-			}
-			/*
-			// vypise soucasny command
-			kiv_os_rtl::Write_File(std_out, new_line, strlen(new_line), counter);
-			kiv_os_rtl::Write_File(std_out, buffer, strlen(buffer), counter);	//a vypiseme ho
-			kiv_os_rtl::Write_File(std_out, new_line, strlen(new_line), counter);
-			*/
 		}
-		//kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
 		commands.clear();
 	}
 	return 0;	
