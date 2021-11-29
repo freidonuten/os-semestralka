@@ -41,6 +41,12 @@ void file_system::Dispatcher::operator()(kiv_hal::TRegisters& regs) {
 
 void file_system::close_handle(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const std::uint16_t id = regs.rdx.x;
+
+	if (id < 2) { // unclosable handles (stdio)
+		Set_Error(kiv_os::NOS_Error::Invalid_Argument, regs);
+		return;
+	}
+
 	auto [element, result] = vfs.Get_Path_Handlers()->Close_Handle(id);
 
 	if (result == Handle_Close_Result::CLOSED) {
