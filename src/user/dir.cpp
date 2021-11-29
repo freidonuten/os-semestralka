@@ -55,7 +55,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	// open file
 	auto file_handle = kiv_os::THandle();
 	auto error = kiv_os_rtl::Open_File(
-		filename, utils::get_dir_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
+		filename.data(), utils::get_dir_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
 	);
 	
 	if (error != kiv_os::NOS_Error::Success) {

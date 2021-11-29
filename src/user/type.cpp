@@ -24,7 +24,7 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 
-	error = kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	error = kiv_os_rtl::Open_File(p_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
 	// kontrola zda se podarilo otevrit soubor
 	if (error != kiv_os::NOS_Error::Success) {

@@ -38,7 +38,7 @@ namespace kiv_os_rtl {
 	/*
 		File system
 	*/ 
-	kiv_os::NOS_Error Open_File(const std::string& filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle& open);
+	kiv_os::NOS_Error Open_File(const char* filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle& open);
 	kiv_os::NOS_Error Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek from_position, size_t& position);
 	kiv_os::NOS_Error Close_Handle(kiv_os::THandle handle);
 	kiv_os::NOS_Error Delete_File(const std::string& filename);
@@ -46,6 +46,12 @@ namespace kiv_os_rtl {
 	kiv_os::NOS_Error Get_Working_Dir(char* buffer, const size_t filename_lenght, size_t& chars_written);
 	kiv_os::NOS_Error Create_Pipe(kiv_os::THandle *handles);
 	
+
+	template<typename SizedBuffer>
+	std::pair<kiv_os::THandle, kiv_os::NOS_Error> Open_File(const SizedBuffer& filename, std::uint8_t attributes, kiv_os::NOpen_File flags = kiv_os::NOpen_File::fmOpen_Always) {
+		auto handle = kiv_os::THandle(0);
+		return { handle, Open_File(filename.data(), attributes, flags, handle) };
+	}
 
 	// Process
 	kiv_os::NOS_Error Create_Process(const std::string& name, const std::string& arguments, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle& new_process);

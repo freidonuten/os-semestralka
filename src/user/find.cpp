@@ -43,7 +43,7 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 		print_count_lines = true;
 	}
 
-	error = kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	error = kiv_os_rtl::Open_File(filename.data(), utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 	
 	if (error != kiv_os::NOS_Error::Success) {
 		auto message = utils::get_error_message(error);

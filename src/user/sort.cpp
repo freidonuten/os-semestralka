@@ -16,7 +16,7 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 	}
 	else {
 		const auto error = kiv_os_rtl::Open_File(
-			std::string(p_filename), utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
+			p_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
 		);
 
 		if (error != kiv_os::NOS_Error::Success) {

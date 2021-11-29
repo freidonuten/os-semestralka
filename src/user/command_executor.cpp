@@ -37,14 +37,13 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		if (strcmp(command.command_name.c_str(), "cd") == 0) {
 			kiv_os::NOS_Error ret_code = kiv_os_rtl::Set_Working_Dir(command.Get_Parameters());
 			if (ret_code != kiv_os::NOS_Error::Success) {
-				size_t chars = 0;
-				kiv_os_rtl::Write_File(handle_out, ERROR_MSG_DIR_NOT_FOUND.data(), ERROR_MSG_DIR_NOT_FOUND.size(), chars);
+				kiv_os_rtl::Write_File(handle_out, ERROR_MSG_DIR_NOT_FOUND);
 			}
 			return;
 		}
 
 		if (command.has_input_file) {
-			error = kiv_os_rtl::Open_File(command.input_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, handle_in);
+			error = kiv_os_rtl::Open_File(command.input_filename.data(), utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, handle_in);
 			if (error != kiv_os::NOS_Error::Success) {
 				//TODO zavolat metodu exit a vse poctive zavrit
 				auto message = utils::get_error_message(error);
@@ -55,11 +54,10 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		}
 
 		if (command.has_output_file) {
-			error = kiv_os_rtl::Open_File(command.output_filename, utils::get_file_attrs(), static_cast<kiv_os::NOpen_File>(0), handle_out);
+			error = kiv_os_rtl::Open_File(command.output_filename.data(), utils::get_file_attrs(), static_cast<kiv_os::NOpen_File>(0), handle_out);
 			if (error != kiv_os::NOS_Error::Success) {
 				//TODO zavolat metodu exit a vse poctive zavrit
-				auto message = utils::get_error_message(error);
-				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
 				kiv_os_rtl::Exit(2);
 				return;
 			}
@@ -67,10 +65,9 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 
 		else if (index + 2 <= commands.size()) {
 			kiv_os::THandle pipe_handles[2];
-			auto error = kiv_os_rtl::Create_Pipe(pipe_handles);
+			const auto error = kiv_os_rtl::Create_Pipe(pipe_handles);
 			if (error != kiv_os::NOS_Error::Success) {
-				auto message = utils::get_error_message(error);
-				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
 				kiv_os_rtl::Exit(2);
 				return;
 			}
@@ -87,12 +84,12 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			handle_out = consume_first_pipe();
 		}
 
-		const auto is_running = kiv_os_rtl::Create_Process(
+		const auto error = kiv_os_rtl::Create_Process(
 			command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle
 		);
 
-		if (is_running != kiv_os::NOS_Error::Success) {
-			auto message = utils::get_error_message(is_running);
+		if (error != kiv_os::NOS_Error::Success) {
+			auto message = utils::get_error_message(error);
 			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 			kiv_os_rtl::Exit(2);
 			return;
