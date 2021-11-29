@@ -110,6 +110,9 @@ void file_system::delete_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	case Delete_Result::CANT_REMOVE:
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
 		return;
+	case Delete_Result::NOT_EMPTY:
+		Set_Error(kiv_os::NOS_Error::Directory_Not_Empty, regs);
+		return;
 	case Delete_Result::FILE_NOT_EXISTING:
 		Set_Error(kiv_os::NOS_Error::File_Not_Found, regs);
 		return;

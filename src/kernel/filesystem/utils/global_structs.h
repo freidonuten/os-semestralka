@@ -120,6 +120,7 @@ enum class Delete_Result {
 	FILE_OPENED,
 	FILE_NOT_EXISTING,
 	CANT_REMOVE,
+	NOT_EMPTY,
 	UNKNOWN_ERROR
 };
 

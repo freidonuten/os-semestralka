@@ -140,3 +140,8 @@ bool VFS_Root_Directory::Remove() {
 Create_New_Entry_Result VFS_Root_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
 	return this->self_fat_directory->Create_New_Entry(entry);
 }
+
+bool VFS_Root_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
+	return this->self_fat_directory->Remove_Entry(file_name);
+}
+
