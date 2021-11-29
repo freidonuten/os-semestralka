@@ -23,6 +23,14 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 
 	auto index = size_t(0);
 
+	const auto consume_first_pipe = [&pipe_queue, &used_pipes]() {
+		const auto handle = pipe_queue.front();
+		pipe_queue.pop_front();
+		used_pipes.push_back(handle);
+		return handle;
+	};
+
+
 	for (Command command : commands) {
 		kiv_os::THandle process_handle;
 		kiv_os::THandle handle_in = stdin_handle;
@@ -73,36 +81,22 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		}
 
 		if (index < commands.size() - 1) {
-			handle_out = pipe_queue.front();
-			pipe_queue.pop_front();
-			used_pipes.push_back(handle_out);
+			handle_out = consume_first_pipe();
 		}
 
 		if (index > 0) {
-			handle_in = pipe_queue.front();
-			pipe_queue.pop_front();
-			used_pipes.push_back(handle_out);
+			handle_in = consume_first_pipe();
 		}
 
 		const auto is_running = kiv_os_rtl::Create_Process(
 			command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle
 		);
 
-		// FIXME tady čekat nebudeme
-		if (is_running == kiv_os::NOS_Error::Success) {
-		} else {
+		if (is_running != kiv_os::NOS_Error::Success) {
 			auto message = utils::get_error_message(is_running);
 			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 			kiv_os_rtl::Exit(2);
 			return;
-		}
-
-		if (command.has_input_file) {
-			kiv_os_rtl::Close_Handle(handle_in);
-		}
-
-		if (command.has_output_file) {
-			kiv_os_rtl::Close_Handle(handle_out);
 		}
 
 		handles.push_back(process_handle);
@@ -110,21 +104,25 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 	}
 
 	// Wait for each process and close its opened pipes
+	auto const close_first_pipe = [&used_pipes]() {
+		const auto pipe_handle = used_pipes.front();
+		used_pipes.pop_front();
+		kiv_os_rtl::Close_Handle(pipe_handle);
+	};
+
 	index = 0;
 	for (const auto handle : handles) {
 		uint16_t exit_code;
 		kiv_os_rtl::Read_Exit_Code(handle, exit_code);
 
 		if (index > 0) {
-			const auto pipe_handle = used_pipes.front();
-			used_pipes.pop_front();
-			kiv_os_rtl::Close_Handle(pipe_handle);
+			close_first_pipe;
 		}
 
 		if (index < commands.size() - 1) {
-			const auto pipe_handle = used_pipes.front();
-			used_pipes.pop_front();
-			kiv_os_rtl::Close_Handle(pipe_handle);
+			close_first_pipe;
 		}
+
+		++index;
 	}
 }
