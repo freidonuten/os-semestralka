@@ -73,19 +73,21 @@ Command Command::Parse_Command(std::string command) {
     token.clear();
     while (stream >> token) {
         if (token.c_str()[0] == INPUT_FOR_COMMAND) {
-            if (isspace(token.c_str()[1])) {
+            if (token.size() == 1) {
                 stream >> token;
                 new_command.input_filename = token;
+            } else {
+                new_command.input_filename = token.substr(1, token.size() - 1);
             }
-            new_command.input_filename = token.substr(1, token.size() - 1);
             new_command.has_input_file = true;
         }
         else if (token.c_str()[0] == OUTPUT_FOR_COMMAND) {
-            if (isspace(token.c_str()[1])) {
+            if (token.size() == 1) {
                 stream >> token;
                 new_command.output_filename = token;
+            } else {
+                new_command.output_filename = token.substr(1, token.size() - 1);
             }
-            new_command.output_filename = token.substr(1, token.size() - 1);
             new_command.has_output_file = true;
         }
         else {
