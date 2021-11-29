@@ -34,7 +34,7 @@ kiv_hal::TRegisters Prepare_SysCall_Context(kiv_os::NOS_Service_Major major, uin
 	FILESYSTEM
 */
 
-bool kiv_os_rtl::Read_File(const kiv_os::THandle file_handle, char* const buffer, const size_t buffer_size, size_t &read) {
+kiv_os::NOS_Error kiv_os_rtl::Read_File(const kiv_os::THandle file_handle, char* const buffer, const size_t buffer_size, size_t &read) {
 	kiv_hal::TRegisters regs =  Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Read_File));
 	regs.rdx.x = static_cast<decltype(regs.rdx.x)>(file_handle);
 	regs.rdi.r = reinterpret_cast<decltype(regs.rdi.r)>(buffer);
@@ -42,10 +42,10 @@ bool kiv_os_rtl::Read_File(const kiv_os::THandle file_handle, char* const buffer
 	
 	const bool result = kiv_os::Sys_Call(regs);
 	read = regs.rax.r;
-	return result;
+	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, const char *buffer, const size_t buffer_size, size_t &written) {
+kiv_os::NOS_Error kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, const char *buffer, const size_t buffer_size, size_t &written) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Write_File));
 	regs.rdx.x = static_cast<decltype(regs.rdx.x)>(file_handle);
 	regs.rdi.r = reinterpret_cast<decltype(regs.rdi.r)>(buffer);
@@ -53,7 +53,7 @@ bool kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, const char *buffe
 
 	const bool result = kiv_os::Sys_Call(regs);
 	written = regs.rax.r;
-	return result;
+	return Read_Error(regs);
 }
 
 kiv_os::NOS_Error kiv_os_rtl::Open_File(const std::string& filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle &open) {
@@ -66,7 +66,7 @@ kiv_os::NOS_Error kiv_os_rtl::Open_File(const std::string& filename, std::uint8_
 	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek from_position, size_t &position) {
+kiv_os::NOS_Error kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek from_position, size_t &position) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Seek));
 	regs.rdx.x = handle;
 	regs.rdi.r = position;
@@ -79,14 +79,14 @@ bool kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_
 	if (operation == kiv_os::NFile_Seek::Get_Position) {
 		position = regs.rax.x;
 	}
-	return exit_code;
+	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Close_Handle(kiv_os::THandle handle) {
+kiv_os::NOS_Error kiv_os_rtl::Close_Handle(kiv_os::THandle handle) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Close_Handle));
 	regs.rdx.x = handle;
 	const bool exit_code = kiv_os::Sys_Call(regs);
-	return exit_code;
+	return Read_Error(regs);
 }
 
 kiv_os::NOS_Error kiv_os_rtl::Delete_File(const std::string &filename) {
@@ -96,34 +96,34 @@ kiv_os::NOS_Error kiv_os_rtl::Delete_File(const std::string &filename) {
 	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Set_Working_Dir(const std::string &path) {
+kiv_os::NOS_Error kiv_os_rtl::Set_Working_Dir(const std::string &path) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Set_Working_Dir));
 	regs.rdx.r = reinterpret_cast<uint64_t>(path.data());
 	const bool exit_code = kiv_os::Sys_Call(regs);
-	return exit_code;
+	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Get_Working_Dir(char* buffer, const size_t filename_lenght, size_t &chars_written) {
+kiv_os::NOS_Error kiv_os_rtl::Get_Working_Dir(char* buffer, const size_t filename_lenght, size_t &chars_written) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Get_Working_Dir));
 	regs.rdx.r = reinterpret_cast<uint64_t>(buffer);
 	regs.rcx.r = static_cast<uint64_t>(filename_lenght);
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	chars_written = regs.rax.r;
-	return exit_code;
+	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Create_Pipe(kiv_os::THandle *handles) {
+kiv_os::NOS_Error kiv_os_rtl::Create_Pipe(kiv_os::THandle *handles) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Create_Pipe));
 	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
 	const bool exit_code = kiv_os::Sys_Call(regs);
-	return exit_code;
+	return Read_Error(regs);
 }
 
 /*
 	PROCESS
 */
 
-bool kiv_os_rtl::Create_Process(const std::string &name, const std::string &arguments, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle & new_process) {
+kiv_os::NOS_Error kiv_os_rtl::Create_Process(const std::string &name, const std::string &arguments, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle & new_process) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Clone));
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Process);
 	regs.rdx.r = reinterpret_cast<uint64_t>(name.data());
@@ -131,10 +131,10 @@ bool kiv_os_rtl::Create_Process(const std::string &name, const std::string &argu
 	regs.rbx.e = (handle_stdin << 16) | handle_stdout;
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	new_process = regs.rax.x;
-	return exit_code;
+	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle &new_process) {
+kiv_os::NOS_Error kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle &new_process) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Clone));
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Thread);
 	regs.rdx.r = reinterpret_cast<uint64_t>(name);
@@ -142,16 +142,16 @@ bool kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handle_st
 	regs.rbx.e = 1; // FIXME this is hack
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	new_process = static_cast<kiv_os::THandle>(regs.rax.r);
-	return exit_code;
+	return Read_Error(regs);
 }
 
-bool kiv_os_rtl::Wait_For(kiv_os::THandle *handles, const size_t count_handles, kiv_os::THandle &index) {
+kiv_os::NOS_Error kiv_os_rtl::Wait_For(kiv_os::THandle *handles, const size_t count_handles, kiv_os::THandle &index) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Wait_For));
 	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
 	regs.rcx.r = static_cast<uint64_t>(count_handles);
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	index = static_cast<kiv_os::THandle>(regs.rax.r);
-	return exit_code;
+	return Read_Error(regs);
 }
 
 bool kiv_os_rtl::Read_Exit_Code(const kiv_os::THandle handle, uint16_t &readed_exit_code) {

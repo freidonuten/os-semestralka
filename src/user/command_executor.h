@@ -2,6 +2,7 @@
 #include "command.h"
 #include "command_executor.h"
 #include "../api/api.h"
+#include "utils.h"
 #include <vector>
 #include <map>
 #include <memory>

@@ -29,8 +29,8 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		kiv_os::THandle handle_out = stdout_handle;
 
 		if (strcmp(command.command_name.c_str(), "cd") == 0) {
-			bool is_set_dir = kiv_os_rtl::Set_Working_Dir(command.Get_Parameters());
-			if (!is_set_dir) {
+			kiv_os::NOS_Error ret_code = kiv_os_rtl::Set_Working_Dir(command.Get_Parameters());
+			if (ret_code != kiv_os::NOS_Error::Success) {
 				size_t chars = 0;
 				kiv_os_rtl::Write_File(handle_out, ERROR_MSG_DIR_NOT_FOUND.data(), ERROR_MSG_DIR_NOT_FOUND.size(), chars);
 			}
@@ -61,7 +61,13 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 
 		else if (index <= commands.size() - 2) {
 			kiv_os::THandle pipe_handles[2];
-			kiv_os_rtl::Create_Pipe(pipe_handles);
+			auto error = kiv_os_rtl::Create_Pipe(pipe_handles);
+			if (error != kiv_os::NOS_Error::Success) {
+				auto message = utils::get_error_message(error);
+				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+				kiv_os_rtl::Exit(2);
+				return;
+			}
 			pipe_queue.push_back(pipe_handles[1]);
 			pipe_queue.push_back(pipe_handles[0]);
 		}
@@ -83,10 +89,11 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		);
 
 		// FIXME tady čekat nebudeme
-		if (is_running) {
-		} else if (kiv_os_rtl::Last_Error == kiv_os::NOS_Error::Out_Of_Memory) {
-			kiv_os_rtl::Write_File(handle_out, ERROR_OUT_OF_MEMORY.data(), ERROR_OUT_OF_MEMORY.size(), chars_written);
-			kiv_os_rtl::Exit(1);
+		if (is_running == kiv_os::NOS_Error::Success) {
+		} else {
+			auto message = utils::get_error_message(is_running);
+			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+			kiv_os_rtl::Exit(2);
 			return;
 		}
 
