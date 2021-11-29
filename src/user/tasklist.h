@@ -13,5 +13,6 @@
 */
 
 constexpr std::string_view TASKLIST_TITLE = "PID\tName\n";
+constexpr std::string_view PROC_FILE = "\\proc";
 
 extern "C" size_t __stdcall tasklist(const kiv_hal::TRegisters & regs);
