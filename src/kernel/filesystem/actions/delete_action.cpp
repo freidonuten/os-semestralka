@@ -3,7 +3,7 @@
 Delete_Result delete_file_using_parent(VFS& vfs, std::shared_ptr<Path> parent_path,
 	std::shared_ptr<Path> file_path, std::shared_ptr<VFS_Directory> parent_dir, char* filename) {
 
-	if (file_path->To_String() == "/") {
+	if (file_path->To_String() == "\\") {
 		return Delete_Result::CANT_REMOVE;
 	}
 
