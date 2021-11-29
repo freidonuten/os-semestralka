@@ -19,6 +19,8 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 	kiv_os::NOS_Error error;
 
 	std::deque<kiv_os::THandle> pipe_queue;
+	std::deque<kiv_os::THandle> used_pipes;
+
 	auto index = size_t(0);
 
 	for (Command command : commands) {
@@ -67,11 +69,13 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		if (index < commands.size() - 1) {
 			handle_out = pipe_queue.front();
 			pipe_queue.pop_front();
+			used_pipes.push_back(handle_out);
 		}
 
 		if (index > 0) {
 			handle_in = pipe_queue.front();
 			pipe_queue.pop_front();
+			used_pipes.push_back(handle_out);
 		}
 
 		const auto is_running = kiv_os_rtl::Create_Process(
@@ -94,13 +98,26 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			kiv_os_rtl::Close_Handle(handle_out);
 		}
 
-		//TODO zavrit pipy (tomu nerozumim -stepan)
-
-
 		handles.push_back(process_handle);
 		index++;
 	}
 
-	uint16_t exit_code;
-	kiv_os_rtl::Read_Exit_Code(handles.back(), exit_code);
+	// Wait for each process and close its opened pipes
+	index = 0;
+	for (const auto handle : handles) {
+		uint16_t exit_code;
+		kiv_os_rtl::Read_Exit_Code(handle, exit_code);
+
+		if (index > 0) {
+			const auto pipe_handle = used_pipes.front();
+			used_pipes.pop_front();
+			kiv_os_rtl::Close_Handle(pipe_handle);
+		}
+
+		if (index < commands.size() - 1) {
+			const auto pipe_handle = used_pipes.front();
+			used_pipes.pop_front();
+			kiv_os_rtl::Close_Handle(pipe_handle);
+		}
+	}
 }

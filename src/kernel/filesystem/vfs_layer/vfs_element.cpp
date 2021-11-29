@@ -15,7 +15,7 @@ bool VFS_Element::Remove() {
 }
 
 void VFS_Element::Close() {
-	throw std::runtime_error("Unsupported operation CLOSE.");
+	//throw std::runtime_error("Unsupported operation CLOSE.");
 }
 
 bool VFS_Element::Set_File_Attributes(std::uint8_t file_attributes) {
