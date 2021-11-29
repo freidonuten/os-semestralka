@@ -1,4 +1,5 @@
 #include "md.h"
+#include "utils.h"
 
 size_t __stdcall md(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle stdout_handle = regs.rbx.x;
@@ -15,8 +16,7 @@ size_t __stdcall md(const kiv_hal::TRegisters& regs) {
 	kiv_os::NOpen_File flag = static_cast<kiv_os::NOpen_File>(0);
 	kiv_os::THandle directory_handle;
 
-	std::uint8_t file_attrs = static_cast<std::uint8_t>(kiv_os::NFile_Attributes::Directory) + static_cast<std::uint8_t>(kiv_os::NFile_Attributes::Read_Only);
-	kiv_os_rtl::Open_File(filename, file_attrs, flag, directory_handle);
+	kiv_os_rtl::Open_File(filename, utils::get_dir_attrs(), flag, directory_handle);
 
 	if (directory_handle == invalid_file_handle) {
 		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);

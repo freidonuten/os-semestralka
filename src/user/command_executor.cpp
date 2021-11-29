@@ -1,6 +1,7 @@
 #include "command_executor.h"
 #include "rtl.h"
 #include "global.h"
+#include "utils.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -30,7 +31,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		}
 
 		if (command.has_input_file) {
-			kiv_os_rtl::Open_File(command.input_filename, static_cast<uint8_t>(kiv_os::NFile_Attributes::System_File), kiv_os::NOpen_File::fmOpen_Always, handle_in);
+			kiv_os_rtl::Open_File(command.input_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, handle_in);
 			if (handle_in == invalid_file_handle) {
 				kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
 				kiv_os_rtl::Exit(2);
@@ -39,7 +40,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		}
 
 		if (command.has_output_file) {
-			kiv_os_rtl::Open_File(command.output_filename, static_cast<uint8_t>(kiv_os::NFile_Attributes::System_File), static_cast<kiv_os::NOpen_File>(0), handle_out);
+			kiv_os_rtl::Open_File(command.output_filename, utils::get_file_attrs(), static_cast<kiv_os::NOpen_File>(0), handle_out);
 			if (handle_in == invalid_file_handle) {
 				kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
 				kiv_os_rtl::Exit(2);
@@ -70,6 +71,17 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			kiv_os_rtl::Exit(1);
 			return;
 		}
+
+		if (command.has_input_file) {
+			kiv_os_rtl::Close_Handle(handle_in);
+		}
+
+		if (command.has_output_file) {
+			kiv_os_rtl::Close_Handle(handle_out);
+		}
+
+		//TODO zavrit pipy (tomu nerozumim -stepan)
+
 
 		handles.push_back(process_handle);
 		command_counter++;
