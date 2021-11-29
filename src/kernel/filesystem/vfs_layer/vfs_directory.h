@@ -25,9 +25,9 @@ public:
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
 	//DIRECTORY METHODS (wrappers)
-	virtual Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	virtual Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry);
 	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]);
-	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
+	virtual bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
 	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
 	std::shared_ptr<Fat_Directory> Get_Fat_Directory();
 };
@@ -37,5 +37,7 @@ public:
 	using VFS_Directory::VFS_Directory;
 
 	virtual bool Remove();
-	virtual Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	virtual Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry);
+	virtual bool Remove_Entry(char file_name[8 + 1 + 3]);
+
 };

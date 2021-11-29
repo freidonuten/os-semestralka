@@ -22,7 +22,7 @@ Delete_Result delete_file_using_parent(VFS& vfs, std::shared_ptr<Path> parent_pa
 	bool deleted = element->Remove();
 	if (!deleted) {
 		element->Close();
-		return Delete_Result::CANT_REMOVE;
+		return Delete_Result::NOT_EMPTY;
 	}
 
 	bool removed_from_dir = parent_dir->Remove_Entry(filename);
