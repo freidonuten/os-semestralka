@@ -60,6 +60,7 @@ kiv_os::THandle Process_Control_Block::thread_insert(
 
 	// if this was the first thread, set state to running
 	if (thread_list.size() == 1) {
+		this->state = Execution_State::RUNNING;
 		this->tid = tid;
 	}
 
@@ -99,10 +100,11 @@ void Process_Control_Block::terminate() {
 	// let threads finish gracefully by signalling terminate
 	std::for_each(thread_list.begin(), thread_list.end(), [](auto& thread) {
 		thread.second.signal(kiv_os::NSignal_Id::Terminate);
+		TerminateThread(thread.second.get_native_handle(), -1);
 	});
 
 	thread_list.clear();
-	state = Execution_State::FREE;
+	state = Execution_State::FINISHED;
 }
 
 void Process_Control_Block::set_args(const char* args) {

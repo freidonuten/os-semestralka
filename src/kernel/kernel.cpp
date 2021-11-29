@@ -48,9 +48,8 @@ void Fork_And_Wait(const char* program, const char* args) {
 	kiv_os::THandle pid = regs.rax.x;
 
 	regs.rax.h = static_cast<uint8_t>(kiv_os::NOS_Service_Major::Process);
-	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_Process::Wait_For);
-	regs.rcx.r = 1;
-	regs.rdx.r = reinterpret_cast<uint64_t>(&pid);
+	regs.rax.l = static_cast<uint8_t>(kiv_os::NOS_Process::Read_Exit_Code);
+	regs.rdx.r = pid;
 
 	Sys_Call(regs); // Wait for shell
 }

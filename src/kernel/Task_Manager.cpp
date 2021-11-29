@@ -23,6 +23,14 @@ Task_Manager::Task_Manager()
 	process_table[0].set_name("kernel");
 	thread_table[current_tid] = 0;
 
+	// create shutdown event
+	shutdown_event = CreateEvent(
+		NULL,
+		TRUE,
+		FALSE,
+		TEXT("shutdown")
+	);
+
 	// initialize the rest
 	std::generate(process_table.begin() + 1, process_table.end(), [i = 1]() mutable { return i++; });
 }
@@ -70,7 +78,6 @@ std::pair<Process_Control_Block&, kiv_os::NOS_Error> Task_Manager::alloc_first_f
 
 void Task_Manager::clean_up_thread_handle(const kiv_os::THandle handle) {
 	auto& process = get_process(thread_table[handle]);
-	const auto thread = get_thread(handle);
 
 	if (process.get_tid() == handle) {
 		// the dirty way...
@@ -156,7 +163,9 @@ const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
 }
 
 const kiv_os::NOS_Error Task_Manager::shutdown(kiv_hal::TRegisters& regs) {
-	std::for_each(process_table.begin(), process_table.end(), [](auto& process) {
+	SetEvent(shutdown_event);
+
+	std::for_each(process_table.begin() + 1, process_table.end(), [](auto& process) {
 		process.terminate();
 	});
 
@@ -200,8 +209,11 @@ const kiv_os::NOS_Error Task_Manager::wait_for(kiv_hal::TRegisters& regs) {
 		}
 	);
 
-	// block until first signal
-	const auto finished_index = WaitForMultipleObjects(static_cast<DWORD>(count), native_handles.data(), false, INFINITE);
+	// if shutdown is signalized unblock everything
+	native_handles[count] = shutdown_event;
+
+	// block until first signal or shutdown
+	const auto finished_index = WaitForMultipleObjects(static_cast<DWORD>(count + 1), native_handles.data(), false, INFINITE);
 
 	if (finished_index == INFINITE) {
 		kiv_os::NOS_Error::Unknown_Error;
@@ -218,8 +230,17 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 	auto& thread = get_thread(static_cast<kiv_os::THandle>(regs.rdx.x));
 	const auto tid = thread.get_tid();
 	
+	std::array<HANDLE, 2> wait_handles = { thread.get_native_handle(), shutdown_event };
+	const auto index = WaitForMultipleObjects(2, wait_handles.data(), false, INFINITE);
+	
 	regs.rcx.x = thread.read_exit_code();
-	clean_up_thread_handle(tid);
+
+	switch (index) {
+	case INFINITE:
+		return kiv_os::NOS_Error::Unknown_Error;
+	case 0:
+		clean_up_thread_handle(tid);
+	}
 
 	return kiv_os::NOS_Error::Success;
 }

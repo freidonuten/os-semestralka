@@ -3,6 +3,10 @@
 #include "Process_Control_Block.h"
 
 
+size_t __stdcall default_signal_handler(const kiv_hal::TRegisters& regs) {
+	return 0;
+}
+
 struct procedure_args {
 	const kiv_os::TThread_Proc procedure;
 	const kiv_hal::TRegisters context;
@@ -18,14 +22,14 @@ DWORD WINAPI procedure_wrapper(LPVOID ptr) {
 }
 
 Thread_Control_Block::Thread_Control_Block(kiv_os::THandle ppid)
-: ppid(ppid), native_handle(NULL) 
+: ppid(ppid), native_handle(NULL), signal_handler(default_signal_handler)
 { }
 
 Thread_Control_Block::Thread_Control_Block(
 	kiv_os::THandle ppid,
 	const kiv_os::TThread_Proc entry,
 	const kiv_hal::TRegisters& state
-)	: ppid(ppid)
+)	: ppid(ppid), signal_handler(default_signal_handler)
 {
 	native_handle = CreateThread(
 		NULL,
@@ -75,5 +79,8 @@ void Thread_Control_Block::exit(const uint16_t exit_code) {
 }
 
 uint16_t Thread_Control_Block::read_exit_code() {
-	return WaitForSingleObject(native_handle, INFINITE);
+	DWORD code;
+	GetExitCodeThread(native_handle, &code);
+
+	return code;
 }

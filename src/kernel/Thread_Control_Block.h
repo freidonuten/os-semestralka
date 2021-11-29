@@ -1,11 +1,8 @@
 #pragma once
 
 #include <Windows.h>
-#include <thread>
 #include <unordered_map>
-#include <deque>
 #include "../api/api.h"
-#include "State.h"
 
 
 class Process_Control_Block;
@@ -17,7 +14,7 @@ private:
 		kiv_os::THandle tid;
 	};
 	kiv_os::THandle ppid;
-	kiv_os::TThread_Proc signal_handler = nullptr;
+	kiv_os::TThread_Proc signal_handler;
 
 public:
 	static kiv_os::THandle current_tid();

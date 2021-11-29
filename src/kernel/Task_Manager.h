@@ -18,6 +18,7 @@ class Task_Manager final {
 		Process_Table process_table;
 		Thread_Table thread_table;
 		Dummy_CWD_Holder* cwd_holder = nullptr;
+		HANDLE shutdown_event;
 
 		// helper methods
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
