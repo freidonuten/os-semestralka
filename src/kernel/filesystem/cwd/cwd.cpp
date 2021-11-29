@@ -9,7 +9,7 @@ void Path::Setup_Raw_Elements(const char* path) {
 	std::stringstream temp(path);
 	std::string token;
 
-	while (std::getline(temp, token, '/')) {
+	while (std::getline(temp, token, '\\')) {
 		if (!token.size()) { //is empty
 			continue;
 		}
@@ -88,13 +88,13 @@ size_t Path::Print(char* buffer, size_t buffer_size) const{
 	}
 
 	char* ptr = buffer;
-	*ptr = '/';
+	*ptr = '\\';
 	ptr++;
 
 	bool first = true;
 	for (auto path_element : this->implementation) {
 		if (!first) {
-			*ptr = '/';
+			*ptr = '\\';
 			ptr++;
 		}
 		first = false;
@@ -110,14 +110,15 @@ size_t Path::Print(char* buffer, size_t buffer_size) const{
 }
 
 std::string Path::To_String() const {
-	std::string result = "/";
+	std::string result = "\\";
 
 	bool first = true;
 	for (auto path_element : this->implementation) {
 		if (!first) {
-			result += "/";
+			result += "\\";
 		}
 		result += path_element;
+		first = false;
 	}
 
 	return result;

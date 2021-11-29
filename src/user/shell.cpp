@@ -17,8 +17,8 @@ size_t Print_Newline_Prompt(const kiv_os::THandle& stdin_handle, const kiv_os::T
 	// Zapis do konzole C:\>
 	if (is_echo_on) {
 		kiv_os_rtl::Write_File(stdout_handle, prompt.data(), prompt.size(), counter);
-		kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
 		kiv_os_rtl::Write_File(stdout_handle, currentDir.data(), currentDir.size(), counter);
+		kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
 	}
 	return counter;
 }

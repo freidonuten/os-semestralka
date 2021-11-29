@@ -21,7 +21,7 @@ constexpr std::string_view ERROR_OUT_OF_MEMORY = "Out of memory.\n";
 constexpr int BUFFER_SIZE = 1024;
 constexpr std::string_view welcome_text = "Vitejte v kostre semestralni prace z KIV/OS.\n" \
 										  "Shell zobrazuje echo zadaneho retezce. Prikaz exit ukonci shell.\n";
-constexpr std::string_view prompt = "C:\\";
+constexpr std::string_view prompt = "C:";
 constexpr std::string_view beak = ">";
 constexpr std::string_view new_line = "\n";
 constexpr kiv_os::THandle invalid_file_handle = static_cast<kiv_os::THandle>(-1);
