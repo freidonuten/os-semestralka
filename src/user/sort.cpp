@@ -50,7 +50,7 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 	file_content.clear();
 	std::sort(file_lines.begin(), file_lines.end());
 	std::for_each(file_lines.begin(), file_lines.end(), [&file_content](const auto &line) {
-		file_content.append(line);
+		file_content.append(line + '\n');
 	});
 
 	kiv_os_rtl::Write_File(stdout_handle, file_content.data(), file_content.size(), chars_written);

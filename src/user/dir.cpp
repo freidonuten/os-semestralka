@@ -50,7 +50,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	}
 
 	std::ostringstream dir_content;
-	dir_content << new_line << "Files: " << files_counter << new_line << "Directories: " << dir_counter << new_line;
+	dir_content << "Files: " << files_counter << new_line << "Directories: " << dir_counter << new_line;
 
 	
 	for (const auto entry : entries) {

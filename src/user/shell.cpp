@@ -73,7 +73,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 			kiv_os_rtl::Write_File(std_out, new_line, strlen(new_line), counter);
 			*/
 		}
-		kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
+		//kiv_os_rtl::Write_File(std_out, new_line.data(), new_line.size(), counter);
 		commands.clear();
 	}
 	return 0;	

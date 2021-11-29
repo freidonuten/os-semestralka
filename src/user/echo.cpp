@@ -9,6 +9,8 @@ size_t __stdcall echo(const kiv_hal::TRegisters& regs) {
 	const auto buffer = std::string_view(parameters);
 
 	kiv_os_rtl::Write_File(stdout_handle, buffer.data(), buffer.size(), chars_written);
+	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
+
 	kiv_os_rtl::Exit(0);
 	return 0;
 }

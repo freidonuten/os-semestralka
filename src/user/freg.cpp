@@ -32,6 +32,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 		Update_Freq_Table(freq_table, buffer, chars_read);
 	}
 
+	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
 	memset(buffer, 0, BUFFER_SIZE);
 
 	for (int i = 0; i < freq_table_size; i++) {
@@ -42,6 +43,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 		}
 	}
 	kiv_os_rtl::Write_File(stdout_handle, ss.str().data(), ss.str().size(), chars_written);
+	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
 	kiv_os_rtl::Exit(0);
 	return 0;
 }
