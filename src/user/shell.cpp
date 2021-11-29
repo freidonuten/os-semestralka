@@ -9,16 +9,16 @@
 bool is_echo_on = true;
 
 size_t Print_Newline_Prompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
-	std::string currentDir = "";
-	size_t currentDirSize = currentDir.size();
+	char currentDirBuffer[256] = "";
 	size_t counter = 0;
-	kiv_os_rtl::Get_Working_Dir(currentDir, currentDirSize, counter);
+	kiv_os_rtl::Get_Working_Dir(currentDirBuffer, 256, counter);
+	std::string currentDir = std::string(currentDirBuffer);
 
 	// Zapis do konzole C:\>
 	if (is_echo_on) {
 		kiv_os_rtl::Write_File(stdout_handle, prompt.data(), prompt.size(), counter);
-		kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
 		kiv_os_rtl::Write_File(stdout_handle, currentDir.data(), currentDir.size(), counter);
+		kiv_os_rtl::Write_File(stdout_handle, beak.data(), beak.size(), counter);
 	}
 	return counter;
 }

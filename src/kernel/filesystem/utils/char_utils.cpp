@@ -11,7 +11,7 @@ bool utils::Is_Valid_Filename(const char* filename) {
 
 	// has non-zero size, doesn't contain slash and isn't dot or double dot
 	return string.size()
-		&& string.find("/") == std::string_view::npos
+		&& string.find("\\") == std::string_view::npos
 		&& string.compare(".")
 		&& string.compare("..");
 }
@@ -42,11 +42,11 @@ Filename_Type utils::Get_Filename_Type(const char* filename) {
 		return Filename_Type::RELATIVE_PATH;
 	}
 
-	if (string.find("/") == std::string_view::npos) {
+	if (string.find("\\") == std::string_view::npos) {
 		return Filename_Type::FILENAME;
 	}
 
-	if (string[0] == '/') {
+	if (string[0] == '\\') {
 		return Filename_Type::ABSOLUTE_PATH;
 	}
 
