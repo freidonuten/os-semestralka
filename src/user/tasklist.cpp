@@ -1,4 +1,5 @@
 #include "tasklist.h"
+#include "utils.h"
 
 size_t __stdcall tasklist(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle file_handle;
@@ -9,11 +10,13 @@ size_t __stdcall tasklist(const kiv_hal::TRegisters& regs) {
 	size_t chars_written = 0;
 	size_t offset = 0;
 	char buffer[BUFFER_SIZE];
+	kiv_os::NOS_Error error;
 
-	kiv_os_rtl::Open_File("\\proc", 0, kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	error = kiv_os_rtl::Open_File("\\proc", 0, kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
-	if (file_handle == invalid_file_handle) {
-		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 		kiv_os_rtl::Exit(1);
 		return 1;
 	}

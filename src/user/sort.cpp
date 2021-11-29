@@ -14,14 +14,14 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 		file_handle = stdin_handle;
 	}
 	else {
-		const auto res = kiv_os_rtl::Open_File(
+		const auto error = kiv_os_rtl::Open_File(
 			std::string(p_filename), utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
 		);
 
-		if (!res) {
-			kiv_os_rtl::Write_File(
-				stdout_handle, ERROR_MSG_CANT_OPEN_FILE.data(), ERROR_MSG_CANT_OPEN_FILE.size(), chars_written
-			);
+		if (error != kiv_os::NOS_Error::Success) {
+			auto message = utils::get_error_message(error);
+			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		
 			kiv_os_rtl::Exit(2);
 			return 2;
 		}
