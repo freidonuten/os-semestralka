@@ -5,6 +5,8 @@
 #include <atomic>
 #include <string>
 
+#define KIV_OS_EXIT(code) kiv_os_rtl::Exit(code); return code;
+
 namespace kiv_os_rtl {
 
 	extern std::atomic<kiv_os::NOS_Error> Last_Error;
