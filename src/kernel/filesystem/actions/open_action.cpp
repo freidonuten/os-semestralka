@@ -67,11 +67,11 @@ std::tuple<std::uint16_t, Open_Result> open_proc(VFS& vfs) {
 std::tuple<std::uint16_t, Open_Result> open_file_using_parent(VFS& vfs, std::shared_ptr<Path> parent_path, 
 	std::shared_ptr<Path> file_path, std::shared_ptr<VFS_Directory> parent_dir, char* filename) {
 
-	if (file_path->To_String() == "/") {
+	if (file_path->To_String() == "\\") {
 		return open_root(vfs, file_path);
 	}
 
-	if (file_path->To_String() == "/proc") {
+	if (file_path->To_String() == "\\proc") {
 		return open_proc(vfs);
 	}
 

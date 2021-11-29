@@ -203,7 +203,7 @@ void descriptor_perftest() {
 }
 
 void proc_file_test() {
-	set_working_dir("/");
+	set_working_dir("\\");
 	auto handle = open_file("proc");
 
 	read_file(handle, buffer1, 1000);
@@ -262,8 +262,8 @@ void filesystem_test() {
 		std::cout << numbers[i] << " = " << numbers[i + 250] << std::endl;
 	}
 
-	auto file_handler2 = create_file("/file");
-	set_file_attrs("/file", 0x03);
+	auto file_handler2 = create_file("\\file");
+	set_file_attrs("\\file", 0x03);
 
 	exit(0);
 }
