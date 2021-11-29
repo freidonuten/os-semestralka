@@ -26,7 +26,13 @@ size_t __stdcall md(const kiv_hal::TRegisters& regs) {
 		return 2;
 	}
 
-	kiv_os_rtl::Close_Handle(directory_handle);
+	error = kiv_os_rtl::Close_Handle(directory_handle);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
 	kiv_os_rtl::Exit(0);
 	return 0;
 }
