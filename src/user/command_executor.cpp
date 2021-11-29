@@ -78,12 +78,13 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			pipe_queue.push_back(pipe_handles[0]);
 		}
 
-		if (index < commands.size() - 1) {
-			handle_out = consume_first_pipe();
-		}
 
 		if (index > 0) {
 			handle_in = consume_first_pipe();
+		}
+
+		if (index < commands.size() - 1) {
+			handle_out = consume_first_pipe();
 		}
 
 		const auto is_running = kiv_os_rtl::Create_Process(
