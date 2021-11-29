@@ -65,7 +65,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			}
 		}
 
-		else if (index <= commands.size() - 2) {
+		else if (index + 2 <= commands.size()) {
 			kiv_os::THandle pipe_handles[2];
 			auto error = kiv_os_rtl::Create_Pipe(pipe_handles);
 			if (error != kiv_os::NOS_Error::Success) {
