@@ -1,5 +1,4 @@
 #include "rgen.h"
-#include <random>
 
 bool is_eof = false;
 bool thread_terminated = false;
@@ -29,7 +28,8 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle stdout_handle = regs.rbx.x;
 	std::string float_num = "";
 	size_t chars_written = 0;
-	uint16_t exit_code;		 
+	uint16_t exit_code;
+	kiv_os::NOS_Error error;
 
 	is_eof = false;
 
@@ -43,7 +43,13 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	std::default_random_engine engine(rd());
 	std::uniform_real_distribution<float> dist(0, 1);
 
-	kiv_os_rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle, process_handle);
+	error = kiv_os_rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle, process_handle);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
 
 	while (!is_eof && !thread_terminated) {
 		float_num = std::to_string(dist(engine));

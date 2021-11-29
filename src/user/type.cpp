@@ -36,7 +36,15 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 
 	while (chars_read == BUFFER_SIZE) {
 		chars_read = 0;
-		kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, file_offset);
+		error = kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, file_offset);
+
+		if (error != kiv_os::NOS_Error::Success) {
+			auto message = utils::get_error_message(error);
+			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+			kiv_os_rtl::Exit(2);
+			return 2;
+		}
+
 		kiv_os_rtl::Read_File(file_handle, buffer, BUFFER_SIZE, chars_read);
 		file_content.append(buffer, chars_read);
 		file_offset += chars_read;
@@ -44,7 +52,14 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 
 	}
 
-	kiv_os_rtl::Close_Handle(file_handle);
+	error = kiv_os_rtl::Close_Handle(file_handle);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
+
 	kiv_os_rtl::Write_File(stdout_handle, file_content.data(), file_content.size(), chars_written);
 	kiv_os_rtl::Exit(0);
 	return 0;

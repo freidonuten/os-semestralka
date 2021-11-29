@@ -8,6 +8,7 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 	const char* p_filename = reinterpret_cast<const char*>(regs.rdi.r);
 	size_t chars_written = 0;
 	std::string file_content = "";
+	kiv_os::NOS_Error error;
 
 
 	if (strlen(p_filename) == 0) {
@@ -21,7 +22,6 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 		if (error != kiv_os::NOS_Error::Success) {
 			auto message = utils::get_error_message(error);
 			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		
 			kiv_os_rtl::Exit(2);
 			return 2;
 		}
@@ -35,7 +35,13 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 		}
 	}
 
-	kiv_os_rtl::Close_Handle(file_handle);
+	error =kiv_os_rtl::Close_Handle(file_handle);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
 
 	std::vector<std::string> file_lines;
 	std::istringstream iss(file_content);
