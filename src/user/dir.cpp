@@ -1,85 +1,72 @@
 #include "dir.h"
 #include "utils.h"
-#include <array>
-
-std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector<kiv_os::TDir_Entry>& target) {
-	auto buffer = std::array<char, dir_size>();
-	auto files_counter = size_t(0);
-	auto dir_counter = size_t(0);
-
-	target.reserve(16);
-	while (true) {
-		const auto [count, err] = kiv_os_rtl::Read_File(handle, buffer);
-
-		if (!count) {
-			break;
-		}
-
-		kiv_os::TDir_Entry entry = *(reinterpret_cast<kiv_os::TDir_Entry*>(buffer.data()));
-		utils::is_dir(static_cast<uint8_t>(entry.file_attributes))
-			? ++dir_counter
-			: ++files_counter;
-
-		target.push_back(entry);
-	}
-
-	return { files_counter, dir_counter };
-}
-
-std::pair<bool, std::string> parse_args(const std::string args) {
-	auto iss = std::istringstream(args);
-	auto results = std::vector<std::string>(
-		std::istream_iterator<std::string>{iss},
-		std::istream_iterator<std::string>()
-	);
-
-	if (results.size() == 1) {
-		return { false, results[0] };
-	}
-	
-	if (results.size() == 2 && results[0] == "/S") {
-		return { true, results[1] };
-	}
-
-	return { false, "." };
-}
 
 size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
+	kiv_os::THandle file_handle;
 	const kiv_os::THandle stdin_handle = regs.rax.x;
 	const kiv_os::THandle stdout_handle = regs.rbx.x;
-
-	// parse arguments
-	auto args = std::string(reinterpret_cast<const char*>(regs.rdi.r));
-	const auto [recurse, filename] = parse_args(args);
-
-	// open file
-	auto file_handle = kiv_os::THandle();
-	auto error = kiv_os_rtl::Open_File(
-		filename, utils::get_dir_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
-	);
+	const char* p_filename = reinterpret_cast<const char*>(regs.rdi.r);
+	std::vector<kiv_os::TDir_Entry> entries;
+	size_t chars_read = 0;
+	size_t chars_written = 0;
+	size_t offset = 0;
+	size_t files_counter = 0;
+	size_t dir_counter = 0;
+	char buffer[dir_size];
+	std::string empty_file_name = ".";
+	kiv_os::NOS_Error error;
+	 
+	if (strlen(p_filename) == 0) {
+		p_filename = empty_file_name.c_str();
+	}
+	
+	std::string filename(p_filename);
+	uint8_t file_attrs = utils::get_dir_attrs();
+	error = kiv_os_rtl::Open_File(filename, file_attrs, kiv_os::NOpen_File::fmOpen_Always, file_handle);
 	
 	if (error != kiv_os::NOS_Error::Success) {
-		kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
-		KIV_OS_EXIT(2);
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
 	}
 
-	// load entries
-	auto entries = std::vector<kiv_os::TDir_Entry>();
-	const auto [file_count, dir_count] = load_entries(file_handle, entries);
+	error = kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
+	while (true) {
+		memset(buffer, 0, dir_size);
+		
+		kiv_os_rtl::Read_File(file_handle, buffer, dir_size, chars_read);
+		if (chars_read == 0) {
+			break;
+		}
+		kiv_os::TDir_Entry entry = *(reinterpret_cast<kiv_os::TDir_Entry*>(buffer));
 
-	// print
+		if (utils::is_dir(entry.file_attributes)) {
+			dir_counter++;
+		}
+		else {
+			files_counter++;
+		}
+
+		entries.push_back(entry);
+	}
+
 	std::ostringstream dir_content;
-	dir_content
-		<< "Files: " << file_count << new_line
-		<< "Directories: " << dir_count << new_line;
+	dir_content << "Files: " << files_counter << new_line << "Directories: " << dir_counter << new_line;
 
 	
 	for (const auto entry : entries) {
 		dir_content << entry.file_name << new_line;
 	}
 
-	kiv_os_rtl::Write_File(stdout_handle, dir_content.str());
+	kiv_os_rtl::Write_File(stdout_handle, dir_content.str().data(), dir_content.str().size(), chars_written);
 	kiv_os_rtl::Close_Handle(file_handle);
-
-	KIV_OS_EXIT(0);
+	kiv_os_rtl::Exit(0);
+	return 0;
 }
