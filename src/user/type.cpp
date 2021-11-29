@@ -1,4 +1,5 @@
 #include "type.h"
+#include "utils.h"
 
 size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle file_handle;
@@ -22,7 +23,7 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, BUFFER_SIZE);
 
-	kiv_os_rtl::Open_File(filename, static_cast<uint8_t>(kiv_os::NFile_Attributes::System_File), kiv_os::NOpen_File::fmOpen_Always, file_handle);
+	kiv_os_rtl::Open_File(filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
 	// kontrola zda se podarilo otevrit soubor
 	if (file_handle == invalid_file_handle) {
