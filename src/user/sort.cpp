@@ -31,10 +31,11 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 		KIV_OS_EXIT(2);
 	}
 
-	auto file_lines = std::vector<std::string>(
-		std::istream_iterator<std::string>{std::istringstream{file_content}},
-		std::istream_iterator<std::string>()
-	);
+	auto file_lines = std::vector<std::string>();
+	auto iss = std::istringstream(file_content);
+	for (std::string line; std::getline(iss, line, '\n'); ) {
+		file_lines.push_back(line);
+	}
 
 	auto result = std::string();
 	const auto append_line = [&result](const auto& line) { result.append(line + '\n'); };
