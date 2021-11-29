@@ -22,8 +22,8 @@ std::vector<Command> Command::Parse_Input(std::string const& input) {
     while (std::getline(input_stream, token, '|')) {
         commands_string.push_back(token);
     }
-    commands = Parse_Commands(commands_string);
-    return commands;
+
+    return Parse_Commands(commands_string);
 }
 
 // Parse single command to base command and parameters

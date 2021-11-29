@@ -91,7 +91,6 @@ void file_system::create_pipe(kiv_hal::TRegisters& regs, VFS& vfs) {
 	auto desc_table = vfs.Get_Handler_Table();
 	auto ptr = reinterpret_cast<kiv_os::THandle*>(regs.rdx.r);
 
-	// FIXME this is a hack, the order is flipped, userspace is broken
 	ptr[1] = desc_table->Create_Descriptor(write_end);
 	ptr[0] = desc_table->Create_Descriptor(read_end);
 
