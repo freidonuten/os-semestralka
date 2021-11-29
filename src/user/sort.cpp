@@ -18,11 +18,8 @@ size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
 
 	auto file_content = std::string("");
 	auto buffer = std::array<char, BUFFER_SIZE>();
-	while (true) {
-		const auto [count, error] = kiv_os_rtl::Read_File(handle, buffer);
-		if (!count > 0) {
-			break;
-		}
+	for (size_t count = 1; count;) {
+		std::tie(count, std::ignore) = kiv_os_rtl::Read_File(handle, buffer);
 		file_content.append(buffer.data(), count);
 	}
 
