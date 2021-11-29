@@ -24,14 +24,14 @@ namespace kiv_os_rtl {
 	//vraci true, kdyz vse OK
 
 	template<typename SizedBuffer>
-	std::pair<size_t, kiv_os::NOS_Error> Read_File(const kiv_os::THandle file_handle, SizedBuffer buf) {
-		size_t count;
+	std::pair<size_t, kiv_os::NOS_Error> Read_File(const kiv_os::THandle file_handle, SizedBuffer& buf) {
+		auto count = size_t(0);
 		return { count, Read_File(file_handle, buf.data(), buf.size(), count) };
 	}
 	
 	template<typename SizedBuffer>
-	std::pair<size_t, kiv_os::NOS_Error> Write_File(const kiv_os::THandle file_handle, SizedBuffer buf) {
-		size_t count;
+	std::pair<size_t, kiv_os::NOS_Error> Write_File(const kiv_os::THandle file_handle, SizedBuffer& buf) {
+		auto count = size_t(0);
 		return { count, Write_File(file_handle, buf.data(), buf.size(), count) };
 	}
 
