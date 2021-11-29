@@ -65,10 +65,16 @@ void Path::Append(const char* path) {
 }
 
 size_t Path::Get_Path_Size() const {
-	size_t result = 0;
+	size_t result = 1; //first '/'
 
+	bool first = true;
 	for (auto element : this->implementation) {
-		result += element.size() + 1; // '/' in path
+		if (!first) {
+			result++; // '/' in path
+		}
+		
+		result += element.size();
+		first = false;
 	}
 
 	return result + 1; //null termination
@@ -82,10 +88,17 @@ size_t Path::Print(char* buffer, size_t buffer_size) const{
 	}
 
 	char* ptr = buffer;
-	for (auto path_element : this->implementation) {
-		*ptr = '/';
-		ptr++;
+	*ptr = '/';
+	ptr++;
 
+	bool first = true;
+	for (auto path_element : this->implementation) {
+		if (!first) {
+			*ptr = '/';
+			ptr++;
+		}
+		first = false;
+		
 		size_t length = path_element.length();
 		memcpy(ptr, path_element.c_str(), length);
 		ptr += length;

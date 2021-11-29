@@ -232,7 +232,7 @@ void file_system::get_file_attr(kiv_hal::TRegisters& regs, VFS& vfs) {
 }
 
 void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
-	const auto buffer = reinterpret_cast<char*>(regs.rdx.r);
+	auto buffer = reinterpret_cast<char*>(regs.rdx.r);
 	const auto buffer_size = regs.rcx.r;
 
 	auto [cwd, directory] = vfs.Get_CWD();

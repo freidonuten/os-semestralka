@@ -94,9 +94,9 @@ bool kiv_os_rtl::Set_Working_Dir(const std::string &path) {
 	return exit_code;
 }
 
-bool kiv_os_rtl::Get_Working_Dir(const std::string &fileName, const size_t filename_lenght, size_t &chars_written) {
+bool kiv_os_rtl::Get_Working_Dir(char* buffer, const size_t filename_lenght, size_t &chars_written) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Get_Working_Dir));
-	regs.rdx.r = reinterpret_cast<uint64_t>(fileName.data());
+	regs.rdx.r = reinterpret_cast<uint64_t>(buffer);
 	regs.rcx.r = static_cast<uint64_t>(filename_lenght);
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	chars_written = regs.rax.r;

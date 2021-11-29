@@ -29,7 +29,7 @@ namespace kiv_os_rtl {
 	bool Close_Handle(kiv_os::THandle handle);
 	bool Delete_File(const std::string& filename);
 	bool Set_Working_Dir(const std::string& path);
-	bool Get_Working_Dir(const std::string& filename, const size_t filename_lenght, size_t& chars_written);
+	bool Get_Working_Dir(char* buffer, const size_t filename_lenght, size_t& chars_written);
 	bool Create_Pipe(kiv_os::THandle *handles);
 	
 
