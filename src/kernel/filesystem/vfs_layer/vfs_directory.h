@@ -7,12 +7,13 @@ class VFS_Directory : public VFS_Fat_Element {
 protected:
 	std::shared_ptr<Fat_Directory_Factory> fat_directory_factory;
 	std::shared_ptr<Fat_Directory> self_fat_directory;
+	std::shared_ptr<Fat_Directory> parent_fat_directory;
 
 	std::uint64_t Copy_To_TDir_Entry_Format(std::vector<Fat_Dir_Entry> entries, void* buffer, size_t how_many_bytes);
 
 	virtual bool Is_Convertable(std::uint8_t file_attributes);
 public:
-	VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint8_t file_attributes);
+	VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, std::shared_ptr<Fat_Directory> parent_fat_directory, char file_name[12], std::uint8_t file_attributes);
 
 	//VFS ELEMENT METHODS
 	virtual void Open(std::uint16_t file_start, std::uint64_t file_size);
@@ -24,7 +25,7 @@ public:
 	virtual Fat_Dir_Entry Generate_Dir_Entry();
 
 	//DIRECTORY METHODS (wrappers)
-	Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
+	virtual Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
 	std::tuple<Fat_Dir_Entry, bool> Read_Entry_By_Name(char file_name[8 + 1 + 3]);
 	bool Remove_Entry(char file_name[8 + 1 + 3]); //out => true = ok, false = not_found
 	bool Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry); //out => true = ok, false = not_found
@@ -36,4 +37,5 @@ public:
 	using VFS_Directory::VFS_Directory;
 
 	virtual bool Remove();
+	virtual Create_New_Entry_Result Create_New_Entry(Fat_Dir_Entry entry); //out => true = ok, false = already_exists
 };

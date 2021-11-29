@@ -18,7 +18,7 @@ std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error> Path_Dir_Opener
 			return std::tuple<std::shared_ptr<VFS_Directory>, Open_Directory_Error>(nullptr, Open_Directory_Error::PATH_NOT_EXISTING);
 		}
 
-		auto element = this->factory->Make(nullptr, dir_entry.file_name, dir_entry.file_attributes);
+		auto element = this->factory->Make(current->Get_Fat_Directory(), dir_entry.file_name, dir_entry.file_attributes);
 		auto directory = std::dynamic_pointer_cast<VFS_Directory>(element);
 
 		if (directory == NULL) {

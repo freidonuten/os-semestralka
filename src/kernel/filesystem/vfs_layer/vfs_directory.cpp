@@ -2,8 +2,9 @@
 #include "../utils/char_utils.h"
 #include "../utils/api_utils.h"
 
-VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, char file_name[12], std::uint8_t file_attributes) {
+VFS_Directory::VFS_Directory(std::shared_ptr<Fat_Directory_Factory> factory, std::shared_ptr<Fat_Directory> parent_fat_directory, char file_name[12], std::uint8_t file_attributes) {
 	this->fat_directory_factory = factory;
+	this->parent_fat_directory = parent_fat_directory;
 	Char_Utils::Copy_Array(this->file_name, file_name, 12);
 	this->file_attributes = file_attributes;
 	this->file_position = 0;
@@ -109,7 +110,9 @@ Fat_Dir_Entry VFS_Directory::Generate_Dir_Entry() {
 }
 
 Create_New_Entry_Result VFS_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
-	return this->self_fat_directory->Create_New_Entry(entry);
+	auto result = this->self_fat_directory->Create_New_Entry(entry);
+	this->parent_fat_directory->Change_Entry(this->file_name, this->Generate_Dir_Entry());
+	return result;
 }
 
 std::tuple<Fat_Dir_Entry, bool> VFS_Directory::Read_Entry_By_Name(char file_name[8 + 1 + 3]) {
@@ -117,7 +120,9 @@ std::tuple<Fat_Dir_Entry, bool> VFS_Directory::Read_Entry_By_Name(char file_name
 }
 
 bool VFS_Directory::Remove_Entry(char file_name[8 + 1 + 3]) {
-	return this->self_fat_directory->Remove_Entry(file_name);
+	auto result = this->self_fat_directory->Remove_Entry(file_name);
+	this->parent_fat_directory->Change_Entry(this->file_name, this->Generate_Dir_Entry());
+	return result;
 }
 
 bool VFS_Directory::Change_Entry(char old_file_name[8 + 1 + 3], Fat_Dir_Entry new_entry) {
@@ -130,4 +135,8 @@ std::shared_ptr<Fat_Directory> VFS_Directory::Get_Fat_Directory() {
 
 bool VFS_Root_Directory::Remove() {
 	return false;
+}
+
+Create_New_Entry_Result VFS_Root_Directory::Create_New_Entry(Fat_Dir_Entry entry) {
+	return this->self_fat_directory->Create_New_Entry(entry);
 }

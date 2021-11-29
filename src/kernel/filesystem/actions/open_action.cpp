@@ -88,8 +88,8 @@ std::tuple<std::uint16_t, Open_Result> open_file_using_parent(VFS& vfs, std::sha
 	auto element = vfs.Make_File(parent_dir->Get_Fat_Directory(), dir_entry.file_name, dir_entry.file_attributes);
 	element->Open(dir_entry.file_start, dir_entry.file_size);
 
-	auto [opened_handler_id, already_inserted] = vfs.Get_Path_Handlers()->Add_Path_Element(element, file_path, 0, true);
-	if (already_inserted) {
+	auto [opened_handler_id, inserted] = vfs.Get_Path_Handlers()->Add_Path_Element(element, file_path, 0, true);
+	if (!inserted) {
 		return { 0, Open_Result::UNKNOWN_ERROR };
 	}
 

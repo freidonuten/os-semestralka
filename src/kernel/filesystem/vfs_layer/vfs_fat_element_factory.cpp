@@ -10,7 +10,7 @@ std::shared_ptr<VFS_Fat_Element> VFS_Fat_Element_Factory::Make(std::shared_ptr<F
 
 	switch (element_type) {
 	case VFS_Fat_Element_Type::DIRECTORY:
-		return std::make_shared<VFS_Directory>(this->directory_factory, file_name, file_attributes);
+		return std::make_shared<VFS_Directory>(this->directory_factory, parent_directory, file_name, file_attributes);
 	case VFS_Fat_Element_Type::FILE:
 		return std::make_shared<VFS_File>(this->file_factory, parent_directory, file_name, file_attributes);
 	case VFS_Fat_Element_Type::ROFILE:
@@ -23,7 +23,7 @@ std::shared_ptr<VFS_Fat_Element> VFS_Fat_Element_Factory::Make(std::shared_ptr<F
 std::shared_ptr<VFS_Directory> VFS_Fat_Element_Factory::Make_Root_Directory() {
 	char filename[12] = "";
 	std::shared_ptr<VFS_Directory> result = std::make_shared<VFS_Root_Directory>(
-		this->directory_factory, filename, 0xff);
+		this->directory_factory, nullptr, filename, 0xff);
 
 	return result;
 }

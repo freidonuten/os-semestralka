@@ -115,7 +115,7 @@ void Path::Get_Filename(char* buffer) const {
 	if (size > 0) {
 		std::string path_element = this->implementation[size - 1];
 		size_t length = path_element.length();
-		memcpy(buffer, path_element.c_str(), length);
+		memcpy(buffer, path_element.c_str(), length + 1);
 		return;
 	}
 	else {
