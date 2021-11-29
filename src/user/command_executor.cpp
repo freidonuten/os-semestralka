@@ -71,6 +71,17 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			return;
 		}
 
+		if (command.has_input_file) {
+			kiv_os_rtl::Close_Handle(handle_in);
+		}
+
+		if (command.has_output_file) {
+			kiv_os_rtl::Close_Handle(handle_out);
+		}
+
+		//TODO zavrit pipy (tomu nerozumim -stepan)
+
+
 		handles.push_back(process_handle);
 		command_counter++;
 	}
