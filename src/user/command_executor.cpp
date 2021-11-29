@@ -1,7 +1,5 @@
 ﻿#include "command_executor.h"
 #include "rtl.h"
-#include "global.h"
-#include "utils.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>

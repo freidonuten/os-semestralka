@@ -31,7 +31,13 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 		return 2;
 	}
 
-	kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
+	error = kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
 	while (true) {
 		memset(buffer, 0, dir_size);
 		

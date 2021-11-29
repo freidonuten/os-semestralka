@@ -16,14 +16,20 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 	char buffer[BUFFER_SIZE];
 	std::stringstream ss;
 	std::array<unsigned int, freq_table_size> freq_table;
+	kiv_os::NOS_Error error;
 
 	freq_table.fill(0);
 
 	while (chars_read) {
 		memset(buffer, 0, BUFFER_SIZE);
 		chars_read = 0;
-		kiv_os_rtl::Read_File(stdin_handle, buffer, BUFFER_SIZE, chars_read);
-		
+		error = kiv_os_rtl::Read_File(stdin_handle, buffer, BUFFER_SIZE, chars_read);
+		if (error != kiv_os::NOS_Error::Success) {
+			auto message = utils::get_error_message(error);
+			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+			kiv_os_rtl::Exit(2);
+			return 2;
+		}
 		if (buffer[0] == eof ||
 			buffer[0] == eot ||
 			buffer[0] == etx) {
@@ -32,7 +38,13 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 		Update_Freq_Table(freq_table, buffer, chars_read);
 	}
 
-	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
+	error = kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
+	if (error != kiv_os::NOS_Error::Success) {
+		auto message = utils::get_error_message(error);
+		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
+		kiv_os_rtl::Exit(2);
+		return 2;
+	}
 	memset(buffer, 0, BUFFER_SIZE);
 
 	for (int i = 0; i < freq_table_size; i++) {

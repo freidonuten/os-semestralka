@@ -2,6 +2,7 @@
 
 #include "../api/api.h"
 #include "rtl.h"
+#include "global.h"
 #include <string>
 #include <string_view>
 #include <sstream>

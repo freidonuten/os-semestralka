@@ -38,7 +38,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 	while(1) {
 		Print_Newline_Prompt(std_in, std_out);
 
-		if (kiv_os_rtl::Read_File(std_in, buffer, buffer_size, counter)) {
+		if (kiv_os_rtl::Read_File(std_in, buffer, buffer_size, counter) == kiv_os::NOS_Error::Success) {
 			if ((counter > 0) && (counter == buffer_size)) {
 				counter--;
 			}
