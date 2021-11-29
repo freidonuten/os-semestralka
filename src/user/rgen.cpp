@@ -1,5 +1,7 @@
 #include "rgen.h"
 #include <random>
+#include <array>
+
 
 bool is_eof = false;
 bool thread_terminated = false;
@@ -10,56 +12,45 @@ size_t Terminated(const kiv_hal::TRegisters& regs) {
 }
 
 size_t Check_EOF(const kiv_hal::TRegisters& regs) {
-	const kiv_os::THandle stdin_handle = regs.rax.x;
-	uint8_t buffer[eof_buffer_size];
-	size_t chars_read = 1;
+	const auto stdin_handle = kiv_os::THandle(regs.rax.x);
+	auto buffer = std::array<char, eof_buffer_size>();
 
-	while (chars_read) {
-		kiv_os_rtl::Read_File(stdin_handle, (char*)buffer, eof_buffer_size, chars_read);
+	for (size_t count = 1; count; ) {
+		std::tie(count, std::ignore) = kiv_os_rtl::Read_File(stdin_handle, buffer);
 	}
 
 	is_eof = true;
-	kiv_os_rtl::Exit(0);
-	return 0;
+	KIV_OS_EXIT(0)
 }
 
 size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
-	kiv_os::THandle process_handle;
-	kiv_os::THandle stdin_handle = regs.rax.x;
-	kiv_os::THandle stdout_handle = regs.rbx.x;
-	std::string float_num = "";
-	size_t chars_written = 0;
-	uint16_t exit_code;
-	kiv_os::NOS_Error error;
+	const auto stdin_handle = kiv_os::THandle(regs.rax.x);
+	const auto stdout_handle = kiv_os::THandle(regs.rbx.x);
+	const auto signal_handler = reinterpret_cast<kiv_os::TThread_Proc>(Terminated);
 
 	is_eof = false;
+	thread_terminated = false;
 
-	kiv_os::NSignal_Id signal = kiv_os::NSignal_Id::Terminate;
-	kiv_os::TThread_Proc thread_handle = reinterpret_cast<kiv_os::TThread_Proc>(Terminated);
+	kiv_os_rtl::Register_Signal_Handler(kiv_os::NSignal_Id::Terminate, signal_handler);
 
-	kiv_os_rtl::Register_Signal_Handler(signal, thread_handle);
+	kiv_os::THandle thread_handle;
+	const auto error = kiv_os_rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle, thread_handle);
 
+	if (error != kiv_os::NOS_Error::Success) {
+		kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		KIV_OS_EXIT(1)
+	}
 
 	std::random_device rd;
 	std::default_random_engine engine(rd());
 	std::uniform_real_distribution<float> dist(0, 1);
 
-	error = kiv_os_rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle, process_handle);
-	if (error != kiv_os::NOS_Error::Success) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
-	}
-
 	while (!is_eof && !thread_terminated) {
-		float_num = std::to_string(dist(engine));
-		float_num.append("\n");
-		kiv_os_rtl::Write_File(stdout_handle, float_num.data(), float_num.size(), chars_written);
-		float_num.clear();
+		const auto float_num = std::to_string(dist(engine)) + '\n';
+		kiv_os_rtl::Write_File(stdout_handle, float_num);
 	}
 
-	exit_code = static_cast<uint16_t>(kiv_os::NOS_Error::Success);
-	kiv_os_rtl::Exit(exit_code);
-	return 0;
+	uint16_t code;
+	kiv_os_rtl::Read_Exit_Code(thread_handle, code);
+	KIV_OS_EXIT(0);
 }
