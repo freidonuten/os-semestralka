@@ -115,11 +115,11 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		kiv_os_rtl::Read_Exit_Code(handle, exit_code);
 
 		if (index > 0) {
-			close_first_pipe;
+			close_first_pipe();
 		}
 
 		if (index < commands.size() - 1) {
-			close_first_pipe;
+			close_first_pipe();
 		}
 
 		++index;
