@@ -46,12 +46,11 @@ void file_system::close_handle(kiv_hal::TRegisters& regs, VFS& vfs) {
 	if (result == Handle_Close_Result::CLOSED) {
 		element->Close();
 		Set_Error(kiv_os::NOS_Error::Success, regs);
-	}
-	else if(result == Handle_Close_Result::NOT_EXISTS) {
+	} else if(result == Handle_Close_Result::NOT_EXISTS) {
 		Set_Error(kiv_os::NOS_Error::IO_Error, regs);
+	} else {
+		Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 	}
-
-	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
 
 file_system::Dispatcher file_system::factory() {
