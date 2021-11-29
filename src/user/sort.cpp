@@ -1,63 +1,47 @@
 #include "sort.h"
 #include "utils.h"
+#include <array>
 
 size_t __stdcall sort(const kiv_hal::TRegisters& regs) {
-	kiv_os::THandle stdout_handle = regs.rbx.x;
-	kiv_os::THandle stdin_handle = regs.rax.x;
-	kiv_os::THandle file_handle;
-	const char* p_filename = reinterpret_cast<const char*>(regs.rdi.r);
-	size_t chars_written = 0;
-	std::string file_content = "";
-	kiv_os::NOS_Error error;
+	const auto stdout_handle = kiv_os::THandle(regs.rbx.x);
+	const auto stdin_handle  = kiv_os::THandle(regs.rax.x);
+	const auto filename = std::string_view(reinterpret_cast<const char*>(regs.rdi.r));
 
+	const auto [handle, error] = filename.size()
+		? kiv_os_rtl::Open_File(filename, utils::get_file_attrs())
+		: std::pair{ stdin_handle, kiv_os::NOS_Error::Success };
 
-	if (strlen(p_filename) == 0) {
-		file_handle = stdin_handle;
-	}
-	else {
-		const auto error = kiv_os_rtl::Open_File(
-			p_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
-		);
-
-		if (error != kiv_os::NOS_Error::Success) {
-			auto message = utils::get_error_message(error);
-			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-			kiv_os_rtl::Exit(2);
-			return 2;
-		}
-	}
-
-	char buffer[BUFFER_SIZE];
-	for (size_t chars_read = 1; chars_read;) {
-		kiv_os_rtl::Read_File(file_handle, buffer, BUFFER_SIZE, chars_read);
-		if (chars_read > 0) {
-			file_content.append(buffer, chars_read);
-		}
-	}
-
-	error =kiv_os_rtl::Close_Handle(file_handle);
 	if (error != kiv_os::NOS_Error::Success) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
+		kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		KIV_OS_EXIT(2);
 	}
 
-	std::vector<std::string> file_lines;
-	std::istringstream iss(file_content);
-	std::string line;
-
-	while (std::getline(iss, line, '\n')) {
-		file_lines.push_back(line);
+	auto file_content = std::string("");
+	auto buffer = std::array<char, BUFFER_SIZE>();
+	while (true) {
+		const auto [count, error] = kiv_os_rtl::Read_File(handle, buffer);
+		if (!count > 0) {
+			break;
+		}
+		file_content.append(buffer.data(), count);
 	}
 
-	file_content.clear();
+	if (kiv_os_rtl::Close_Handle(handle) != kiv_os::NOS_Error::Success) {
+		kiv_os_rtl::Write_File(stdout_handle,  utils::get_error_message(error));
+		KIV_OS_EXIT(2);
+	}
+
+	auto file_lines = std::vector<std::string>(
+		std::istream_iterator<std::string>{std::istringstream{file_content}},
+		std::istream_iterator<std::string>()
+	);
+
+	auto result = std::string();
+	const auto append_line = [&result](const auto& line) { result.append(line + '\n'); };
+
 	std::sort(file_lines.begin(), file_lines.end());
-	std::for_each(file_lines.begin(), file_lines.end(), [&file_content](const auto &line) {
-		file_content.append(line + '\n');
-	});
+	std::for_each(file_lines.begin(), file_lines.end(), append_line);
 
-	kiv_os_rtl::Write_File(stdout_handle, file_content.data(), file_content.size(), chars_written);
-	kiv_os_rtl::Exit(0);
-	return 0;
+	kiv_os_rtl::Write_File(stdout_handle, result);
+	KIV_OS_EXIT(0)
 }
