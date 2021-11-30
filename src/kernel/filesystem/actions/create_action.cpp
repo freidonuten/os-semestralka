@@ -12,6 +12,8 @@ std::tuple<Open_Result, bool> try_delete(VFS& vfs, char* filename) {
 		return { Open_Result::ALREADY_OPENED, false };
 	case Delete_Result::CANT_REMOVE:
 		return { Open_Result::CANT_REMOVE_PREVIOUS, false };
+	case Delete_Result::NOT_EMPTY:
+		return { Open_Result::DIRECTORY_NOT_EMPTY, false };
 	}
 
 	return { Open_Result::UNKNOWN_ERROR, false };
