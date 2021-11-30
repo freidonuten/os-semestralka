@@ -10,15 +10,14 @@
 bool is_echo_on = true;
 
 size_t Print_Newline_Prompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
-	char currentDirBuffer[256] = "";
+	char current_dir_buffer[256] = "";
 	size_t counter = 0;
-	kiv_os_rtl::Get_Working_Dir(currentDirBuffer, 256, counter);
-	const auto currentDir = std::string(currentDirBuffer);
+	kiv_os_rtl::Get_Working_Dir(current_dir_buffer, 256, counter);
+	const auto current_dir = std::string(current_dir_buffer);
 
-	// Zapis do konzole C:\>
 	if (is_echo_on) {
 		kiv_os_rtl::Write_File(stdout_handle, prompt);
-		kiv_os_rtl::Write_File(stdout_handle, currentDir);
+		kiv_os_rtl::Write_File(stdout_handle, current_dir);
 		kiv_os_rtl::Write_File(stdout_handle, beak);
 	}
 
