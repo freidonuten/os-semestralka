@@ -6,7 +6,9 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 	auto buffer = std::array<char, dir_size>();
 	auto files_counter = size_t(0);
 	auto dir_counter = size_t(0);
+	size_t position = 0;
 
+	kiv_os_rtl::Seek(handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, position);
 	target.reserve(16);
 	while (true) {
 		const auto [count, err] = kiv_os_rtl::Read_File(handle, buffer);
