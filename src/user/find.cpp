@@ -1,119 +1,120 @@
 #include "find.h"
 #include "utils.h"
 #include <array>
+#include "functional"
 
-size_t __stdcall find(const kiv_hal::TRegisters& regs) {
-	kiv_os::THandle file_handle;
-	kiv_os::THandle stdin_handle = regs.rax.x;
-	kiv_os::THandle stdout_handle = regs.rbx.x;
-	const char* parameters = reinterpret_cast<const char*>(regs.rdi.r);
-	size_t chars_written = 0;
-	size_t line_counter = 0;
-	std::array<char, BUFFER_SIZE> buffer = std::array<char, BUFFER_SIZE>();
-	std::string line;
-	std::string parameter;
-	std::string filename;
-	std::string word;
-	std::string file_content = "";
-	bool print_count_lines = false;
-	bool print_not_contain_lines = false;
-	kiv_os::NOS_Error error;
 
-	if (strlen(parameters) == 0) {
-		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_INVALID_COMMAND_ARGUMENT.data(), ERROR_MSG_INVALID_COMMAND_ARGUMENT.size(), chars_written);
-		kiv_os_rtl::Exit(1);
-		return 1;
-	}
+struct config {
+	bool valid = true;
+	bool count_only = false;
+	bool inverse_search = false;
+	bool pattern_written = false;
+	bool input_written = false;
+	std::string pattern = "";
+	std::string input = "";
+};
 
-	std::stringstream ss(parameters);
+config parse_arguments(const std::string_view arg_string) {
+	auto swt = utils::String_View_Tokenizer(arg_string);
+	auto result = config{};
 
-	while (ss >> parameter) {
-		if (parameter == "/V" || parameter == "/v") {
-			print_not_contain_lines = true;
-		}
-		else if (parameter == "/C" || parameter == "/c") {
-			print_count_lines = true;
-		}
-		else if (parameter.c_str()[0] == '\"') {
-			word = parameter;
-		}
-		else {
-			filename = parameter;
+	for (std::string_view arg; (arg = swt()).size() && result.valid; ) {
+		if (arg == "/v" || arg == "/V") {
+			result.inverse_search = true;
+		} else if (arg == "/c" || arg == "/C") {
+			result.count_only = true;
+		} else if (!result.pattern_written) {
+			result.pattern = arg;
+			result.pattern_written = true;
+		} else if (!result.input_written) {
+			result.input = arg;
+			result.input_written = true;
+		} else {
+			result.valid = false;
 		}
 	}
 
-	if (!filename.empty()) {
-		auto [ file_handle, error ] = kiv_os_rtl::Open_File(filename, utils::get_file_attrs());
-		if (error != kiv_os::NOS_Error::Success) {
-			auto message = utils::get_error_message(error);
-			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-			kiv_os_rtl::Exit(2);
-			return 2;
-		}
-	}
-	else {
-		file_handle = stdin_handle;
+	if (!result.pattern_written) {
+		result.valid = false;
 	}
 
+	return result;
+}
 
-	while (true) {
-		auto [chars_read, error] = kiv_os_rtl::Read_File(file_handle, buffer);
-		if (chars_read > 0) {
-			file_content.append(buffer.data()).append(new_line);
-			buffer.fill('\0');
+std::string filter(const std::string haystack, const std::string needle, const bool inverse, const bool count) {
+	auto searcher = std::boyer_moore_searcher(needle.begin(), needle.end());
+	auto ss = std::istringstream(haystack);
+	auto output = std::ostringstream();
+	auto matches = size_t(0);
+
+	for (std::string line; std::getline(ss, line, '\n'); ) {
+		const auto match = std::search(line.begin(), line.end(), searcher) != line.end();
+		if (inverse ^ match) {
+			if (count) {
+				++matches;
+			} else {
+				output << line << new_line;
+			}
 		}
-		else {
+	}
+
+	if (count) {
+		output << matches << new_line;
+	}
+
+	return output.str();
+}
+
+std::string make_haystack(const kiv_os::THandle source_handle, const bool append_newlines) {
+	auto contents = std::string("");
+	auto buffer = std::array<char, BUFFER_SIZE>();
+
+	while (true) { // load file/stream contents
+		auto [count, error] = kiv_os_rtl::Read_File(source_handle, buffer);
+		if (!count) {
 			break;
 		}
-		//kiv_os_rtl::Write_File(stdin_handle, new_line);
-	}
 
-	error = kiv_os_rtl::Close_Handle(file_handle);
-	if (error != kiv_os::NOS_Error::Success && !filename.empty()) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
-	}
-
-
-	word = word.substr(1, word.size() - 2);
-	if (word.empty()) {
-		kiv_os_rtl::Write_File(file_handle, ss.str().data(), ss.str().size(), chars_written);
-		kiv_os_rtl::Exit(0);
-		return 0;
-	}
-
-	std::istringstream input(file_content);
-	std::ostringstream output;
-	output << new_line;
-	while (std::getline(input, line, '\n')) {
-		if (!print_not_contain_lines) {
-			if (line.find(word) != std::string::npos) {
-				output << line << new_line;
-			}
-			line_counter++;
+		contents.append(buffer.data());
+		if (append_newlines) {
+			contents.append(new_line);
 		}
-		else {
-			if (line.find(word) == std::string::npos) {
-				output << line << new_line;
-			}
-			line_counter++;
+	}
+
+	return contents;
+}
+
+size_t __stdcall find(const kiv_hal::TRegisters& regs) {
+	auto stdin_handle = kiv_os::THandle(regs.rax.x);
+	auto stdout_handle = kiv_os::THandle(regs.rbx.x);
+	auto file_handle = kiv_os::THandle(stdin_handle);
+	auto error = kiv_os::NOS_Error::Success;
+
+	const auto config = parse_arguments(reinterpret_cast<char*>(regs.rdi.r));
+
+	if (!config.valid) {
+		// too many arguments or missing pattern
+		KIV_OS_EXIT(1);
+	}
+
+	if (config.input_written) { // open file if specified
+		std::tie(file_handle, error) = kiv_os_rtl::Open_File(config.input, utils::get_file_attrs());
+		if (error != kiv_os::NOS_Error::Success) {
+			kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+			KIV_OS_EXIT(2);
 		}
-
-	}
-	
-	std::string find("FIND:");
-	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
-	kiv_os_rtl::Write_File(stdout_handle, find.data(), find.size(), chars_written);
-
-	if (!print_count_lines) {
-		kiv_os_rtl::Write_File(stdout_handle, output.str().data(), output.str().size(), chars_written);
-	} else {
-		std::string count_contain_lines = std::to_string(line_counter);
-		kiv_os_rtl::Write_File(stdout_handle, count_contain_lines.data(), count_contain_lines.size(), chars_written);
 	}
 
-	kiv_os_rtl::Exit(0);
-	return 0;
+	const auto haystack = make_haystack(file_handle, !config.input_written);
+
+	// if reading from file, close it
+	if (config.input_written) {
+		kiv_os_rtl::Close_Handle(file_handle);
+	}
+
+	const auto result = filter(haystack, config.pattern, config.inverse_search, config.count_only);
+
+	kiv_os_rtl::Write_File(stdout_handle, result);
+
+	KIV_OS_EXIT(0);
 }
