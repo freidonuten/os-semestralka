@@ -44,7 +44,6 @@
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\pipe.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\proc_file.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\sysfs_layer\stream.cpp" />
-    <ClCompile Include="..\..\src\kernel\filesystem\test.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\utils\api_utils.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\utils\bitmap.cpp" />
     <ClCompile Include="..\..\src\kernel\filesystem\utils\bit_utils.cpp" />

@@ -50,7 +50,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 	for (int i = 0; i < freq_table_size; i++) {
 		unsigned int counter = freq_table[i];
 		if (counter != 0) {
-			chars_written = sprintf_s(buffer, "0x%hhx : %d\n", (unsigned int) i, counter);
+			chars_written = sprintf_s(buffer, "0x%hhx : %d\n", i, counter);
 			ss << buffer;
 		}
 	}

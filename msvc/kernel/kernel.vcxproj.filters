@@ -72,9 +72,6 @@
     <ClCompile Include="..\..\src\api\api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\kernel\filesystem\test.cpp">
-      <Filter>Source Files\fs</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\kernel\filesystem\fat_layer\cluster_io.cpp">
       <Filter>Source Files\fs\fat</Filter>
     </ClCompile>

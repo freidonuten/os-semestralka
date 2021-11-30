@@ -69,13 +69,13 @@ Set_CWD_Result actions::set_cwd(VFS& vfs, char* path) {
 		new_cwd_dir = handle_directory;
 	}
 	else if (op_result == Get_CWD_From_Handle_Result::NOT_FOUND) {
-		auto [opened_directory, error_result, to_continue] = Try_Open_Directory(vfs, new_cwd_path);
-		if (to_continue) {
+		auto [opened_directory, open_error_result, to_continue_nested] = Try_Open_Directory(vfs, new_cwd_path);
+		if (to_continue_nested) {
 			new_cwd_dir = opened_directory;
 			vfs.Get_Path_Handlers()->Add_Path_Element(new_cwd_dir, new_cwd_path, 1, false);
 		}
 		else {
-			return error_result;
+			return open_error_result;
 		}
 	}
 	else {
