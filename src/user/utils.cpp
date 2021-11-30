@@ -76,5 +76,7 @@ std::string_view utils::String_View_Tokenizer::operator()() {
 		return result;
 	}
 
-	return source;
+	auto rest = std::string_view();
+	rest.swap(source);
+	return rest;
 }
