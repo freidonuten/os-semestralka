@@ -48,7 +48,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 				//TODO zavolat metodu exit a vse poctive zavrit
 				auto message = utils::get_error_message(error);
 				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-				kiv_os_rtl::Exit(2);
 				return;
 			}
 		}
@@ -58,7 +57,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			if (error != kiv_os::NOS_Error::Success) {
 				//TODO zavolat metodu exit a vse poctive zavrit
 				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
-				kiv_os_rtl::Exit(2);
 				return;
 			}
 		}
@@ -68,7 +66,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			const auto error = kiv_os_rtl::Create_Pipe(pipe_handles);
 			if (error != kiv_os::NOS_Error::Success) {
 				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
-				kiv_os_rtl::Exit(2);
 				return;
 			}
 			pipe_queue.push_back(pipe_handles[1]);
@@ -91,7 +88,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		if (error != kiv_os::NOS_Error::Success) {
 			auto message = utils::get_error_message(error);
 			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-			kiv_os_rtl::Exit(2);
 			return;
 		}
 
