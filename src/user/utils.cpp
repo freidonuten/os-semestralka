@@ -2,6 +2,7 @@
 #include "../api/api.h"
 
 #include <array>
+#include <string_view>
 
 static constexpr std::array<std::string_view, 10> messages{
 	std::string_view{"Unknown error.\n"},
@@ -41,3 +42,39 @@ std::string_view utils::get_error_message(kiv_os::NOS_Error error) {
 	return messages[index];
 }
 
+
+utils::String_View_Tokenizer::String_View_Tokenizer(const std::string_view& source)
+	: source(source) {};
+
+std::string_view utils::String_View_Tokenizer::operator()() {
+	while (true) {
+		if (!source.size()) {
+			return {};
+		}
+
+		if (source[0] == ' ') {
+			source.remove_prefix(1);
+			continue;
+		}
+
+		if (source[0] == '"') {
+				const auto length = source.find_first_of('"', 1);
+				if (length == source.npos) {
+					break;
+				}
+				const auto result = std::string_view(source.data() + 1, length - 1);
+				source.remove_prefix(length + 1);
+				return result;
+		}
+
+		const auto length = source.find_first_of(" \"");
+		if (length == source.npos) {
+			break;
+		}
+		const auto result = std::string_view(source.data(), length);
+		source.remove_prefix(length + (source[length] == ' '));
+		return result;
+	}
+
+	return source;
+}
