@@ -52,7 +52,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 				auto message = utils::get_error_message(error);
 				kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 				close_handles(opened_files);
-				kiv_os_rtl::Exit(2);
 				return;
 			}
 			else {
@@ -65,7 +64,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			if (error != kiv_os::NOS_Error::Success) {
 				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
 				close_handles(opened_files);
-				kiv_os_rtl::Exit(2);
 				return;
 			}
 			else {
@@ -79,7 +77,6 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			if (error != kiv_os::NOS_Error::Success) {
 				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
 				close_handles(opened_files);
-				kiv_os_rtl::Exit(2);
 				return;
 			}
 			pipe_queue.push_back(pipe_handles[1]);
