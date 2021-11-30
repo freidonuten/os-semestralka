@@ -35,14 +35,6 @@ std::vector<Command> Command::Parse_Commands(std::vector<std::string>& commands)
         return {};
     }
 
-    for (auto it = commands.begin(); it != commands.end(); ++it) {
-        auto line = *it;
-        if (line.find("@echo") != std::string::npos) { 
-            commands.erase(it);
-            commands.insert(commands.begin(), std::move(line));
-        }
-    }
-
     for (auto& command : commands) {
         if (command.empty()) {
             continue;

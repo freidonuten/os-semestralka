@@ -21,13 +21,13 @@ class Task_Manager final {
 		HANDLE shutdown_event;
 
 		// helper methods
+		bool is_valid_handle(kiv_os::THandle handle) const;
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
-		template<bool return_tid, typename result_type>
-		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, result_type& result);
-		Thread_Control_Block& get_current_thread();
-		Thread_Control_Block& get_thread(const kiv_os::THandle handle);
-		Process_Control_Block& get_process(const kiv_os::THandle handle);
+		std::tuple<kiv_os::THandle, kiv_os::NOS_Error> create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, bool exec_program);
+		Thread_Control_Block* get_current_thread();
+		Thread_Control_Block* get_thread(const kiv_os::THandle handle);
+		Process_Control_Block* get_process(const kiv_os::THandle handle);
 		std::pair<Process_Control_Block&, kiv_os::NOS_Error> alloc_first_free();
 		void clean_up_thread_handle(const kiv_os::THandle handle);
 
@@ -42,7 +42,7 @@ class Task_Manager final {
 	public:
 		explicit Task_Manager();
 
-		Process_Control_Block& get_current_process();
+		Process_Control_Block* get_current_process();
 		void inject_cwd_holder(Dummy_CWD_Holder* cwd_holder);
 		const Process_Table& get_processes() const;
 		void syscall_dispatch(kiv_hal::TRegisters& regs);
