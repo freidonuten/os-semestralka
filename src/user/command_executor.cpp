@@ -73,7 +73,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 
 		else if (index + 2 <= commands.size()) {
 			kiv_os::THandle pipe_handles[2];
-			const auto error = kiv_os_rtl::Create_Pipe(pipe_handles);
+			error = kiv_os_rtl::Create_Pipe(pipe_handles);
 			if (error != kiv_os::NOS_Error::Success) {
 				kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
 				close_handles(opened_files);
@@ -92,7 +92,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			handle_out = consume_first_pipe();
 		}
 
-		const auto error = kiv_os_rtl::Create_Process(
+		error = kiv_os_rtl::Create_Process(
 			command.command_name, command.Get_Parameters(), handle_in, handle_out, process_handle
 		);
 
