@@ -65,6 +65,7 @@ namespace Pipe {
 		Write_End() = delete;
 		Write_End(std::shared_ptr<Base> pipe);
 		
+		std::uint64_t Read(size_t limit, void* buffer) override;
 		std::uint64_t Write(size_t limit, void* buffer) override;
 	};
 
@@ -73,6 +74,7 @@ namespace Pipe {
 		Read_End(std::shared_ptr<Base> pipe);
 
 		std::uint64_t Read(size_t limit, void* buffer) override;
+		std::uint64_t Write(size_t limit, void* buffer) override;
 	};
 
 	using RW_Pair = std::tuple<

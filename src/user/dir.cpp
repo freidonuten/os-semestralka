@@ -26,7 +26,8 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 	}
 
 	constexpr auto directory_first_predicate = [](const auto& a, const auto& b) {
-		return utils::is_dir(a.file_attributes) > utils::is_dir(b.file_attributes);
+		return utils::is_dir(static_cast<uint8_t>(a.file_attributes))
+			 > utils::is_dir(static_cast<uint8_t>(b.file_attributes));
 	};
 
 	std::sort(target.begin(), target.end(), directory_first_predicate);
@@ -83,7 +84,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	
 	for (const auto entry : entries) {
 		dir_content
-			<< (utils::is_dir(entry.file_attributes) ? "+" : " ")
+			<< (utils::is_dir(static_cast<uint8_t>(entry.file_attributes)) ? "+" : " ")
 			<< entry.file_name
 			<< new_line;
 	}

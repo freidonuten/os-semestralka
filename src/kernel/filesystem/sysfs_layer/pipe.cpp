@@ -72,6 +72,10 @@ void Pipe::Base::Close_End() {
 Pipe::Write_End::Write_End(std::shared_ptr<Base> pipe) : End(pipe)
 { }
 
+std::uint64_t Pipe::Write_End::Read(size_t limit, void* buffer) {
+	return VFS_Element::Read(limit, buffer);
+}
+
 std::uint64_t Pipe::Write_End::Write(size_t limit, void* buffer) {
 	return pipe->Write(limit, buffer);
 }
@@ -81,6 +85,10 @@ Pipe::Read_End::Read_End(std::shared_ptr<Base> pipe) : End(pipe)
 
 std::uint64_t Pipe::Read_End::Read(size_t limit, void* buffer) {
 	return pipe->Read(limit, buffer);
+}
+
+std::uint64_t Pipe::Read_End::Write(size_t limit, void* buffer) {
+	return VFS_Element::Write(limit, buffer);
 }
 
 template <class Derived>

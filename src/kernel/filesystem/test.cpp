@@ -135,7 +135,7 @@ void writer(kiv_os::THandle handle) {
 }
 
 void reader(kiv_os::THandle handle) {
-	int read;
+	size_t read;
 	char* begin = buffer2;
 
 	while (read = read_file(handle, begin, 32)) {
@@ -212,7 +212,6 @@ void proc_file_test() {
 
 void filesystem_test() {
 	char filename[12];
-	kiv_hal::TRegisters registers;
 
 	auto dir_handler = create_dir("directory");
 	close_handle(dir_handler);
@@ -251,7 +250,7 @@ void filesystem_test() {
 
 	std::uint64_t numbers[500];
 	for (int i = 0; i < 500; i++) {
-		numbers[i] = i * 100;
+		numbers[i] = i * size_t(100);
 	}
 
 	write_file(file_handle, static_cast<void*>(numbers), 500 * sizeof(std::uint64_t));

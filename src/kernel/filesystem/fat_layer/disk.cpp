@@ -19,7 +19,7 @@ void Dummy_Disk::Read(std::uint64_t sector_count, void* sectors_buffer, std::uin
 void Dummy_Disk::Operate(std::uint64_t sector_count, void* sectors_buffer, std::uint64_t lba_index, std::unique_ptr<Dummy_Disk_Operator> Disk_operator) {
 	std::uint64_t starting_element = lba_index * this->sector_size;
 	std::uint64_t bytes_to_operate = sector_count * this->sector_size;
-	for (std::int64_t i = 0; i < bytes_to_operate; i++) {
+	for (std::uint64_t i = 0; i < bytes_to_operate; i++) {
 		std::uint64_t position_to_operate = starting_element + i;
 		unsigned char* buffer_element = static_cast<unsigned char*>(sectors_buffer) + i;
 		Disk_operator->Operate(position_to_operate, buffer_element);

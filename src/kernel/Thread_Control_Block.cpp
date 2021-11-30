@@ -82,5 +82,5 @@ uint16_t Thread_Control_Block::read_exit_code() {
 	DWORD code;
 	GetExitCodeThread(native_handle, &code);
 
-	return code;
+	return static_cast<uint16_t>(code);
 }
