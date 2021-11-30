@@ -70,7 +70,7 @@ std::string get_path(std::string current_path, std::string file) {
 
 size_t recursive_search(std::vector<kiv_os::TDir_Entry>& entries, std::vector<std::string>& all_entries, std::string path, kiv_os::THandle stdout_handle, size_t& f_count, size_t& d_count) {
 	for (const auto entry : entries) {
-		if (utils::is_file(entry.file_attributes)) {
+		if (utils::is_file(static_cast<uint8_t>(entry.file_attributes))) {
 			all_entries.push_back(get_output_string_path(path, entry.file_name, false));
 			continue;
 		}
@@ -90,6 +90,7 @@ size_t recursive_search(std::vector<kiv_os::TDir_Entry>& entries, std::vector<st
 		recursive_search(sub_entries, all_entries, get_path(path, entry.file_name), stdout_handle, f_count, d_count);
 		kiv_os_rtl::Close_Handle(current_file_handle);
 	}
+	return 0;
 }
 
 size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
@@ -128,7 +129,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	}
 	else {
 		for (const auto entry : entries) {
-			std::string file_type = utils::is_dir(entry.file_attributes) ? "+" : " ";
+			std::string file_type = utils::is_dir(static_cast<uint8_t>(entry.file_attributes)) ? "+" : " ";
 			std::string entry_file(file_type + entry.file_name);
 			all_entries.push_back(entry_file);
 		}
