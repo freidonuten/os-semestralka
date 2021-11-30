@@ -1,5 +1,6 @@
 #include "find.h"
 #include "utils.h"
+#include <array>
 
 size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle file_handle;
@@ -7,15 +8,13 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle stdout_handle = regs.rbx.x;
 	const char* parameters = reinterpret_cast<const char*>(regs.rdi.r);
 	size_t chars_written = 0;
-	size_t chars_read = 1;
-	size_t offset = 0;
 	size_t line_counter = 0;
-	char buffer[BUFFER_SIZE];
+	std::array<char, BUFFER_SIZE> buffer = std::array<char, BUFFER_SIZE>();
 	std::string line;
-	std::string word;
-	std::string first_parameter;
-	std::string second_paramer;
+	std::string parameter;
 	std::string filename;
+	std::string word;
+	std::string file_content = "";
 	bool print_count_lines = false;
 	bool print_not_contain_lines = false;
 	kiv_os::NOS_Error error;
@@ -28,84 +27,93 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 
 	std::stringstream ss(parameters);
 
-	ss >> first_parameter;
-	ss >> second_paramer;
-	ss >> word;
-	ss >> filename;
-
-	if (first_parameter == "/V" || first_parameter == "/v" ||
-		second_paramer == "/V" || second_paramer == "/v") {
-		print_not_contain_lines = true;
+	while (ss >> parameter) {
+		if (parameter == "/V" || parameter == "/v") {
+			print_not_contain_lines = true;
+		}
+		else if (parameter == "/C" || parameter == "/c") {
+			print_count_lines = true;
+		}
+		else if (parameter.c_str()[0] == '\"') {
+			word = parameter;
+		}
+		else {
+			filename = parameter;
+		}
 	}
 
-	if (first_parameter == "/C" || first_parameter == "/c" ||
-		second_paramer == "/C" || second_paramer == "/c") {
-		print_count_lines = true;
-	}
-
-	error = kiv_os_rtl::Open_File(filename.data(), utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
-	
-	if (error != kiv_os::NOS_Error::Success) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
-	}
-	
-	while (chars_read) {
-		error = kiv_os_rtl::Seek(file_handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, offset);
+	if (!filename.empty()) {
+		auto [ file_handle, error ] = kiv_os_rtl::Open_File(filename, utils::get_file_attrs());
 		if (error != kiv_os::NOS_Error::Success) {
 			auto message = utils::get_error_message(error);
 			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 			kiv_os_rtl::Exit(2);
 			return 2;
 		}
-		memset(buffer, 0, BUFFER_SIZE);
-		chars_read = 0;
-		error = kiv_os_rtl::Read_File(file_handle, buffer, BUFFER_SIZE, chars_read);
-		if (error != kiv_os::NOS_Error::Success) {
-			auto message = utils::get_error_message(error);
-			kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-			kiv_os_rtl::Exit(2);
-			return 2;
-		}
-		ss << buffer;
-		offset += chars_read;
 	}
-	
+	else {
+		file_handle = stdin_handle;
+	}
+
+
+	while (true) {
+		auto [chars_read, error] = kiv_os_rtl::Read_File(file_handle, buffer);
+		if (chars_read > 0) {
+			file_content.append(buffer.data()).append(new_line);
+			buffer.fill('\0');
+		}
+		else {
+			break;
+		}
+		//kiv_os_rtl::Write_File(stdin_handle, new_line);
+	}
+
 	error = kiv_os_rtl::Close_Handle(file_handle);
-	if (error != kiv_os::NOS_Error::Success) {
+	if (error != kiv_os::NOS_Error::Success && !filename.empty()) {
 		auto message = utils::get_error_message(error);
 		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
 		kiv_os_rtl::Exit(2);
 		return 2;
 	}
 
+
+	word = word.substr(1, word.size() - 2);
 	if (word.empty()) {
 		kiv_os_rtl::Write_File(file_handle, ss.str().data(), ss.str().size(), chars_written);
 		kiv_os_rtl::Exit(0);
 		return 0;
 	}
 
+	std::istringstream input(file_content);
 	std::ostringstream output;
-	
-
-	while (std::getline(ss, line, '\n')) {
+	output << new_line;
+	while (std::getline(input, line, '\n')) {
 		if (!print_not_contain_lines) {
 			if (line.find(word) != std::string::npos) {
 				output << line << new_line;
 			}
 			line_counter++;
-		} else {
+		}
+		else {
 			if (line.find(word) == std::string::npos) {
 				output << line << new_line;
 			}
 			line_counter++;
 		}
-		
+
 	}
 	
-	kiv_os_rtl::Write_File(stdout_handle, output.str().data(), output.str().size(), chars_written);
+	std::string find("FIND:");
+	kiv_os_rtl::Write_File(stdout_handle, new_line.data(), new_line.size(), chars_written);
+	kiv_os_rtl::Write_File(stdout_handle, find.data(), find.size(), chars_written);
+
+	if (!print_count_lines) {
+		kiv_os_rtl::Write_File(stdout_handle, output.str().data(), output.str().size(), chars_written);
+	} else {
+		std::string count_contain_lines = std::to_string(line_counter);
+		kiv_os_rtl::Write_File(stdout_handle, count_contain_lines.data(), count_contain_lines.size(), chars_written);
+	}
+
 	kiv_os_rtl::Exit(0);
 	return 0;
 }
