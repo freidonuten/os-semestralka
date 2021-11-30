@@ -58,7 +58,16 @@ std::vector<std::uint64_t> Cluster_IO::Get_Affected_Sectors_From_Sectors(std::ve
 }
 
 std::uint64_t Cluster_IO::Convert_Position_To_Sector_Index(std::uint64_t position) {
-	return position / this->info->Bytes_Per(Data_Block::SECTOR);
+	if (position == 0) {
+		return 0;
+	}
+
+	//1 -> 0
+	//n -> 0
+	//n + 1 -> 1
+	//n = sector_bytes
+	std::uint64_t a = position - 1;
+	return a / this->info->Bytes_Per(Data_Block::SECTOR);
 }
 
 
