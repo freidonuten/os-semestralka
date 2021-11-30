@@ -103,7 +103,6 @@ void Process_Control_Block::terminate() {
 		TerminateThread(thread.second.get_native_handle(), -1);
 	});
 
-	thread_list.clear();
 	state = Execution_State::FINISHED;
 }
 

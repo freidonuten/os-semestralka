@@ -101,30 +101,23 @@ void Task_Manager::clean_up_thread_handle(const kiv_os::THandle handle) {
 	process->thread_remove(handle);
 }
 
-template<bool return_tid, typename result_type>
-const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, result_type& result) {
+std::tuple<kiv_os::THandle, kiv_os::NOS_Error>
+Task_Manager::create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, bool exec_program) {
 	const auto name_ptr = reinterpret_cast<char*>(regs.rdx.r);
-	//const auto entry = return_tid 
-	//	? kiv_os::TThread_Proc(regs.rdx.r)
-	//	: kiv_os::TThread_Proc(GetProcAddress(User_Programs, reinterpret_cast<char*>(regs.rdx.r)));
-
-	auto entry = kiv_os::TThread_Proc(regs.rdx.r);
-	if (!return_tid) {
-		entry = kiv_os::TThread_Proc(GetProcAddress(User_Programs, reinterpret_cast<char*>(regs.rdx.r)));
-	}
+	const auto entry = exec_program 
+		? kiv_os::TThread_Proc(GetProcAddress(User_Programs, reinterpret_cast<char*>(regs.rdx.r)))
+		: kiv_os::TThread_Proc(regs.rdx.r);
 
 	if (!entry) {
-		// TODO: zničit proces
-		return kiv_os::NOS_Error::File_Not_Found;
+		return { 0, kiv_os::NOS_Error::File_Not_Found };
 	}
 
 	const auto tid = parent.thread_insert(entry, regs);
 	const auto pid = parent.get_pid();
 
 	thread_table.emplace(tid, pid);
-	result = return_tid ? tid : pid;
 
-	return kiv_os::NOS_Error::Success;
+	return { exec_program ? pid : tid, kiv_os::NOS_Error::Success };
 }
 
 const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
@@ -133,8 +126,14 @@ const kiv_os::NOS_Error Task_Manager::create_thread(kiv_hal::TRegisters& regs) {
 	child_regs.rax.x = static_cast<kiv_os::THandle>(regs.rbx.e >> 16);
 	child_regs.rbx.x = static_cast<kiv_os::THandle>(regs.rbx.x);
 
-	// fixme check nullptr
-	return create_thread<true>(child_regs, *get_current_process(), regs.rax.r);
+	const auto [handle, error] = create_thread(child_regs, *get_current_process(), false);
+	if (error != kiv_os::NOS_Error::Success) {
+		return error;
+	}
+
+	regs.rax.r = handle;
+
+	return kiv_os::NOS_Error::Success;
 }
 
 bool Task_Manager::is_valid_handle(kiv_os::THandle handle) const {
@@ -160,15 +159,16 @@ const kiv_os::NOS_Error Task_Manager::create_process(kiv_hal::TRegisters& regs) 
 	child_regs.rbx.x = static_cast<kiv_os::THandle>(regs.rbx.x);
 	child_regs.rdi.r = reinterpret_cast<uint64_t>(process.get_args());
 
-	cwd_holder->Inherit(get_current_process()->get_pid(), process.get_pid());
+	std::tie(regs.rax.x, error) = create_thread(child_regs, process, true);
 
-	const auto result = create_thread<false>(child_regs, process, regs.rax.x);
-
-	if (result != kiv_os::NOS_Error::Success) {
-		process.terminate();
+	if (error != kiv_os::NOS_Error::Success) {
+		process.free();
+		return error;
 	}
 
-	return result;
+	cwd_holder->Inherit(get_current_process()->get_pid(), process.get_pid());
+
+	return kiv_os::NOS_Error::Success;
 }
 
 const kiv_os::NOS_Error Task_Manager::exit(kiv_hal::TRegisters& regs) {
@@ -186,6 +186,7 @@ const kiv_os::NOS_Error Task_Manager::shutdown(kiv_hal::TRegisters& regs) {
 
 	std::for_each(process_table.begin() + 1, process_table.end(), [](auto& process) {
 		process.terminate();
+		// free also?
 	});
 
 	return kiv_os::NOS_Error::Success;
@@ -259,10 +260,10 @@ const kiv_os::NOS_Error Task_Manager::read_exit_code(kiv_hal::TRegisters& regs) 
 	regs.rcx.x = thread->read_exit_code();
 
 	switch (index) {
-	case INFINITE:
-		return kiv_os::NOS_Error::Unknown_Error;
-	case 0:
-		clean_up_thread_handle(tid);
+		case INFINITE:
+			return kiv_os::NOS_Error::Unknown_Error;
+		case 0:
+			clean_up_thread_handle(tid);
 	}
 
 	return kiv_os::NOS_Error::Success;

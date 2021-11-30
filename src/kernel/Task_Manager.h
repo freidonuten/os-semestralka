@@ -24,8 +24,7 @@ class Task_Manager final {
 		bool is_valid_handle(kiv_os::THandle handle) const;
 		const kiv_os::NOS_Error create_process(kiv_hal::TRegisters& regs);
 		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs);
-		template<bool return_tid, typename result_type>
-		const kiv_os::NOS_Error create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, result_type& result);
+		std::tuple<kiv_os::THandle, kiv_os::NOS_Error> create_thread(kiv_hal::TRegisters& regs, Process_Control_Block& parent, bool exec_program);
 		Thread_Control_Block* get_current_thread();
 		Thread_Control_Block* get_thread(const kiv_os::THandle handle);
 		Process_Control_Block* get_process(const kiv_os::THandle handle);
