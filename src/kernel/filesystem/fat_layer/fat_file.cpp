@@ -142,10 +142,12 @@ int Fat_File::Calculate_Cluster_Need(std::uint64_t size_in_bytes) {
 		return 1;
 	}
 
-	std::uint64_t cluster_size = this->info->Bytes_Per(Data_Block::CLUSTER);
-	double result = static_cast<double>(size_in_bytes) / cluster_size;
-	result = std::ceil(result);
-	return static_cast<int>(result);
+	//1 -> 1
+	//n -> 1
+	//n + 1 -> 2
+	//n = sector_bytes
+	std::uint64_t a = size_in_bytes + this->info->Bytes_Per(Data_Block::SECTOR) - 1;
+	return static_cast<int>(a / this->info->Bytes_Per(Data_Block::SECTOR));
 }
 
 std::vector<std::uint64_t> Fat_File::Cast_To_UInt64_Vector(std::vector<std::uint16_t> source) {
