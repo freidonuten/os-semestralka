@@ -153,7 +153,11 @@ void file_system::open_file(kiv_hal::TRegisters& regs, VFS& vfs) {
 	case Open_Result::NO_MEMORY:
 		Set_Error(kiv_os::NOS_Error::Out_Of_Memory, regs);
 		return;
+	case Open_Result::DIRECTORY_NOT_EMPTY:
+		Set_Error(kiv_os::NOS_Error::Directory_Not_Empty, regs);
+		return;
 	}
+	
 
 	Set_Error(kiv_os::NOS_Error::Unknown_Error, regs);
 }
