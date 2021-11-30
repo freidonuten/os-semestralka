@@ -54,6 +54,7 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 				} else if (commands.front().Get_Parameters() == "on") {
 					is_echo_on = true;
 				}
+				continue;
 			} else if (commands.front().command_name == "exit") {
 				break;
 			}

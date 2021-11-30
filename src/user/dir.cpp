@@ -6,7 +6,7 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 	auto buffer = std::array<char, dir_size>();
 	auto files_counter = size_t(0);
 	auto dir_counter = size_t(0);
-	size_t position = 0;
+	auto position = size_t(0);
 
 	kiv_os_rtl::Seek(handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, position);
 	target.reserve(16);
@@ -24,6 +24,12 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 
 		target.push_back(entry);
 	}
+
+	constexpr auto directory_first_predicate = [](const auto& a, const auto& b) {
+		return utils::is_dir(a.file_attributes) > utils::is_dir(b.file_attributes);
+	};
+
+	std::sort(target.begin(), target.end(), directory_first_predicate);
 
 	return { files_counter, dir_counter };
 }
@@ -72,12 +78,14 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	// print
 	std::ostringstream dir_content;
 	dir_content
-		<< "Files: " << file_count << new_line
-		<< "Directories: " << dir_count << new_line;
-
+		<< "Directories: " << dir_count << new_line
+		<< "Files: " << file_count << new_line;
 	
 	for (const auto entry : entries) {
-		dir_content << entry.file_name << new_line;
+		dir_content
+			<< (utils::is_dir(entry.file_attributes) ? "+" : " ")
+			<< entry.file_name
+			<< new_line;
 	}
 
 	kiv_os_rtl::Write_File(stdout_handle, dir_content.str());
