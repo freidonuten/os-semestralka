@@ -1,5 +1,6 @@
 #include "freg.h"
 #include "rtl_wrappers.h"
+#include <iomanip>
 #include <array>
 
 
@@ -35,7 +36,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 	auto ss = std::ostringstream();
 	const auto print = [&ss, i = 0](const auto c) mutable {
 		if (c) {
-			ss << "0x" << std::hex << i << " : " << std::dec << c << '\n';
+			ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << i << " : " << std::dec << c << '\n';
 		} ++i; 
 	};
 
