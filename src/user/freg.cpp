@@ -7,7 +7,7 @@
 size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 	const auto stdin_handle = kiv_os::THandle(regs.rax.x);
 	const auto stdout_handle = kiv_os::THandle(regs.rbx.x);
-	auto buffer = std::array<char, BUFFER_SIZE + 1>{};
+	auto buffer = std::array<char, BUFFER_SIZE>{};
 	auto freq_table = std::array<unsigned int, freq_table_size>{0};
 	const auto update_freq = [&freq_table](const auto c) {
 		++freq_table[static_cast<unsigned int>(c)];
@@ -20,7 +20,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 			KIV_OS_EXIT(2);
 		}
 
-		std::for_each_n(buffer.begin(), size, update_freq);
+		std::for_each(buffer.begin(), buffer.begin() + size, update_freq);
 
 		if (!size || utils::is_stop_char(buffer[size - 1])) {
 			break;
