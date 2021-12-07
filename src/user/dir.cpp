@@ -1,5 +1,6 @@
 #include "dir.h"
 #include "utils.h"
+#include "rtl_wrappers.h"
 #include <array>
 
 std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector<kiv_os::TDir_Entry>& target) {
@@ -11,7 +12,7 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 	kiv_os_rtl::Seek(handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, position);
 	target.reserve(16);
 	while (true) {
-		const auto [count, err] = kiv_os_rtl::Read_File(handle, buffer);
+		const auto [count, err] = rtl::Read_File(handle, buffer);
 
 		if (!count) {
 			break;
@@ -74,12 +75,9 @@ size_t recursive_search(std::vector<kiv_os::TDir_Entry>& entries, std::vector<st
 			all_entries.push_back(get_output_string_path(path, entry.file_name, false));
 			continue;
 		}
-		auto current_file_handle = kiv_os::THandle();
-		auto error = kiv_os_rtl::Open_File(
-			get_path(path, entry.file_name).data(), utils::get_dir_attrs(), kiv_os::NOpen_File::fmOpen_Always, current_file_handle
-		);
+		const auto [current_file_handle, error] = rtl::Open_File(get_path(path, entry.file_name), utils::get_dir_attrs());
 		if (error != kiv_os::NOS_Error::Success) {
-			kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+			rtl::Write_File(stdout_handle, utils::get_error_message(error));
 			KIV_OS_EXIT(2);
 		}
 		all_entries.push_back(get_output_string_path(path, entry.file_name, true));
@@ -88,7 +86,7 @@ size_t recursive_search(std::vector<kiv_os::TDir_Entry>& entries, std::vector<st
 		f_count += file_count;
 		d_count += dir_count;
 		recursive_search(sub_entries, all_entries, get_path(path, entry.file_name), stdout_handle, f_count, d_count);
-		kiv_os_rtl::Close_Handle(current_file_handle);
+		rtl::Close_Handle(current_file_handle);
 	}
 	return 0;
 }
@@ -104,13 +102,10 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	const auto [recurse, filename] = parse_args(args);
 
 	// open file
-	auto file_handle = kiv_os::THandle();
-	auto error = kiv_os_rtl::Open_File(
-		filename.data(), utils::get_dir_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle
-	);
+	auto [file_handle, error] = rtl::Open_File(filename, utils::get_dir_attrs());
 
 	if (error != kiv_os::NOS_Error::Success) {
-		kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		rtl::Write_File(stdout_handle, utils::get_error_message(error));
 		KIV_OS_EXIT(2);
 	}
 
@@ -147,8 +142,8 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 			<< new_line;
 	}
 
-	kiv_os_rtl::Write_File(stdout_handle, dir_content.str());
-	kiv_os_rtl::Close_Handle(file_handle);
+	rtl::Write_File(stdout_handle, dir_content.str());
+	rtl::Close_Handle(file_handle);
 
 	KIV_OS_EXIT(0);
 }

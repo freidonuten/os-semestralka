@@ -33,7 +33,9 @@ std::uint64_t stream::Input_Console_Stream::Read(size_t n, void* buffer_vp) {
 			case kiv_hal::NControl_Codes::LF:  break;	//jenom pohltime, ale necteme
 			case kiv_hal::NControl_Codes::NUL:			//chyba cteni?
 			case kiv_hal::NControl_Codes::EOT:			//konec textu
-			case kiv_hal::NControl_Codes::CR:  return pos;	//docetli jsme az po Enter
+			case kiv_hal::NControl_Codes::CR:
+				buffer[pos] = ch;
+				return pos;	//docetli jsme az po Enter
 
 
 			default: buffer[pos] = ch;

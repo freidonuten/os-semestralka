@@ -1,4 +1,5 @@
 #include "rgen.h"
+#include "rtl_wrappers.h"
 #include <random>
 #include <array>
 
@@ -13,11 +14,11 @@ size_t Terminated(const kiv_hal::TRegisters& regs) {
 
 size_t Check_EOF(const kiv_hal::TRegisters& regs) {
 	const auto stdin_handle = kiv_os::THandle(regs.rax.x);
-	auto buffer = std::array<char, eof_buffer_size>();
+	auto buffer = std::array<char, eof_buffer_size>{ };
 
-	for (size_t count = 1; count; ) {
-		std::tie(count, std::ignore) = kiv_os_rtl::Read_File(stdin_handle, buffer);
-	}
+	do { // read until "stop char" is encountered
+		rtl::Read_File(stdin_handle, buffer);
+	} while (!utils::is_stop_char(buffer[0]));
 
 	is_eof = true;
 	KIV_OS_EXIT(0)
@@ -28,16 +29,15 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	const auto stdout_handle = kiv_os::THandle(regs.rbx.x);
 	const auto signal_handler = reinterpret_cast<kiv_os::TThread_Proc>(Terminated);
 
-	is_eof = false;
-	thread_terminated = false;
+	// initialize termination flags to false
+	is_eof = thread_terminated = false;
 
-	kiv_os_rtl::Register_Signal_Handler(kiv_os::NSignal_Id::Terminate, signal_handler);
+	rtl::Register_Signal_Handler(kiv_os::NSignal_Id::Terminate, signal_handler);
 
-	kiv_os::THandle thread_handle;
-	const auto error = kiv_os_rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle, thread_handle);
+	const auto [thread_handle, error] = rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle);
 
 	if (error != kiv_os::NOS_Error::Success) {
-		kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		rtl::Write_File(stdout_handle, utils::get_error_message(error));
 		KIV_OS_EXIT(1)
 	}
 
@@ -46,11 +46,9 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	std::uniform_real_distribution<float> dist(0, 1);
 
 	while (!is_eof && !thread_terminated) {
-		const auto float_num = std::to_string(dist(engine)) + '\n';
-		kiv_os_rtl::Write_File(stdout_handle, float_num);
+		rtl::Write_File(stdout_handle, std::to_string(dist(engine)) + '\n');
 	}
 
-	uint16_t code;
-	kiv_os_rtl::Read_Exit_Code(thread_handle, code);
+	rtl::Read_Exit_Code(thread_handle);
 	KIV_OS_EXIT(0);
 }

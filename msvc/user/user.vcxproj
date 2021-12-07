@@ -32,6 +32,7 @@
     <ClInclude Include="..\..\src\user\rd.h" />
     <ClInclude Include="..\..\src\user\rgen.h" />
     <ClInclude Include="..\..\src\user\rtl.h" />
+    <ClInclude Include="..\..\src\user\rtl_wrappers.h" />
     <ClInclude Include="..\..\src\user\shell.h" />
     <ClInclude Include="..\..\src\user\shutdown.h" />
     <ClInclude Include="..\..\src\user\sort.h" />
@@ -51,6 +52,7 @@
     <ClCompile Include="..\..\src\user\rd.cpp" />
     <ClCompile Include="..\..\src\user\rgen.cpp" />
     <ClCompile Include="..\..\src\user\rtl.cpp" />
+    <ClCompile Include="..\..\src\user\rtl_wrappers.cpp" />
     <ClCompile Include="..\..\src\user\shell.cpp" />
     <ClCompile Include="..\..\src\user\shutdown.cpp" />
     <ClCompile Include="..\..\src\user\sort.cpp" />

@@ -42,6 +42,16 @@ std::string_view utils::get_error_message(kiv_os::NOS_Error error) {
 	return messages[index];
 }
 
+bool utils::is_stop_char(const char c) {
+	using kiv_hal::NControl_Codes;
+
+	const auto as_enum_base = static_cast<decltype(NControl_Codes::EOT)>(c);
+
+	return as_enum_base == NControl_Codes::EOT
+		|| as_enum_base == NControl_Codes::ETX
+		|| as_enum_base == NControl_Codes::SUB;
+}
+
 
 utils::String_View_Tokenizer::String_View_Tokenizer(const std::string_view& source)
 	: source(source) {};

@@ -10,6 +10,7 @@ namespace utils {
 	bool is_dir(uint8_t attrs);
 	bool is_file(uint8_t attrs);
 	std::string_view get_error_message(kiv_os::NOS_Error error);
+	bool is_stop_char(const char c);
 
 	class String_View_Tokenizer {
 	private:

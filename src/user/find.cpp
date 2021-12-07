@@ -1,5 +1,6 @@
 #include "find.h"
 #include "utils.h"
+#include "rtl_wrappers.h"
 #include <array>
 #include "functional"
 
@@ -70,7 +71,7 @@ std::string make_haystack(const kiv_os::THandle source_handle, const bool append
 	auto buffer = std::array<char, BUFFER_SIZE>();
 
 	while (true) { // load file/stream contents
-		auto [count, error] = kiv_os_rtl::Read_File(source_handle, buffer);
+		auto [count, error] = rtl::Read_File(source_handle, buffer);
 		if (!count) {
 			break;
 		}
@@ -98,9 +99,9 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 	}
 
 	if (config.input_written) { // open file if specified
-		std::tie(file_handle, error) = kiv_os_rtl::Open_File(config.input, utils::get_file_attrs());
+		std::tie(file_handle, error) = rtl::Open_File(config.input, utils::get_file_attrs());
 		if (error != kiv_os::NOS_Error::Success) {
-			kiv_os_rtl::Write_File(stdout_handle, utils::get_error_message(error));
+			rtl::Write_File(stdout_handle, utils::get_error_message(error));
 			KIV_OS_EXIT(2);
 		}
 	}
@@ -109,12 +110,12 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 
 	// if reading from file, close it
 	if (config.input_written) {
-		kiv_os_rtl::Close_Handle(file_handle);
+		rtl::Close_Handle(file_handle);
 	}
 
 	const auto result = filter(haystack, config.pattern, config.inverse_search, config.count_only);
 
-	kiv_os_rtl::Write_File(stdout_handle, result);
+	rtl::Write_File(stdout_handle, result);
 
 	KIV_OS_EXIT(0);
 }
