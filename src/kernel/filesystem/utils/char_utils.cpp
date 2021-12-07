@@ -30,7 +30,7 @@ Path_Type utils::Get_Path_Type(const char* path) {
 Filename_Type utils::Get_Filename_Type(const char* filename) {
 	const auto string = std::string_view(filename);
 
-	if (string[0] == 0) {
+	if (!string.size()) {
 		return Filename_Type::INVALID;
 	}
 
