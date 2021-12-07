@@ -17,6 +17,7 @@ namespace utils {
 		std::string_view source;
 	public:
 		String_View_Tokenizer(const std::string_view& source);
+		bool empty();
 		std::string_view operator()();
 	};
 }

@@ -54,7 +54,11 @@ bool utils::is_stop_char(const char c) {
 
 
 utils::String_View_Tokenizer::String_View_Tokenizer(const std::string_view& source)
-	: source(source) {};
+	: source(source) {}
+bool utils::String_View_Tokenizer::empty() {
+	return !source.size();
+}
+;
 
 std::string_view utils::String_View_Tokenizer::operator()() {
 	while (true) {
