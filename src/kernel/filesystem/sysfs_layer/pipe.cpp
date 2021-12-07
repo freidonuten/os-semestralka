@@ -2,6 +2,8 @@
 
 
 void Pipe::Base::advance_end() {
+	// rotate end pointer by one
+	// this is actually faster than a = b + 1 (mod c)
 	if (++end == buffer.cend()) {
 		end = buffer.begin();
 	}
@@ -9,6 +11,7 @@ void Pipe::Base::advance_end() {
 }
 
 void Pipe::Base::advance_begin() {
+	// rotate begin pointer by one
 	if (++begin == buffer.cend()) {
 		begin = buffer.begin();
 	}
@@ -27,7 +30,7 @@ std::uint64_t Pipe::Base::Write(size_t limit, void* source_vp) {
 	const auto source_end = source_begin + limit;
 	auto source = source_begin;
 
-	while (source < source_end) {
+	while (source < source_end) { // read until input buffer is exhausted
 		std::unique_lock<std::mutex> lock(mutex);
 		cond_writable.wait(lock, [this]() { return filled < BUFFER_SIZE; });
 
@@ -36,6 +39,8 @@ std::uint64_t Pipe::Base::Write(size_t limit, void* source_vp) {
 			advance_end();
 		}
 
+		// source buffer could not be exhausted as internal buffer is already full
+		// let the readers consume what has been written and try again in the next iteration.
 		cond_readable.notify_all();
 	}
 
@@ -52,12 +57,13 @@ std::uint64_t Pipe::Base::Read(size_t limit, void* target_vp) {
 	const auto target_end = target_begin + limit;
 	auto target = target_begin;
 
+	// read from internal buffer until it's empty or the target buffer is full
 	while (target < target_end && filled) {
 		*target++ = *begin;
 		advance_begin();
 	}
 
-	// I read something, let's notify a writer
+	// Something has been read, notify writer
 	cond_writable.notify_all();
 
 	return target - target_begin; // return how much has been read
@@ -103,7 +109,7 @@ Pipe::End<Derived>::~End() {
 Pipe::RW_Pair Pipe::Factory() {
 	const auto base = std::make_shared<Base>();
 
-	return {
+	return { // base is injected to both ends, that's why I need shared pointer
 		std::make_shared<Write_End>(base),
 		std::make_shared<Read_End>(base)
 	};

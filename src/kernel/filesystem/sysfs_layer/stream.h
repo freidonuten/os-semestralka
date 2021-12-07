@@ -21,7 +21,7 @@ namespace stream {
 		std::uint64_t Read(size_t n, void* buffer);
 	};
 
-	struct Output_Console_Stream : public __Stream_Base<Input_Console_Stream> {
+	struct Output_Console_Stream : public __Stream_Base<Output_Console_Stream> {
 		std::uint64_t Write(size_t n, void* buffer);
 	};
 

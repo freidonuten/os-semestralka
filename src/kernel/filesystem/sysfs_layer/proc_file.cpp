@@ -14,12 +14,14 @@ std::uint64_t proc::File::Read(size_t how_many_bytes, void* buffer) {
 		return i.get_state() != Execution_State::FREE;
 	};
 
+	// find next active PCB slot
 	index = std::find_if(index, end, is_running);
 
 	if (index == end) {
-		return 0;
+		return 0; // PCB exhausted, EOF
 	}
 
+	// Get PCB entry and increment PCB iterator
 	const auto& pcb = *index++;
 	auto ss = std::stringstream();
 
@@ -30,6 +32,7 @@ std::uint64_t proc::File::Read(size_t how_many_bytes, void* buffer) {
 	const auto& result = ss.str();
 	const auto  size_limit = min(how_many_bytes, result.length());
 
+	// copy results into target buffer
 	auto buffer_end = std::memcpy(buffer, result.data(), size_limit * sizeof(char));
 
 	return size_limit;

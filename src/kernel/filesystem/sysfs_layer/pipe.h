@@ -8,6 +8,7 @@
 
 
 namespace Pipe {
+	// FIFO pipe with support for one reader/writer
 	class Base {
 	private:
 		static constexpr size_t BUFFER_SIZE = 4096;
@@ -41,6 +42,7 @@ namespace Pipe {
 		void Close_End();
 	};
 
+	// Generic end of a Base pipe, implements the common VFS_Element interface
 	template <class Derived> // CRTP
 	class End : public VFS_Element {
 	protected:
@@ -61,6 +63,7 @@ namespace Pipe {
 		};
 	};
 
+	// Write end of the pipe, prohibits reading
 	struct Write_End final : public End<Write_End> {
 		Write_End() = delete;
 		Write_End(std::shared_ptr<Base> pipe);
@@ -69,6 +72,7 @@ namespace Pipe {
 		std::uint64_t Write(size_t limit, void* buffer) override;
 	};
 
+	// Read end, prohibits writing to underlying pipe
 	struct Read_End final : public End<Read_End> {
 		Read_End() = delete;
 		Read_End(std::shared_ptr<Base> pipe);
@@ -82,6 +86,7 @@ namespace Pipe {
 		std::shared_ptr<Pipe::Read_End>
 	>;
 
+	// creates Write_End and Read_End backed by common Base
 	RW_Pair Factory();
 
 }
