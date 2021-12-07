@@ -247,7 +247,7 @@ void file_system::get_cwd(kiv_hal::TRegisters& regs, VFS& vfs) {
 	const auto buffer_size = regs.rcx.r;
 
 	auto [cwd, directory] = vfs.Get_CWD();
-	regs.rdi.r = cwd->Print(buffer, buffer_size);
+	regs.rax.r = cwd->Print(buffer, buffer_size);
 	Set_Error(kiv_os::NOS_Error::Success, regs);
 }
 
