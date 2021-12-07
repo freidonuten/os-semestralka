@@ -19,7 +19,8 @@ config parse_arguments(const std::string_view arg_string) {
 	auto swt = utils::String_View_Tokenizer(arg_string);
 	auto result = config{};
 
-	for (std::string_view arg; (arg = swt()).size() && result.valid; ) {
+	for (std::string_view arg; !swt.empty() && result.valid; ) {
+		arg = swt();
 		if (arg == "/v" || arg == "/V") {
 			result.inverse_search = true;
 		} else if (arg == "/c" || arg == "/C") {
@@ -47,19 +48,20 @@ std::string filter(const std::string haystack, const std::string needle, const b
 	auto ss = std::istringstream(haystack);
 	auto output = std::ostringstream();
 	auto matches = size_t(0);
+	const auto empty_search = !needle.size(); // this is to simulate the weird cmd.exe behaviour where "" matches nothing
 
-	for (std::string line; std::getline(ss, line, '\n'); ) {
+	for (std::string line; std::getline(ss, line, '\n'); ) { // apply pattern (needle) to each line
 		const auto match = std::search(line.begin(), line.end(), searcher) != line.end();
-		if (inverse ^ match) {
-			if (count) {
+		if (inverse ^ match ^ empty_search) {
+			if (count) { // /c flag present, increase match count
 				++matches;
-			} else {
+			} else { // /c flag absent, write the line
 				output << line << new_line;
 			}
 		}
 	}
 
-	if (count) {
+	if (count) { // /c flag present, write the count
 		output << matches << new_line;
 	}
 
