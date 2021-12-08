@@ -139,7 +139,7 @@ kiv_os::NOS_Error kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THan
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Thread);
 	regs.rdx.r = reinterpret_cast<uint64_t>(name);
 	regs.rdi.r = reinterpret_cast<uint64_t>(data);
-	regs.rbx.e = 1; // FIXME this is hack
+	regs.rbx.e = (handle_stdin << 16) | handle_stdout;
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	new_process = static_cast<kiv_os::THandle>(regs.rax.r);
 	return Read_Error(regs);
