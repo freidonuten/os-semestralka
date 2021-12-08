@@ -4,6 +4,9 @@
 
 #define KIV_OS_EXIT(code) kiv_os_rtl::Exit(code); return code;
 
+// This is a thin wrapper library above our original RTL
+// The idea of this wrapper is to completely abolish output params and use
+// return values instead. The result is much cleaner and mode C++-sy client code.
 namespace rtl {
 	template<typename SizedBuffer>
 	std::pair<kiv_os::THandle, kiv_os::NOS_Error> Open_File(const SizedBuffer& filename, std::uint8_t attributes, kiv_os::NOpen_File flags = kiv_os::NOpen_File::fmOpen_Always) {

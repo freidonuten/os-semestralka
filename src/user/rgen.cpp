@@ -49,6 +49,7 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	std::uniform_real_distribution<float> dist(0, 1);
 
 	while (!is_eof && !thread_terminated) {
+		// generate random numbers and keep printing them until eof detected
 		rtl::Write_File(stdout_handle, std::to_string(dist(engine)) + '\n');
 	}
 
