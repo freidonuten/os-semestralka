@@ -73,9 +73,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 				close_handles(opened_files);
 				return;
 			}
-			else {
-				opened_files.push_back(handle_in);
-			}
+			opened_files.push_back(handle_in);
 		}
 
 		if (command.has_output_file) {
@@ -85,9 +83,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 				close_handles(opened_files);
 				return;
 			}
-			else {
-				opened_files.push_back(handle_out);
-			}
+			opened_files.push_back(handle_out);
 		}
 
 		else if (index + 2 <= commands.size()) {

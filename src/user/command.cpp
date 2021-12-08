@@ -14,11 +14,11 @@ Command::Command() {
 }
 
 // Parse input command to single commands
-std::vector<Command> Command::Parse_Input(std::string const& input) {
+std::vector<Command> Command::Parse_Input(const std::string& input) {
     std::vector<std::string> commands_string;
-    std::vector<Command> commands;
     std::istringstream input_stream(input);
     std::string token;
+
     while (std::getline(input_stream, token, '|')) {
         commands_string.push_back(token);
     }
@@ -35,13 +35,14 @@ std::vector<Command> Command::Parse_Commands(std::vector<std::string>& commands)
         return {};
     }
 
-    for (auto& command : commands) {
+    for (const auto& command : commands) {
         if (command.empty()) {
             continue;
         }
         Command new_command = Parse_Command(command);
-        if (new_command.command_name.empty())
+        if (new_command.command_name.empty()) {
             continue;
+        }
         if (!first_command) {
             first_command = true;
         } else {
@@ -53,8 +54,7 @@ std::vector<Command> Command::Parse_Commands(std::vector<std::string>& commands)
 }
 
 Command Command::Parse_Command(std::string command) {
-    const char* p_command = command.data();
-    std::stringstream stream(p_command);
+    std::stringstream stream(command);
     std::string token;
     std::string filename;
     Command new_command;
