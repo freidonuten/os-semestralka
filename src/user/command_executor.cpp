@@ -8,12 +8,14 @@
 #include <map>
 #include <deque>
 
+// Close handle 
 void close_handles(std::vector<kiv_os::THandle>& opened_files) {
 	for (auto handle : opened_files) {
 		rtl::Close_Handle(handle);
 	}
 }
 
+// Print in console current working directory
 void cwd(const kiv_os::THandle out, const std::string& path) {
 		if (!path.size()) {
 			auto cwd_buffer = std::array<char, 256>{};
@@ -31,6 +33,7 @@ void cwd(const kiv_os::THandle out, const std::string& path) {
 		}
 }
 
+// Execute commands in vector
 void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
 	std::vector<kiv_os::THandle> handles;
 	size_t chars_written = 0;
@@ -41,8 +44,10 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 
 	std::vector<kiv_os::THandle> opened_files;
 
+	// Index of current execute command
 	auto index = size_t(0);
 
+	// Return pipe from queue
 	const auto consume_first_pipe = [&pipe_queue, &used_pipes]() {
 		const auto handle = pipe_queue.front();
 		pipe_queue.pop_front();
@@ -50,7 +55,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		return handle;
 	};
 
-
+	// Loop through commands from console
 	for (Command command : commands) {
 		kiv_os::THandle process_handle;
 		kiv_os::THandle handle_in = stdin_handle;
@@ -61,11 +66,13 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			return;
 		}
 
+		// exit on EOT
 		if (static_cast<kiv_hal::NControl_Codes>(command.command_name[0]) == kiv_hal::NControl_Codes::EOT) {
-			rtl::Exit(0); // exit on EOT
+			rtl::Exit(0); 
 			return;
 		}
 
+		// Try to open input file if command contain
 		if (command.has_input_file) {
 			std::tie(handle_in, error) = rtl::Open_File(command.input_filename, utils::get_file_attrs());
 			if (error != kiv_os::NOS_Error::Success) {
@@ -76,6 +83,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			opened_files.push_back(handle_in);
 		}
 
+		// Try to open output file if command contain
 		if (command.has_output_file) {
 			std::tie(handle_out, error) = rtl::Open_File(command.output_filename, utils::get_file_attrs(), static_cast<kiv_os::NOpen_File>(0));
 			if (error != kiv_os::NOS_Error::Success) {
@@ -86,6 +94,7 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			opened_files.push_back(handle_out);
 		}
 
+		// Create pipe if there are more than 1 command
 		else if (index + 2 <= commands.size()) {
 			kiv_os::THandle pipe_handles[2];
 			error = kiv_os_rtl::Create_Pipe(pipe_handles);
@@ -98,17 +107,18 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			pipe_queue.push_back(pipe_handles[0]);
 		}
 
-
+		// Return input pipe from previous command
 		if (index > 0) {
 			handle_in = consume_first_pipe();
 		}
 
+		// Return ouput pipe for next command
 		if (index < commands.size() - 1) {
 			handle_out = consume_first_pipe();
 		}
 
+		// Create new process for command
 		std::tie(process_handle, error) = rtl::Create_Process(command.command_name, command.Get_Parameters(), handle_in, handle_out);
-
 		if (error != kiv_os::NOS_Error::Success) {
 			rtl::Write_File(stdout_handle,  utils::get_error_message(error));
 			close_handles(opened_files);
@@ -127,6 +137,8 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 	};
 
 	index = 0;
+
+	// Loop through process handlers and read return codes
 	for (const auto handle : handles) {
 		rtl::Read_Exit_Code(handle);
 

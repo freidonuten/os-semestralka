@@ -53,6 +53,7 @@ std::vector<Command> Command::Parse_Commands(std::vector<std::string>& commands)
     return parsed_commands;
 }
 
+// Parse single command with parameters
 Command Command::Parse_Command(std::string command) {
     std::stringstream stream(command);
     std::string token;
@@ -90,6 +91,7 @@ Command Command::Parse_Command(std::string command) {
     return new_command;
 }
 
+// Return string of parameters of command
 std::string Command::Get_Parameters() {
     std::string all_parameters;
     for (auto it = parameters.begin(); it != parameters.end(); it++) {

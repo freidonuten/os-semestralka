@@ -4,7 +4,7 @@
 #include <array>
 #include "functional"
 
-
+// Config structure
 struct config {
 	bool valid = true;
 	bool count_only = false;
@@ -15,6 +15,7 @@ struct config {
 	std::string input = "";
 };
 
+// Parse input arguments
 config parse_arguments(const std::string_view arg_string) {
 	auto swt = utils::String_View_Tokenizer(arg_string);
 	auto result = config{};
@@ -43,19 +44,24 @@ config parse_arguments(const std::string_view arg_string) {
 	return result;
 }
 
+
 std::string filter(const std::string haystack, const std::string needle, const bool inverse, const bool count) {
 	auto searcher = std::boyer_moore_searcher(needle.begin(), needle.end());
 	auto ss = std::istringstream(haystack);
 	auto output = std::ostringstream();
 	auto matches = size_t(0);
-	const auto empty_search = !needle.size(); // this is to simulate the weird cmd.exe behaviour where "" matches nothing
+	// this is to simulate the weird cmd.exe behaviour where "" matches nothing
+	const auto empty_search = !needle.size();
 
-	for (std::string line; std::getline(ss, line, '\n'); ) { // apply pattern (needle) to each line
+	// apply pattern (needle) to each line
+	for (std::string line; std::getline(ss, line, '\n'); ) {
 		const auto match = std::search(line.begin(), line.end(), searcher) != line.end();
 		if (inverse ^ match ^ empty_search) {
-			if (count) { // /c flag present, increase match count
+			// /c flag present, increase match count
+			if (count) {
 				++matches;
-			} else { // /c flag absent, write the line
+			// /c flag absent, write the line
+			} else {
 				output << line << new_line;
 			}
 		}
@@ -68,11 +74,13 @@ std::string filter(const std::string haystack, const std::string needle, const b
 	return output.str();
 }
 
+
 std::string make_haystack(const kiv_os::THandle source_handle, const bool append_newlines) {
 	auto contents = std::string("");
 	auto buffer = std::array<char, BUFFER_SIZE>();
 
-	while (true) { // load file/stream contents
+	// Load file/stream contents
+	while (true) { 
 		auto [count, eof, error] = rtl::Read_File(source_handle, buffer);
 		if (eof) {
 			break;
@@ -82,7 +90,6 @@ std::string make_haystack(const kiv_os::THandle source_handle, const bool append
 		if (append_newlines) {
 			contents.append(new_line);
 		}
-
 	}
 
 	return contents;
@@ -94,14 +101,17 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 	auto file_handle = kiv_os::THandle(stdin_handle);
 	auto error = kiv_os::NOS_Error::Success;
 
+	// Parse arguments into config structure
 	const auto config = parse_arguments(reinterpret_cast<char*>(regs.rdi.r));
 
+	// Check if configuration is valid
 	if (!config.valid) {
 		// too many arguments or missing pattern
 		KIV_OS_EXIT(1);
 	}
 
-	if (config.input_written) { // open file if specified
+	// Open file if specified
+	if (config.input_written) { 
 		std::tie(file_handle, error) = rtl::Open_File(config.input, utils::get_file_attrs());
 		if (error != kiv_os::NOS_Error::Success) {
 			rtl::Write_File(stdout_handle, utils::get_error_message(error));
@@ -111,13 +121,14 @@ size_t __stdcall find(const kiv_hal::TRegisters& regs) {
 
 	const auto haystack = make_haystack(file_handle, !config.input_written);
 
-	// if reading from file, close it
+	// If reading from file, close it
 	if (config.input_written) {
 		rtl::Close_Handle(file_handle);
 	}
 
 	const auto result = filter(haystack, config.pattern, config.inverse_search, config.count_only);
 
+	// Write to stdout
 	rtl::Write_File(stdout_handle, result);
 
 	KIV_OS_EXIT(0);
