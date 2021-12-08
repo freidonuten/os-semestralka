@@ -43,6 +43,9 @@ std::uint64_t VFS_File::Write(size_t how_many_bytes, void* buffer) {
 std::uint64_t VFS_File::Read(size_t how_many_bytes, void* buffer) {
 	std::uint64_t read = this->fat_file->Read_From_File(this->file_position, how_many_bytes, buffer);
 	this->file_position += read;
+	if (read < how_many_bytes) {
+		static_cast<char*>(buffer)[read++] = '\x04';
+	}
 	return read;
 }
 

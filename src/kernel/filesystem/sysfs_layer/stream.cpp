@@ -5,6 +5,7 @@ std::uint64_t stream::Input_Console_Stream::Read(size_t n, void* buffer_vp) {
 	auto buffer = static_cast<char*>(buffer_vp);
 	auto registers = kiv_hal::TRegisters();
 	auto pos = size_t(0);
+	auto flush = false;
 
 	while (pos < n) {
 		//read char
@@ -30,20 +31,24 @@ std::uint64_t stream::Input_Console_Stream::Read(size_t n, void* buffer_vp) {
 				}
 				break;
 
-			case kiv_hal::NControl_Codes::LF:  break;	//jenom pohltime, ale necteme
 			case kiv_hal::NControl_Codes::NUL:			//chyba cteni?
 			case kiv_hal::NControl_Codes::EOT:			//konec textu
+				buffer[pos++] = ch;
+				return pos;
+			case kiv_hal::NControl_Codes::LF:  break;	//jenom pohltime, ale necteme
 			case kiv_hal::NControl_Codes::CR:
-				buffer[pos] = ch;
-				return pos + 1;	//docetli jsme az po Enter
+				ch = '\n';
+				flush = true;
 
 
-			default: buffer[pos] = ch;
-					 pos++;	
+			default: buffer[pos++] = ch;
 					 registers.rax.h = static_cast<decltype(registers.rax.l)>(kiv_hal::NVGA_BIOS::Write_String);
 					 registers.rdx.r = reinterpret_cast<decltype(registers.rdx.r)>(&ch);
 					 registers.rcx.r = 1;
 					 kiv_hal::Call_Interrupt_Handler(kiv_hal::NInterrupt::VGA_BIOS, registers);
+					 if (flush) {
+						 return pos;
+					 }
 					 break;
 		}
 	}

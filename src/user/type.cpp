@@ -1,5 +1,7 @@
 #include "type.h"
 #include "utils.h"
+#include "rtl_wrappers.h"
+#include <array>
 
 size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	kiv_os::THandle file_handle;
@@ -21,34 +23,30 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	std::string filename(p_filename);
 	std::string file_content = "";
 	
-	char buffer[BUFFER_SIZE];
-	memset(buffer, 0, BUFFER_SIZE);
+	auto buffer = std::array<char, BUFFER_SIZE>{};
 
 	error = kiv_os_rtl::Open_File(p_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
 	// kontrola zda se podarilo otevrit soubor
 	if (error != kiv_os::NOS_Error::Success) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
+		rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		KIV_OS_EXIT(2);
 	}
 
-	while (chars_read == BUFFER_SIZE) {
-		chars_read = 0;
-		kiv_os_rtl::Read_File(file_handle, buffer, BUFFER_SIZE, chars_read);
-		file_content.append(buffer, chars_read);
+	while (1) {
+		const auto [count, eof, error] = rtl::Read_File(file_handle, buffer);
+		file_content.append(buffer.data(), count);
+		if (eof) {
+			break;
+		}
 	}
 
 	error = kiv_os_rtl::Close_Handle(file_handle);
 	if (error != kiv_os::NOS_Error::Success) {
-		auto message = utils::get_error_message(error);
-		kiv_os_rtl::Write_File(stdout_handle, message.data(), message.size(), chars_written);
-		kiv_os_rtl::Exit(2);
-		return 2;
+		rtl::Write_File(stdout_handle, utils::get_error_message(error));
+		KIV_OS_EXIT(2);
 	}
 
 	kiv_os_rtl::Write_File(stdout_handle, file_content.data(), file_content.size(), chars_written);
-	kiv_os_rtl::Exit(0);
-	return 0;
+	KIV_OS_EXIT(0);
 }

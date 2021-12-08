@@ -17,7 +17,7 @@ size_t __stdcall tasklist(const kiv_hal::TRegisters& regs) {
 	auto processes = std::string(TASKLIST_TITLE);
 
 	for (size_t count = 1; count; ) {
-		std::tie(count, std::ignore) = rtl::Read_File(handle, buffer);
+		std::tie(count, std::ignore, std::ignore) = rtl::Read_File(handle, buffer);
 		processes.append(buffer.data(), count);
 	}
 

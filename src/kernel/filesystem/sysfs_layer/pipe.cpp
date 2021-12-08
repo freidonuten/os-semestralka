@@ -66,6 +66,11 @@ std::uint64_t Pipe::Base::Read(size_t limit, void* target_vp) {
 	// Something has been read, notify writer
 	cond_writable.notify_all();
 
+	// if pipe is exhausted, insert EOF marker
+	if (partially_closed && filled == 0 && (target - target_begin) < limit) {
+		*target++ = '\x04';
+	}
+
 	return target - target_begin; // return how much has been read
 }
 

@@ -17,7 +17,7 @@ size_t Check_EOF(const kiv_hal::TRegisters& regs) {
 	auto buffer = std::array<char, eof_buffer_size>{ };
 
 	do { // read until "stop char" is encountered
-		const auto [size, error] = rtl::Read_File(stdin_handle, buffer);
+		const auto [size, eof, error] = rtl::Read_File(stdin_handle, buffer);
 		if (!size) {
 			break; // end of pipe?
 		}

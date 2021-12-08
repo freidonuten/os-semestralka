@@ -10,7 +10,7 @@
 
 bool is_echo_on = true;
 
-void Print_Newline_Prompt(const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
+void Print_Newline_Prompt(const kiv_os::THandle& stdout_handle) {
 	auto cwd_buffer = std::array<char, 256>{};
 	const auto [size, error] = rtl::Get_Working_Dir(cwd_buffer);
 
@@ -30,15 +30,14 @@ size_t __stdcall shell(const kiv_hal::TRegisters &regs) {
 
 	while(1) {
 		if (is_echo_on) {
-			Print_Newline_Prompt(std_in, std_out);
+			Print_Newline_Prompt(std_out);
 		}
 
-		const auto [count, error] = rtl::Read_File(std_in, buffer);
+		const auto [count, eof, error] = rtl::Read_File(std_in, buffer);
 		if (error == kiv_os::NOS_Error::Success) {
 			const auto input_command = std::string(buffer.data(), count);
 			auto commands = Command::Parse_Input(input_command);
 
-			rtl::Write_File(std_out, new_line);
 			if (!commands.size()) {
 				continue;
 			}

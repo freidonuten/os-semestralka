@@ -15,9 +15,11 @@ namespace rtl {
 	}
 
 	template<typename SizedBuffer>
-	std::pair<size_t, kiv_os::NOS_Error> Read_File(const kiv_os::THandle file_handle, SizedBuffer& buf) {
+	std::tuple<size_t, bool, kiv_os::NOS_Error> Read_File(const kiv_os::THandle file_handle, SizedBuffer& buf) {
 		auto count = size_t(0);
-		return { count, kiv_os_rtl::Read_File(file_handle, buf.data(), buf.size(), count) };
+		const auto error = kiv_os_rtl::Read_File(file_handle, buf.data(), buf.size(), count);
+		const auto eof = !count || buf[count - 1] == '\x04';
+		return { eof && count ? count - 1 : count, eof, error };
 	}
 	
 	template<typename SizedBuffer>

@@ -73,7 +73,7 @@ std::string make_haystack(const kiv_os::THandle source_handle, const bool append
 	auto buffer = std::array<char, BUFFER_SIZE>();
 
 	while (true) { // load file/stream contents
-		auto [count, error] = rtl::Read_File(source_handle, buffer);
+		auto [count, eof, error] = rtl::Read_File(source_handle, buffer);
 		if (!count) {
 			break;
 		}

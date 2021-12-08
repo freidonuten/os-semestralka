@@ -14,7 +14,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 	};
 
 	while (1) {
-		const auto [size, error] = rtl::Read_File(stdin_handle, buffer);
+		const auto [size, eof, error] = rtl::Read_File(stdin_handle, buffer);
 		if (error != kiv_os::NOS_Error::Success) {
 			rtl::Write_File(stdout_handle, utils::get_error_message(error));
 			KIV_OS_EXIT(2);

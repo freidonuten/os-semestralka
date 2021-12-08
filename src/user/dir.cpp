@@ -12,7 +12,7 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 	kiv_os_rtl::Seek(handle, kiv_os::NFile_Seek::Set_Position, kiv_os::NFile_Seek::Beginning, position);
 	target.reserve(16);
 	while (true) {
-		const auto [count, err] = rtl::Read_File(handle, buffer);
+		const auto [count, eof, err] = rtl::Read_File(handle, buffer);
 
 		if (!count) {
 			break;
@@ -36,25 +36,30 @@ std::pair<size_t, size_t> load_entries(const kiv_os::THandle handle, std::vector
 	return { files_counter, dir_counter };
 }
 
-std::pair<bool, std::string> parse_args(const std::string args) {
-	auto iss = std::istringstream(args);
-	auto results = std::vector<std::string>(
-		std::istream_iterator<std::string>{iss},
-		std::istream_iterator<std::string>()
-		);
+struct configuration {
+	std::string file = ".";
+	bool file_present = false;
+	bool recurse = false;
+	bool valid = true;
+};
 
-	if (results.size() == 1) {
-		if (results[0] == "/S") {
-			return { true, "." };
+configuration parse_args(const std::string args) {
+	auto swt = utils::String_View_Tokenizer(args);
+	auto result = configuration{};
+
+	while (!swt.empty() && result.valid) {
+		const auto token = swt();
+		if (token == "/s" || token == "/S") {
+			result.recurse = true;
+		} else if (!result.file_present) {
+			result.file = token;
+			result.file_present = true;
+		} else {
+			result.valid = false;
 		}
-		return { false, results[0] };
 	}
 
-	if (results.size() == 2 && results[0] == "/S") {
-		return { true, results[1] };
-	}
-
-	return { false, "." };
+	return result;
 }
 
 std::string get_output_string_path(std::string current_path, std::string file, bool isDir) {
@@ -99,10 +104,15 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 
 	// parse arguments
 	auto args = std::string(reinterpret_cast<const char*>(regs.rdi.r));
-	const auto [recurse, filename] = parse_args(args);
+	const auto config = parse_args(args);
+
+	if (!config.valid) {
+		rtl::Write_File(stdout_handle, std::string("Invalid arguments\n"));
+		KIV_OS_EXIT(2);
+	}
 
 	// open file
-	auto [file_handle, error] = rtl::Open_File(filename, utils::get_dir_attrs());
+	auto [file_handle, error] = rtl::Open_File(config.file, utils::get_dir_attrs());
 
 	if (error != kiv_os::NOS_Error::Success) {
 		rtl::Write_File(stdout_handle, utils::get_error_message(error));
@@ -116,7 +126,7 @@ size_t __stdcall dir(const kiv_hal::TRegisters& regs) {
 	f_count += file_count;
 	d_count += dir_count;
 
-	if (recurse) {
+	if (config.recurse) {
 		std::string path;
 		size_t chars_written = 0;
 		kiv_os_rtl::Get_Working_Dir(path.data(), BUFFER_SIZE, chars_written);
