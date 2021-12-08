@@ -61,32 +61,32 @@ Command Command::Parse_Command(std::string command) {
     if (!(stream >> token)) {
         return {};
     }
+
+    const auto set_file = [&token, &stream](auto& bool_flag, auto& target, const auto matcher) {
+        if (bool_flag = token[0] == matcher) {
+            if (token.size() == 1) {
+                stream >> token;
+                target = token;
+            } else {
+                target = token.substr(1, token.size() - 1);
+            }
+        }
+        return bool_flag;
+    };
+
     new_command.command_name = token;
     token.clear();
     while (stream >> token) {
-        if (token.c_str()[0] == INPUT_FOR_COMMAND) {
-            if (token.size() == 1) {
-                stream >> token;
-                new_command.input_filename = token;
-            } else {
-                new_command.input_filename = token.substr(1, token.size() - 1);
-            }
-            new_command.has_input_file = true;
-        }
-        else if (token.c_str()[0] == OUTPUT_FOR_COMMAND) {
-            if (token.size() == 1) {
-                stream >> token;
-                new_command.output_filename = token;
-            } else {
-                new_command.output_filename = token.substr(1, token.size() - 1);
-            }
-            new_command.has_output_file = true;
-        }
-        else {
+        const auto file_found = set_file(new_command.has_input_file, new_command.input_filename, INPUT_FOR_COMMAND)
+            || set_file(new_command.has_output_file, new_command.output_filename, OUTPUT_FOR_COMMAND);
+
+        if (!file_found) {
             new_command.parameters.push_back(token);
-        }
+		}
+
         token.clear();
     }
+
     return new_command;
 }
 
