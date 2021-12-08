@@ -61,6 +61,11 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 			return;
 		}
 
+		if (static_cast<kiv_hal::NControl_Codes>(command.command_name[0]) == kiv_hal::NControl_Codes::EOT) {
+			rtl::Exit(0); // exit on EOT
+			return;
+		}
+
 		if (command.has_input_file) {
 			std::tie(handle_in, error) = rtl::Open_File(command.input_filename, utils::get_file_attrs());
 			if (error != kiv_os::NOS_Error::Success) {
