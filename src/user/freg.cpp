@@ -22,7 +22,7 @@ size_t __stdcall freq(const kiv_hal::TRegisters& regs) {
 
 		std::for_each(buffer.begin(), buffer.begin() + size, update_freq);
 
-		if (!size || utils::is_stop_char(buffer[size - 1])) {
+		if (eof) {
 			break;
 		}
 	}
