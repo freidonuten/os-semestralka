@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <array>
 #include <regex>
 #include <map>
 #include <deque>
@@ -11,6 +12,23 @@ void close_handles(std::vector<kiv_os::THandle>& opened_files) {
 	for (auto handle : opened_files) {
 		rtl::Close_Handle(handle);
 	}
+}
+
+void cwd(const kiv_os::THandle out, const std::string& path) {
+		if (!path.size()) {
+			auto cwd_buffer = std::array<char, 256>{};
+			const auto [size, error] = rtl::Get_Working_Dir(cwd_buffer);
+
+			rtl::Write_File(out, std::string_view(cwd_buffer.data(), size));
+			rtl::Write_File(out, new_line);
+
+			return;
+		} 
+
+		kiv_os::NOS_Error ret_code = rtl::Set_Working_Directory(path);
+		if (ret_code != kiv_os::NOS_Error::Success) {
+			rtl::Write_File(out, ERROR_MSG_DIR_NOT_FOUND);
+		}
 }
 
 void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_os::THandle& stdin_handle, const kiv_os::THandle& stdout_handle) {
@@ -38,11 +56,8 @@ void CommandExecutor::Execute_Command(std::vector<Command> commands, const kiv_o
 		kiv_os::THandle handle_in = stdin_handle;
 		kiv_os::THandle handle_out = stdout_handle;
 
-		if (strcmp(command.command_name.c_str(), "cd") == 0) {
-			kiv_os::NOS_Error ret_code = rtl::Set_Working_Directory(command.Get_Parameters());
-			if (ret_code != kiv_os::NOS_Error::Success) {
-				rtl::Write_File(handle_out, ERROR_MSG_DIR_NOT_FOUND);
-			}
+		if (command.command_name == "cd") {
+			cwd(handle_out, command.Get_Parameters());
 			return;
 		}
 
