@@ -10,6 +10,9 @@ void kiv_os_rtl::Default_Signal_Handler() {
 	return;
 }
 
+/*
+	Read and return exit code
+*/
 kiv_os::NOS_Error Read_Error(kiv_hal::TRegisters& regs) {
 	if (regs.flags.carry) {
 		return static_cast<kiv_os::NOS_Error>(regs.rax.r);
@@ -34,6 +37,9 @@ kiv_hal::TRegisters Prepare_SysCall_Context(kiv_os::NOS_Service_Major major, uin
 	FILESYSTEM
 */
 
+/*
+	Read from file and store to buffer. Parameter read is count of chars read.
+*/
 kiv_os::NOS_Error kiv_os_rtl::Read_File(const kiv_os::THandle file_handle, char* const buffer, const size_t buffer_size, size_t &read) {
 	kiv_hal::TRegisters regs =  Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Read_File));
 	regs.rdx.x = static_cast<decltype(regs.rdx.x)>(file_handle);
@@ -45,6 +51,9 @@ kiv_os::NOS_Error kiv_os_rtl::Read_File(const kiv_os::THandle file_handle, char*
 	return Read_Error(regs);
 }
 
+/*
+	Write buffer content to file/console. Parameter written is count of chars writed.
+*/
 kiv_os::NOS_Error kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, const char *buffer, const size_t buffer_size, size_t &written) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Write_File));
 	regs.rdx.x = static_cast<decltype(regs.rdx.x)>(file_handle);
@@ -56,6 +65,9 @@ kiv_os::NOS_Error kiv_os_rtl::Write_File(const kiv_os::THandle file_handle, cons
 	return Read_Error(regs);
 }
 
+/*
+	Open file by filename. Parameter open is handle to open file.
+*/
 kiv_os::NOS_Error kiv_os_rtl::Open_File(const char* filename, std::uint8_t attributes, kiv_os::NOpen_File flags, kiv_os::THandle &open) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Open_File));
 	regs.rdx.r = reinterpret_cast<uint64_t>(filename);
@@ -66,6 +78,9 @@ kiv_os::NOS_Error kiv_os_rtl::Open_File(const char* filename, std::uint8_t attri
 	return Read_Error(regs);
 }
 
+/*
+	Seek can set seek, get seek or set size of file. Position can be relative by begin, end or current possition in file.
+*/
 kiv_os::NOS_Error kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek operation, kiv_os::NFile_Seek from_position, size_t &position) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Seek));
 	regs.rdx.x = handle;
@@ -82,6 +97,9 @@ kiv_os::NOS_Error kiv_os_rtl::Seek(kiv_os::THandle handle, kiv_os::NFile_Seek op
 	return Read_Error(regs);
 }
 
+/*
+	Close handle
+*/
 kiv_os::NOS_Error kiv_os_rtl::Close_Handle(kiv_os::THandle handle) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Close_Handle));
 	regs.rdx.x = handle;
@@ -89,6 +107,9 @@ kiv_os::NOS_Error kiv_os_rtl::Close_Handle(kiv_os::THandle handle) {
 	return Read_Error(regs);
 }
 
+/*
+	Delete file by filename.
+*/
 kiv_os::NOS_Error kiv_os_rtl::Delete_File(const char* filename) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Delete_File));
 	regs.rdx.r = reinterpret_cast<uint64_t>(filename);
@@ -96,6 +117,9 @@ kiv_os::NOS_Error kiv_os_rtl::Delete_File(const char* filename) {
 	return Read_Error(regs);
 }
 
+/*
+	Set current working directory by path
+*/
 kiv_os::NOS_Error kiv_os_rtl::Set_Working_Dir(const char* path) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Set_Working_Dir));
 	regs.rdx.r = reinterpret_cast<uint64_t>(path);
@@ -103,6 +127,9 @@ kiv_os::NOS_Error kiv_os_rtl::Set_Working_Dir(const char* path) {
 	return Read_Error(regs);
 }
 
+/*
+	Get current working directory
+*/
 kiv_os::NOS_Error kiv_os_rtl::Get_Working_Dir(char* buffer, const size_t filename_lenght, size_t &chars_written) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Get_Working_Dir));
 	regs.rdx.r = reinterpret_cast<uint64_t>(buffer);
@@ -112,6 +139,9 @@ kiv_os::NOS_Error kiv_os_rtl::Get_Working_Dir(char* buffer, const size_t filenam
 	return Read_Error(regs);
 }
 
+/*
+	Create new pipe and store input and output to handles
+*/
 kiv_os::NOS_Error kiv_os_rtl::Create_Pipe(kiv_os::THandle *handles) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::File_System, static_cast<uint8_t>(kiv_os::NOS_File_System::Create_Pipe));
 	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
@@ -123,6 +153,9 @@ kiv_os::NOS_Error kiv_os_rtl::Create_Pipe(kiv_os::THandle *handles) {
 	PROCESS
 */
 
+/*
+	Create new process of command
+*/
 kiv_os::NOS_Error kiv_os_rtl::Create_Process(const char* name, const char* arguments, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle & new_process) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Clone));
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Process);
@@ -134,6 +167,9 @@ kiv_os::NOS_Error kiv_os_rtl::Create_Process(const char* name, const char* argum
 	return Read_Error(regs);
 }
 
+/*
+	Create new thread
+*/
 kiv_os::NOS_Error kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THandle handle_stdin, kiv_os::THandle handle_stdout, kiv_os::THandle &new_process) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Clone));
 	regs.rcx.r = static_cast<uint64_t>(kiv_os::NClone::Create_Thread);
@@ -145,6 +181,9 @@ kiv_os::NOS_Error kiv_os_rtl::Create_Thread(void *name, void *data, kiv_os::THan
 	return Read_Error(regs);
 }
 
+/*
+	Waits before continuing
+*/
 kiv_os::NOS_Error kiv_os_rtl::Wait_For(kiv_os::THandle *handles, const size_t count_handles, kiv_os::THandle &index) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Wait_For));
 	regs.rdx.r = reinterpret_cast<uint64_t>(handles);
@@ -154,6 +193,9 @@ kiv_os::NOS_Error kiv_os_rtl::Wait_For(kiv_os::THandle *handles, const size_t co
 	return Read_Error(regs);
 }
 
+/*
+	Read exit code of process/thread
+*/
 bool kiv_os_rtl::Read_Exit_Code(const kiv_os::THandle handle, uint16_t &readed_exit_code) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Read_Exit_Code));
 	regs.rdx.x = handle;
@@ -162,6 +204,9 @@ bool kiv_os_rtl::Read_Exit_Code(const kiv_os::THandle handle, uint16_t &readed_e
 	return exit_code;
 }
 
+/*
+	Exit process/thread and return exit code
+*/
 bool kiv_os_rtl::Exit(uint16_t exit_process_thread_code) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Exit));
 	regs.rcx.x = exit_process_thread_code;
@@ -169,12 +214,19 @@ bool kiv_os_rtl::Exit(uint16_t exit_process_thread_code) {
 	return exit_code;
 }
 
+/*
+	Shutdown simulation. Safely stop all processes and threads
+*/
 bool kiv_os_rtl::Shutdown() {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Shutdown));
 	const bool exit_code = kiv_os::Sys_Call(regs);
 	return exit_code;
 }
 
+
+/*
+	Register new signal handler
+*/
 kiv_os::NOS_Error kiv_os_rtl::Register_Signal_Handler(kiv_os::NSignal_Id signalId, kiv_os::TThread_Proc thread_proc) {
 	kiv_hal::TRegisters regs = Prepare_SysCall_Context(kiv_os::NOS_Service_Major::Process, static_cast<uint8_t>(kiv_os::NOS_Process::Register_Signal_Handler));
 	regs.rcx.r = static_cast<uint64_t>(signalId);

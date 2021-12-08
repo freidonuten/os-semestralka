@@ -8,18 +8,23 @@ bool is_eof = false;
 bool thread_terminated = false;
 
 size_t Terminated(const kiv_hal::TRegisters& regs) {
+	// Terminate thread
 	thread_terminated = true;
 	return 0;
 }
 
+// Checking if eof is recieved
 size_t Check_EOF(const kiv_hal::TRegisters& regs) {
 	const auto stdin_handle = kiv_os::THandle(regs.rax.x);
 	auto buffer = std::array<char, eof_buffer_size>{ };
 
-	do { // read until "stop char" is encountered
+	// read until "stop char" is encountered
+	do {
+		// Load content to buffer
 		const auto [size, eof, error] = rtl::Read_File(stdin_handle, buffer);
+		// end of stream
 		if (eof) {
-			break; // end of stream?
+			break; 
 		}
 	} while (!utils::is_stop_char(buffer[0]));
 
@@ -35,8 +40,10 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	// initialize termination flags to false
 	is_eof = thread_terminated = false;
 
+	// register new signal to terminate
 	rtl::Register_Signal_Handler(kiv_os::NSignal_Id::Terminate, signal_handler);
 
+	// Create new thred that will check if eof is recieved
 	const auto [thread_handle, error] = rtl::Create_Thread(&Check_EOF, &is_eof, stdin_handle, stdout_handle);
 
 	if (error != kiv_os::NOS_Error::Success) {
@@ -48,6 +55,7 @@ size_t __stdcall rgen(const kiv_hal::TRegisters& regs) {
 	std::default_random_engine engine(rd());
 	std::uniform_real_distribution<float> dist(0, 1);
 
+	// Write random number to output until thread is terminate or eof recieved
 	while (!is_eof && !thread_terminated) {
 		// generate random numbers and keep printing them until eof detected
 		rtl::Write_File(stdout_handle, std::to_string(dist(engine)) + '\n');

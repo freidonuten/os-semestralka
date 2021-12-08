@@ -1,6 +1,12 @@
 #include "rtl_wrappers.h"
 #include <array>
 
+/*
+	This is a thin wrapper library above our original RTL
+	The idea of this wrapper is to completely abolish output params and use
+	return values instead. The result is much cleaner and mode C++-sy client code.
+*/
+
 std::pair<kiv_os::THandle, kiv_os::NOS_Error> rtl::Create_Thread(void* program, void* args, const kiv_os::THandle handle_stdin, const kiv_os::THandle handle_stdout) {
 	auto handle = kiv_os::THandle(0);
 	return { handle, kiv_os_rtl::Create_Thread(program, args, handle_stdin, handle_stdout, handle) };

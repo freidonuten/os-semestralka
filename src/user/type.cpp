@@ -13,7 +13,7 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	size_t file_offset = 0;
 	kiv_os::NOS_Error error;
 	
-
+	// Check if filename is empty
 	if (strlen(p_filename) == 0) {
 		kiv_os_rtl::Write_File(stdout_handle, ERROR_MSG_INVALID_COMMAND_ARGUMENT.data(), ERROR_MSG_INVALID_COMMAND_ARGUMENT.size(), chars_written);
 		kiv_os_rtl::Exit(1);
@@ -24,16 +24,17 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 	std::string file_content = "";
 	
 	auto buffer = std::array<char, BUFFER_SIZE>{};
-
+	// Open input file
 	error = kiv_os_rtl::Open_File(p_filename, utils::get_file_attrs(), kiv_os::NOpen_File::fmOpen_Always, file_handle);
 
-	// kontrola zda se podarilo otevrit soubor
+	// Check if file succesfully opened
 	if (error != kiv_os::NOS_Error::Success) {
 		rtl::Write_File(stdout_handle, utils::get_error_message(error));
 		KIV_OS_EXIT(2);
 	}
 
 	while (1) {
+		// Read file content until eof is recieved
 		const auto [count, eof, error] = rtl::Read_File(file_handle, buffer);
 		file_content.append(buffer.data(), count);
 		if (eof) {
@@ -41,12 +42,14 @@ size_t __stdcall type(const kiv_hal::TRegisters& regs) {
 		}
 	}
 
+	// Close handle of open file
 	error = kiv_os_rtl::Close_Handle(file_handle);
 	if (error != kiv_os::NOS_Error::Success) {
 		rtl::Write_File(stdout_handle, utils::get_error_message(error));
 		KIV_OS_EXIT(2);
 	}
 
+	// Write content of file
 	kiv_os_rtl::Write_File(stdout_handle, file_content.data(), file_content.size(), chars_written);
 	KIV_OS_EXIT(0);
 }
